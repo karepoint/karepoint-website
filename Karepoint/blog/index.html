@@ -221,7 +221,8 @@ footer{background:#fff;border-top:1px solid var(--line);padding:52px 0 30px}
 
 <script>
 (function(){
-  var RSS_API = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://medium.com/feed/@karepoint') + '&api_key=&count=12';
+  var MEDIUM_URL = 'https://medium.com/feed/@karepoint';
+  var CORS_PROXY = 'https://api.allorigins.win/get?url=' + encodeURIComponent(MEDIUM_URL);
 
   function stripHtml(html){
     var tmp = document.createElement('div');
@@ -239,22 +240,42 @@ footer{background:#fff;border-top:1px solid var(--line);padding:52px 0 30px}
     return d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   }
 
-  function thumbImg(item){
-    /* Try thumbnail from feed, fallback to placeholder */
-    if(item.thumbnail && item.thumbnail.indexOf('http') === 0){
-      return '<img src="'+item.thumbnail+'" alt="'+item.title+'" loading="lazy" onerror="this.parentElement.innerHTML=placeholderSVG()">';
+  function parseRSS(xmlStr){
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(xmlStr, 'text/xml');
+    if(xmlDoc.getElementsByTagName('parsererror').length > 0) return null;
+    
+    var items = xmlDoc.getElementsByTagName('item');
+    var articles = [];
+    
+    for(var i = 0; i < Math.min(items.length, 12); i++){
+      var item = items[i];
+      var title = item.getElementsByTagName('title')[0];
+      var link = item.getElementsByTagName('link')[0];
+      var pubDate = item.getElementsByTagName('pubDate')[0];
+      var desc = item.getElementsByTagName('description')[0];
+      var content = item.getElementsByTagName('content:encoded')[0];
+      
+      if(!title || !link) continue;
+      
+      var article = {
+        title: title.textContent,
+        link: link.textContent,
+        pubDate: pubDate ? pubDate.textContent : new Date().toISOString(),
+        description: desc ? desc.textContent : '',
+        content: content ? content.textContent : ''
+      };
+      
+      articles.push(article);
     }
-    /* Try extracting first image from content */
-    var m = item.content && item.content.match(/<img[^>]+src="([^"]+)"/);
-    if(m && m[1]) return '<img src="'+m[1]+'" alt="'+item.title+'" loading="lazy">';
-    return '<div class="card-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none"><path d="M4 16l4.6-4.6L12 15l3.4-3.4L20 16" stroke="#3C7882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16V4H4v16z" stroke="#3C7882" stroke-width="1.5" stroke-linejoin="round"/></svg></div>';
+    
+    return articles.length > 0 ? articles : null;
   }
 
-  function cats(item){
-    if(!item.categories || !item.categories.length) return '';
-    return item.categories.slice(0,2).map(function(c){
-      return '<span class="card-cat">'+c+'</span>';
-    }).join('');
+  function thumbImg(item){
+    var m = (item.content || item.description).match(/<img[^>]+src="([^"]+)"/);
+    if(m && m[1]) return '<img src="'+m[1]+'" alt="'+item.title+'" loading="lazy" crossorigin="anonymous">';
+    return '<div class="card-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none"><path d="M4 16l4.6-4.6L12 15l3.4-3.4L20 16" stroke="#3C7882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16V4H4v16z" stroke="#3C7882" stroke-width="1.5" stroke-linejoin="round"/></svg></div>';
   }
 
   function buildCard(item, featured){
@@ -264,7 +285,6 @@ footer{background:#fff;border-top:1px solid var(--line);padding:52px 0 30px}
       +'<div class="card-body">'
         +'<div class="card-meta">'
           +'<span class="card-date">'+formatDate(item.pubDate)+'</span>'
-          +'<span class="card-cats">'+cats(item)+'</span>'
         +'</div>'
         +'<div class="card-title">'+item.title+'</div>'
         +'<p class="card-excerpt">'+excerpt(item.description || item.content, featured ? 240 : 160)+'</p>'
@@ -285,19 +305,25 @@ footer{background:#fff;border-top:1px solid var(--line);padding:52px 0 30px}
       +'</div>';
   }
 
-  fetch(RSS_API)
-    .then(function(r){ if(!r.ok) throw new Error('Feed error'); return r.json(); })
+  fetch(CORS_PROXY)
+    .then(function(r){ if(!r.ok) throw new Error('Proxy error'); return r.json(); })
     .then(function(data){
-      if(!data.items || !data.items.length) throw new Error('No items');
+      var articles = parseRSS(data.contents);
+      if(!articles) throw new Error('Parse error');
+      
       var grid = '<div class="articles-grid">';
-      data.items.forEach(function(item, i){
+      articles.forEach(function(item, i){
         grid += buildCard(item, i === 0);
       });
       grid += '</div>';
+      
       document.getElementById('feedContainer').innerHTML = grid;
       document.getElementById('mediumCta').style.display = 'block';
     })
-    .catch(function(){ showError(); });
+    .catch(function(err){
+      console.error('Feed error:', err);
+      showError();
+    });
 })();
 </script>
 
