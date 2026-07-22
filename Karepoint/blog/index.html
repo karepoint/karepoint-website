@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karepoint Insights | Behavioral Health Revenue Cycle Blog</title>
+<meta name="description" content="Expert insights on behavioral health revenue cycle management, VOB verification, prior authorization, 42 CFR Part 2 compliance, and denial prevention for SUD and mental health treatment facilities.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://mykarepoint.com/blog/">
+<meta property="og:title" content="Karepoint Insights | Behavioral Health RCM Blog">
+<meta property="og:description" content="Expert insights on behavioral health billing, prior authorization, and 42 CFR Part 2 compliance.">
+<meta property="og:url" content="https://mykarepoint.com/blog/">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 108'%3E%3Cpath d='M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z' fill='none' stroke='%233C7882' stroke-width='8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#3C7882;--teal-d:#2C5A63;--teal-dd:#1C3B42;
+  --teal-mist:#F3F8F8;--teal-tint:rgba(60,120,130,.08);--teal-line:rgba(60,120,130,.18);
+  --ink:#12262A;--ink2:#3A5257;--ink3:#6B858A;--ink4:#9DB0B4;
+  --paper:#FBFAF8;--paper2:#F5F3EF;--white:#FFFFFF;
+  --sand-l:#E4D3A8;--sand-tint:rgba(201,169,97,.10);
+  --line:rgba(18,38,42,.10);--line2:rgba(18,38,42,.16);
+  --fd:'Fraunces',Georgia,serif;--fb:'Inter',system-ui,sans-serif;--fm:'IBM Plex Mono',monospace;
+  --sh:0 4px 20px rgba(18,38,42,.07);--sh-lg:0 20px 60px rgba(18,38,42,.11);
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 40px}
+
+/* Announce */
+.announce{background:var(--teal-dd);color:rgba(232,240,241,.85);font-size:13px;text-align:center;padding:11px 24px}
+.announce b{color:#fff;font-weight:600}
+.announce a{color:var(--sand-l);text-decoration:none;font-weight:600;margin-left:6px}
+.announce a:hover{color:#fff}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:200;background:rgba(251,250,248,.86);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1240px;margin:0 auto;padding:0 40px;height:76px;display:flex;align-items:center;justify-content:space-between;gap:32px}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0}
+.brand svg{width:34px;height:34px}
+.brand-nm{font-family:var(--fb);font-size:18px;font-weight:700;letter-spacing:.13em;color:var(--ink);text-transform:uppercase}
+.brand-tag{font-family:var(--fm);font-size:8.5px;font-weight:500;letter-spacing:.22em;color:var(--teal);text-transform:uppercase;margin-top:4px}
+.brand-tx{display:flex;flex-direction:column;line-height:1}
+.nav-mid{display:flex;gap:34px;list-style:none}
+.nav-mid a{text-decoration:none;font-size:14.5px;font-weight:500;color:var(--ink2);position:relative;padding:4px 0;transition:color .2s}
+.nav-mid a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1.5px;background:var(--teal);transition:right .28s cubic-bezier(.4,0,.2,1)}
+.nav-mid a:hover,.nav-mid a.active{color:var(--teal)}
+.nav-mid a:hover::after,.nav-mid a.active::after{right:0}
+.nav-cta{background:var(--teal);color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:11px 22px;border-radius:4px;white-space:nowrap;transition:background .2s,transform .16s;flex-shrink:0}
+.nav-cta:hover{background:var(--teal-d);transform:translateY(-1px)}
+
+/* Blog Hero */
+.blog-hero{background:linear-gradient(178deg,#fff 0%,var(--paper) 60%,var(--teal-mist) 100%);padding:72px 0 64px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.blog-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:88px 88px;opacity:.35;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,#000 0%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,#000 0%,transparent 80%)}
+.blog-hero-in{position:relative;text-align:center;max-width:680px;margin:0 auto}
+.blog-kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--fm);font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--teal-d);background:#fff;border:1px solid var(--teal-line);padding:7px 15px;border-radius:100px;margin-bottom:26px}
+.blog-hero h1{font-family:var(--fd);font-size:clamp(2.4rem,4.5vw,3.6rem);font-weight:600;line-height:1.07;letter-spacing:-.024em;color:var(--ink);margin-bottom:18px;font-variation-settings:'opsz' 100}
+.blog-hero h1 em{font-style:italic;color:var(--teal)}
+.blog-hero p{font-size:17px;color:var(--ink2);line-height:1.7;max-width:520px;margin:0 auto 26px;font-weight:350}
+.blog-medium-link{display:inline-flex;align-items:center;gap:8px;font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);text-decoration:none;border:1px solid var(--line2);padding:8px 16px;border-radius:100px;transition:border-color .2s,color .2s}
+.blog-medium-link:hover{border-color:var(--teal);color:var(--teal)}
+.blog-medium-link svg{width:12px;height:12px}
+
+/* Articles Grid */
+.blog-sec{padding:88px 0}
+.articles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px}
+
+/* Loading */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;text-align:center;gap:18px}
+.spinner{width:40px;height:40px;border:3px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{font-family:var(--fm);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink4)}
+
+/* Error */
+.feed-err{text-align:center;padding:80px 20px;max-width:480px;margin:0 auto}
+.feed-err .err-ic{width:52px;height:52px;border-radius:50%;background:var(--paper2);border:1px solid var(--line);display:grid;place-items:center;margin:0 auto 18px}
+.feed-err h3{font-family:var(--fd);font-size:22px;font-weight:600;color:var(--ink);margin-bottom:10px;font-variation-settings:'opsz' 40}
+.feed-err p{font-size:15px;color:var(--ink2);line-height:1.7;margin-bottom:22px}
+.feed-err a{display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;text-decoration:none;padding:12px 22px;border-radius:4px;font-size:14px;font-weight:600;transition:background .2s}
+.feed-err a:hover{background:var(--teal-d)}
+
+/* Article Card */
+.article-card{background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s,transform .25s,box-shadow .25s;text-decoration:none;color:inherit}
+.article-card:hover{border-color:var(--teal-line);transform:translateY(-3px);box-shadow:var(--sh-lg)}
+.card-thumb{width:100%;aspect-ratio:16/9;background:var(--teal-mist);overflow:hidden;flex-shrink:0;position:relative}
+.card-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.article-card:hover .card-thumb img{transform:scale(1.04)}
+.card-thumb-placeholder{width:100%;height:100%;background:linear-gradient(135deg,var(--teal-mist),var(--paper2));display:grid;place-items:center}
+.card-thumb-placeholder svg{width:36px;height:36px;opacity:.35}
+.card-body{padding:26px 24px;flex:1;display:flex;flex-direction:column}
+.card-meta{display:flex;align-items:center;gap:14px;margin-bottom:13px}
+.card-date{font-family:var(--fm);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink4)}
+.card-cats{display:flex;gap:6px;flex-wrap:wrap}
+.card-cat{font-family:var(--fm);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-d);background:var(--teal-tint);border:1px solid var(--teal-line);padding:3px 8px;border-radius:3px}
+.card-title{font-family:var(--fd);font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.015em;color:var(--ink);margin-bottom:11px;font-variation-settings:'opsz' 50}
+.card-excerpt{font-size:14px;color:var(--ink2);line-height:1.7;flex:1;margin-bottom:20px;font-weight:350}
+.card-link{display:inline-flex;align-items:center;gap:7px;font-family:var(--fm);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:500;margin-top:auto;transition:gap .2s}
+.article-card:hover .card-link{gap:11px}
+.card-link svg{width:12px;height:12px}
+
+/* Featured (first article) */
+.featured-card{grid-column:1/-1;display:grid;grid-template-columns:1.1fr .9fr;gap:0}
+.featured-card .card-thumb{aspect-ratio:auto;min-height:320px;border-radius:0}
+.featured-card .card-body{padding:40px 36px}
+.featured-card .card-title{font-size:26px}
+@media(max-width:720px){
+  .featured-card{grid-template-columns:1fr;grid-column:auto}
+  .featured-card .card-thumb{min-height:200px}
+}
+
+/* Medium CTA */
+.medium-cta{text-align:center;padding:64px 20px;border-top:1px solid var(--line);margin-top:20px}
+.medium-cta p{font-size:15px;color:var(--ink2);margin-bottom:18px}
+.medium-cta a{display:inline-flex;align-items:center;gap:9px;background:var(--teal);color:#fff;text-decoration:none;padding:13px 26px;border-radius:4px;font-size:14.5px;font-weight:600;transition:background .2s,transform .16s}
+.medium-cta a:hover{background:var(--teal-d);transform:translateY(-1px)}
+
+/* Footer */
+footer{background:#fff;border-top:1px solid var(--line);padding:52px 0 30px}
+.ft-bot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink4)}
+.ft-badges{display:flex;gap:9px;flex-wrap:wrap}
+.ft-bg{font-family:var(--fm);font-size:9.5px;font-weight:500;letter-spacing:.11em;text-transform:uppercase;color:var(--teal-d);background:var(--teal-mist);border:1px solid var(--teal-line);padding:5px 11px;border-radius:3px}
+.ft-links-row{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:22px}
+.ft-links-row a{font-size:13.5px;color:var(--ink3);text-decoration:none;transition:color .2s}
+.ft-links-row a:hover{color:var(--teal)}
+
+/* Responsive */
+@media(max-width:900px){.wrap,.nav-in{padding:0 26px}.nav-mid{display:none}.nav-cta{display:none}}
+@media(max-width:620px){.wrap,.nav-in{padding:0 20px}.articles-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div class="announce">
+  <b>Now accepting Q3 2026 pilot partnerships.</b> Limited to three facilities.
+  <a href="../#contact">Reserve a slot &rsaquo;</a>
+</div>
+
+<nav>
+  <div class="nav-in">
+    <a href="../" class="brand">
+      <svg viewBox="0 0 100 108" fill="none">
+        <path d="M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z" stroke="#3C7882" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M25 73l20-22 10 11 21-24" stroke="#3C7882" stroke-width="9" stroke-linecap="square" stroke-linejoin="miter"/>
+        <path d="M62 34h20v20" stroke="#3C7882" stroke-width="9" stroke-linecap="square"/>
+      </svg>
+      <span class="brand-tx">
+        <span class="brand-nm">Karepoint</span>
+        <span class="brand-tag">Faith Over Fear</span>
+      </span>
+    </a>
+    <ul class="nav-mid">
+      <li><a href="../#services">Services</a></li>
+      <li><a href="../#compliance">Compliance</a></li>
+      <li><a href="../#levels">Levels of Care</a></li>
+      <li><a href="../#process">Process</a></li>
+      <li><a href="./" class="active">Insights</a></li>
+      <li><a href="../#faq">FAQ</a></li>
+    </ul>
+    <a href="../#contact" class="nav-cta">Book a Discovery Call</a>
+  </div>
+</nav>
+
+<section class="blog-hero">
+  <div class="wrap blog-hero-in">
+    <div class="blog-kicker">Karepoint Insights</div>
+    <h1>Behavioral health billing.<br><em>Explained clearly.</em></h1>
+    <p>Practical insights on verification, authorization, denial patterns, and 42 CFR Part 2 compliance for treatment facility leaders and billing teams.</p>
+    <a href="https://medium.com/@karepoint" target="_blank" rel="noopener" class="blog-medium-link">
+      Read all articles on Medium
+      <svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</section>
+
+<section class="blog-sec">
+  <div class="wrap">
+    <div id="feedContainer">
+      <div class="loading" id="feedLoading">
+        <div class="spinner"></div>
+        <p>Loading latest articles</p>
+      </div>
+    </div>
+    <div class="medium-cta" id="mediumCta" style="display:none">
+      <p>All articles are published on Karepoint Insights on Medium</p>
+      <a href="https://medium.com/@karepoint" target="_blank" rel="noopener">
+        View all articles on Medium
+        <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 14L14 2M14 2H7M14 2v7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="ft-links-row">
+      <a href="../">Home</a>
+      <a href="../#services">Services</a>
+      <a href="../#compliance">Compliance</a>
+      <a href="../#levels">Levels of Care</a>
+      <a href="../#contact">Contact</a>
+      <a href="../privacy/">Privacy Policy</a>
+      <a href="https://medium.com/@karepoint" target="_blank" rel="noopener">Medium</a>
+      <a href="mailto:info@mykarepoint.com">info@mykarepoint.com</a>
+    </div>
+    <div class="ft-bot">
+      <p>&copy; 2026 Karepoint Billing Service LLP. All rights reserved.</p>
+      <div class="ft-badges">
+        <span class="ft-bg">HIPAA Compliant</span>
+        <span class="ft-bg">42 CFR Part 2</span>
+        <span class="ft-bg">BAA Standard</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var RSS_API = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://medium.com/feed/@karepoint') + '&api_key=&count=12';
+
+  function stripHtml(html){
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  }
+
+  function excerpt(html, len){
+    var t = stripHtml(html).replace(/\s+/g,' ').trim();
+    return t.length > len ? t.slice(0, len).replace(/\s+\S*$/,'') + '...' : t;
+  }
+
+  function formatDate(str){
+    var d = new Date(str);
+    return d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  }
+
+  function thumbImg(item){
+    /* Try thumbnail from feed, fallback to placeholder */
+    if(item.thumbnail && item.thumbnail.indexOf('http') === 0){
+      return '<img src="'+item.thumbnail+'" alt="'+item.title+'" loading="lazy" onerror="this.parentElement.innerHTML=placeholderSVG()">';
+    }
+    /* Try extracting first image from content */
+    var m = item.content && item.content.match(/<img[^>]+src="([^"]+)"/);
+    if(m && m[1]) return '<img src="'+m[1]+'" alt="'+item.title+'" loading="lazy">';
+    return '<div class="card-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none"><path d="M4 16l4.6-4.6L12 15l3.4-3.4L20 16" stroke="#3C7882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16V4H4v16z" stroke="#3C7882" stroke-width="1.5" stroke-linejoin="round"/></svg></div>';
+  }
+
+  function cats(item){
+    if(!item.categories || !item.categories.length) return '';
+    return item.categories.slice(0,2).map(function(c){
+      return '<span class="card-cat">'+c+'</span>';
+    }).join('');
+  }
+
+  function buildCard(item, featured){
+    var cls = 'article-card' + (featured ? ' featured-card' : '');
+    return '<a href="'+item.link+'" target="_blank" rel="noopener" class="'+cls+'">'
+      +'<div class="card-thumb">'+thumbImg(item)+'</div>'
+      +'<div class="card-body">'
+        +'<div class="card-meta">'
+          +'<span class="card-date">'+formatDate(item.pubDate)+'</span>'
+          +'<span class="card-cats">'+cats(item)+'</span>'
+        +'</div>'
+        +'<div class="card-title">'+item.title+'</div>'
+        +'<p class="card-excerpt">'+excerpt(item.description || item.content, featured ? 240 : 160)+'</p>'
+        +'<span class="card-link">Read on Medium <svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H5M10 2v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+      +'</div>'
+    +'</a>';
+  }
+
+  function showError(){
+    document.getElementById('feedContainer').innerHTML =
+      '<div class="feed-err">'
+        +'<div class="err-ic"><svg viewBox="0 0 22 22" fill="none" width="20" height="20"><circle cx="11" cy="11" r="8.5" stroke="#9DB0B4" stroke-width="1.4"/><path d="M11 7.5v4" stroke="#9DB0B4" stroke-width="1.5" stroke-linecap="round"/><circle cx="11" cy="14.5" r=".8" fill="#9DB0B4"/></svg></div>'
+        +'<h3>Articles loading</h3>'
+        +'<p>We could not load the article feed right now. Read all Karepoint Insights directly on Medium.</p>'
+        +'<a href="https://medium.com/@karepoint" target="_blank" rel="noopener">Read on Medium '
+          +'<svg viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M2 10L10 2M10 2H5M10 2v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        +'</a>'
+      +'</div>';
+  }
+
+  fetch(RSS_API)
+    .then(function(r){ if(!r.ok) throw new Error('Feed error'); return r.json(); })
+    .then(function(data){
+      if(!data.items || !data.items.length) throw new Error('No items');
+      var grid = '<div class="articles-grid">';
+      data.items.forEach(function(item, i){
+        grid += buildCard(item, i === 0);
+      });
+      grid += '</div>';
+      document.getElementById('feedContainer').innerHTML = grid;
+      document.getElementById('mediumCta').style.display = 'block';
+    })
+    .catch(function(){ showError(); });
+})();
+</script>
+
+</body>
+</html>
