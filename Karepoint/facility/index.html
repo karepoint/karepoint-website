@@ -9,14 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-
-  @font-face {
-    font-family: 'Mokoto';
-    src: url('/assets/fonts/mokoto_regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
+    @font-face{font-family:'Mokoto';src:url('/assets/fonts/mokoto_regular.ttf') format('truetype');font-weight:normal;font-style:normal;font-display:swap;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
     body{background:#FBFAF8;color:#12262A;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -26,6 +19,23 @@
     ::-webkit-scrollbar{width:5px;height:5px}
     ::-webkit-scrollbar-track{background:transparent}
     ::-webkit-scrollbar-thumb{background:rgba(60,120,130,.25);border-radius:3px}
+    @media print{
+      .no-print{display:none!important}
+      body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin:0;padding:0}
+      body *{visibility:hidden}
+      #vob-print-root,#vob-print-root *{visibility:visible!important}
+      #vob-print-root{position:absolute!important;top:0!important;left:0!important;width:100%!important;height:auto!important;overflow:visible!important;background:#fff!important;z-index:9999!important;display:block!important}
+      #vob-print-root [data-noprint]{display:none!important}
+      #vob-print-root>div{position:static!important;overflow:visible!important;height:auto!important;max-height:none!important;display:block!important}
+      #vob-print-root [style*="sticky"]{position:static!important}
+      #vob-print-root [style*="fixed"]{position:static!important}
+      .vob-doc{padding:0!important}
+      .vob-pg{page-break-after:always;break-after:page;padding:20px 24px;background:#fff}
+      .vob-pg:last-child{page-break-after:avoid;break-after:avoid}
+      .vob-sec{break-inside:avoid;page-break-inside:avoid}
+      tr{break-inside:avoid;page-break-inside:avoid}
+      td,th{break-inside:avoid;page-break-inside:avoid}
+    }
   </style>
 </head>
 <body>
@@ -426,7 +436,7 @@ var seedVOBs = function seedVOBs() {
     status: 'Completed',
     submitted: 'Aug 3',
     fac: 'Sunrise Recovery Center',
-    pdfLink: '/vob',
+    pdfLink: '#',
     chatClosed: true,
     paSubmitted: true,
     messages: [{
@@ -443,10 +453,10 @@ var seedVOBs = function seedVOBs() {
     insurance: 'Cigna / Evernorth',
     memberId: 'CIG-334891',
     loc: 'IOP',
-    status: 'Completed',
+    status: 'In Progress',
     submitted: 'Aug 5',
     fac: 'Sunrise Recovery Center',
-    pdfLink: '/vob',
+    pdfLink: null,
     chatClosed: false,
     paSubmitted: false,
     messages: [{
@@ -475,7 +485,7 @@ var seedVOBs = function seedVOBs() {
     loc: 'Detox',
     status: 'Pending',
     submitted: 'Aug 6',
-    fac: 'Sunrise Recovery Center',
+    fac: 'Blue Ridge Wellness',
     pdfLink: null,
     chatClosed: false,
     paSubmitted: false,
@@ -490,7 +500,7 @@ var seedVOBs = function seedVOBs() {
     loc: 'PHP',
     status: 'In Progress',
     submitted: 'Aug 6',
-    fac: 'Sunrise Recovery Center',
+    fac: 'Pacific Crest Treatment',
     pdfLink: null,
     chatClosed: false,
     paSubmitted: false,
@@ -532,25 +542,10 @@ var seedVOBs = function seedVOBs() {
     status: 'Completed',
     submitted: 'Jul 31',
     fac: 'Pacific Crest Treatment',
-    pdfLink: '/vob',
+    pdfLink: '#',
     chatClosed: true,
     paSubmitted: false,
     messages: [],
-    versions: []
-  },{
-    id: 'V-0048',
-    patient: 'Liam P.',
-    dob: 'Jun 1, 1993',
-    insurance: 'Cigna / Evernorth',
-    memberId: 'CIG-774421',
-    loc: 'IOP',
-    status: 'Withdrawn',
-    submitted: 'Aug 1',
-    fac: 'Sunrise Recovery Center',
-    pdfLink: null,
-    chatClosed: false,
-    paSubmitted: false,
-    messages: [{id:'m1',from:'KP',text:'VOB withdrawn at facility request.',time:'Aug 2, 11:00 AM'}],
     versions: []
   }];
 };
@@ -1303,19 +1298,30 @@ function Login(_ref5) {
       alignItems: 'center',
       gap: 10
     }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "/assets/logo/KAREPOINT-logo-only.svg",
+  }, /*#__PURE__*/React.createElement("svg", {
     width: "28",
     height: "28",
-    alt: "Karepoint",
-    style: {display: 'block'}
-  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    viewBox: "0 0 100 108",
+    fill: "none"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z",
+    fill: "none",
+    stroke: DS.teal,
+    strokeWidth: "8",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M25 73l20-22 10 11 21-24",
+    fill: "none",
+    stroke: DS.teal,
+    strokeWidth: "10"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "'Mokoto',sans-serif",
+      fontFamily: DS.fb,
       fontSize: 15,
-      fontWeight: 400,
-      letterSpacing: '.04em',
-      color: DS.ink
+      fontWeight: 700,
+      letterSpacing: '.13em',
+      color: DS.ink,
+      textTransform: 'uppercase'
     }
   }, "KAREPOINT"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1510,13 +1516,18 @@ function Login(_ref5) {
       alignItems: 'center',
       gap: 8
     }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "/assets/logo/KAREPOINT-logo-only.svg",
+  }, /*#__PURE__*/React.createElement("svg", {
     width: "13",
     height: "13",
-    alt: "",
-    style: {display: 'block', filter: 'brightness(0) invert(1)', opacity: 0.6}
-  }), /*#__PURE__*/React.createElement("span", {
+    viewBox: "0 0 100 108",
+    fill: "none"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z",
+    fill: "none",
+    stroke: "rgba(232,240,241,.5)",
+    strokeWidth: "10",
+    strokeLinejoin: "round"
+  })), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: DS.fm,
       fontSize: 9,
@@ -3425,6 +3436,10 @@ function Dashboard(_ref12) {
     _useState58 = _slicedToArray(_useState57, 2),
     scrolled = _useState58[0],
     setScrolled = _useState58[1];
+  var _useState59 = useState(null),
+    _useState60 = _slicedToArray(_useState59, 2),
+    vobReport = _useState60[0],
+    setVobReport = _useState60[1];
   useEffect(function () {
     var h = function h() {
       return setScrolled(window.scrollY > 4);
@@ -3548,19 +3563,30 @@ function Dashboard(_ref12) {
       gap: 10,
       flexShrink: 0
     }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "/assets/logo/KAREPOINT-logo-only.svg",
+  }, /*#__PURE__*/React.createElement("svg", {
     width: "26",
     height: "26",
-    alt: "Karepoint",
-    style: {display: 'block'}
-  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    viewBox: "0 0 100 108",
+    fill: "none"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z",
+    fill: "none",
+    stroke: DS.teal,
+    strokeWidth: "8",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M25 73l20-22 10 11 21-24",
+    fill: "none",
+    stroke: DS.teal,
+    strokeWidth: "10"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "'Mokoto',sans-serif",
+      fontFamily: DS.fb,
       fontSize: 14,
-      fontWeight: 400,
-      letterSpacing: '.04em',
-      color: DS.ink
+      fontWeight: 700,
+      letterSpacing: '.13em',
+      color: DS.ink,
+      textTransform: 'uppercase'
     }
   }, "KAREPOINT"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -4021,14 +4047,13 @@ function Dashboard(_ref12) {
         gap: 5,
         flexWrap: 'wrap'
       }
-    }, v.pdfLink && /*#__PURE__*/React.createElement("a", {
-      href: v.pdfLink,
-      target: '_blank',
-      rel: 'noopener noreferrer',
+    }, v.pdfLink && /*#__PURE__*/React.createElement("button", {
+      onClick: function onClick() {
+        return setVobReport(v.id);
+      },
       style: _objectSpread(_objectSpread({}, btnOutline), {}, {
         padding: '5px 9px',
         fontSize: 11,
-        textDecoration: 'none',
         color: DS.teal,
         borderColor: DS.tealLine,
         background: DS.tealMist
@@ -4358,15 +4383,24 @@ function Dashboard(_ref12) {
       setPaIntake(null);
       setToast("PA request submitted for ".concat(paVOB.patient));
     }
+  }), vobReport && /*#__PURE__*/React.createElement(VOBReportModal, {
+    vobId: vobReport,
+    vob: vobs.find(function (v) {
+      return v.id === vobReport;
+    }),
+    facility: facility,
+    onClose: function onClose() {
+      return setVobReport(null);
+    }
   }));
 }
 
 // ─── Root ─────────────────────────────────────────────────────────
 function FCApp() {
-  var _useState59 = useState(null),
-    _useState60 = _slicedToArray(_useState59, 2),
-    facility = _useState60[0],
-    setFacility = _useState60[1];
+  var _useState61 = useState(null),
+    _useState62 = _slicedToArray(_useState61, 2),
+    facility = _useState62[0],
+    setFacility = _useState62[1];
   return facility ? /*#__PURE__*/React.createElement(Dashboard, {
     facility: facility,
     onLogout: function onLogout() {
@@ -4375,6 +4409,1345 @@ function FCApp() {
   }) : /*#__PURE__*/React.createElement(Login, {
     onLogin: setFacility
   });
+}
+
+// ─── VOB Report Data (per patient) ───────────────────────────────
+var VOB_REPORTS = {
+  'V-0041': {
+    patient: 'Marcus T.',
+    dob: 'Apr 12, 1988',
+    gender: 'Male',
+    insurance: 'Aetna Behavioral Health',
+    insId: 'AET-887123',
+    groupNum: 'GRP-22104',
+    insPhone: '1-888-632-3862',
+    primary: 'Primary',
+    active: 'Active',
+    effectiveDate: 'Jan 1, 2026',
+    termDate: 'Dec 31, 2026',
+    policyType: 'PPO',
+    selfFunded: 'Commercial',
+    carveOut: 'No',
+    innIndDed: '$1,800',
+    innMetId: '$1,800',
+    innFamDed: '$3,600',
+    innMetFd: '$3,600',
+    innIndOOP: '$6,000',
+    innMetIOOP: '$3,200',
+    innFamOOP: '$12,000',
+    innMetFOOP: '$6,100',
+    innCoins: '20 / 80',
+    dedOopCombined: 'No',
+    crossAccum: 'No',
+    hsa: 'No',
+    oonBenefits: 'Yes',
+    oonIndDed: '$5,000',
+    oonMetId: '$0',
+    oonFamDed: '$10,000',
+    oonMetFd: '$0',
+    oonIndOOP: '$15,000',
+    oonMetIOOP: '$0',
+    oonFamOOP: '$30,000',
+    oonMetFOOP: '$0',
+    oonCoins: '40 / 60',
+    rateType: 'Contracted Rate',
+    ratePct: '80%',
+    freestanding: 'Yes',
+    maxPerDay: 'N/A',
+    maxVisits: 'N/A',
+    calLifetime: 'Calendar Year',
+    combinedDays: 'N/A',
+    adminCoPays: 'N/A',
+    locData: [{
+      loc: 'Sub-Acute Detox',
+      notes: 'Covered — route to Aetna BH',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'Residential (RTC)',
+      notes: 'Covered — Requested LOC',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'PHP',
+      notes: 'Covered',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'IOP',
+      notes: 'Covered',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Non-Routine',
+      notes: 'Covered',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Routine',
+      notes: 'Covered',
+      auth: 'Not Required',
+      accred: 'N/A'
+    }],
+    oonLocData: [{
+      loc: 'Sub-Acute Detox',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'Residential (RTC)',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'PHP',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'IOP',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Non-Routine',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Routine',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Not Required',
+      accred: 'N/A'
+    }],
+    preCertCo: 'Aetna BH · 1-888-632-3862',
+    preCertPenalty: '50% reduction',
+    assignment: 'Yes',
+    paysTo: 'Facility',
+    innMedPayer: '60054',
+    innMedClaims: 'Aetna, PO Box 981106, El Paso, TX 79998',
+    innBhPayer: '60054',
+    innBhClaims: 'Aetna BH, PO Box 981106, El Paso, TX 79998',
+    oonMedPayer: '60054',
+    oonMedClaims: 'Same as INN',
+    oonBhPayer: '60054',
+    oonBhClaims: 'Same as INN',
+    pharmBenefits: 'Yes',
+    pharmPhone: '1-888-792-3862',
+    pharmProvider: 'CVS Caremark',
+    pharmBin: '004336',
+    pharmPcn: 'ADV',
+    pharmGrp: 'AETNA1',
+    cigmrc2: 'N/A',
+    multiplan: 'No',
+    bcbsState: 'N/A',
+    cobra: 'No',
+    employer: 'Employer-Sponsored',
+    exchange: 'Employer',
+    otherIns: 'No',
+    timelyFiling: 'Yes — 12 months',
+    notes: 'Benefits verified Aug 3, 2026 at 2:14 PM EST with Aetna Behavioral Health. Rep: Kevin L. Ref: AET-UR-2026-7731. INN deductible and OOP fully met — patient is in OOP maximum. All auth must be submitted to Aetna BH line.',
+    agent: 'Ananya Mehta',
+    verifiedDate: 'Aug 3, 2026',
+    callRef: 'AET-UR-2026-7731',
+    repName: 'Kevin L. · 2:14 PM EST'
+  },
+  'V-0043': {
+    patient: 'Jason R.',
+    dob: 'Jul 22, 1995',
+    gender: 'Male',
+    insurance: 'Cigna / Evernorth BH',
+    insId: 'CIG-334891',
+    groupNum: 'GRP-44201',
+    insPhone: '1-800-244-6224',
+    primary: 'Primary',
+    active: 'Active',
+    effectiveDate: 'Jan 1, 2026',
+    termDate: 'Dec 31, 2026',
+    policyType: 'PPO',
+    selfFunded: 'Commercial',
+    carveOut: 'Yes',
+    carveOutTo: 'Evernorth Behavioral Health',
+    carveOutPhone: '1-800-244-6224',
+    carveOutId: '62308',
+    innIndDed: '$1,500',
+    innMetId: '$940',
+    innFamDed: '$3,000',
+    innMetFd: '$1,240',
+    innIndOOP: '$5,500',
+    innMetIOOP: '$940',
+    innFamOOP: '$11,000',
+    innMetFOOP: '$1,240',
+    innCoins: '20 / 80',
+    dedOopCombined: 'No',
+    crossAccum: 'No',
+    hsa: 'No',
+    oonBenefits: 'Yes',
+    oonIndDed: '$4,000',
+    oonMetId: '$0',
+    oonFamDed: '$8,000',
+    oonMetFd: '$0',
+    oonIndOOP: '$12,000',
+    oonMetIOOP: '$0',
+    oonFamOOP: '$24,000',
+    oonMetFOOP: '$0',
+    oonCoins: '40 / 60',
+    rateType: 'Contracted Rate',
+    ratePct: '80%',
+    freestanding: 'Yes',
+    maxPerDay: 'N/A',
+    maxVisits: 'OP Routine: 60/yr — all other LOCs: N/A',
+    calLifetime: 'Calendar Year',
+    combinedDays: 'N/A',
+    adminCoPays: 'N/A',
+    locData: [{
+      loc: 'Sub-Acute Detox',
+      notes: 'Covered — route to Evernorth BH',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'Residential (RTC)',
+      notes: 'Covered — route to Evernorth BH',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'PHP',
+      notes: 'Covered — route to Evernorth BH',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'IOP',
+      notes: 'Covered — Requested LOC — Evernorth BH',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Non-Routine',
+      notes: 'Covered',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Routine',
+      notes: 'Covered — 60 visits/yr',
+      auth: 'Not Required',
+      accred: 'N/A'
+    }],
+    oonLocData: [{
+      loc: 'Sub-Acute Detox',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'Residential (RTC)',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'PHP',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'IOP',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Non-Routine',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Routine',
+      notes: 'Covered — OON deductible applies',
+      auth: 'Not Required',
+      accred: 'N/A'
+    }],
+    preCertCo: 'Evernorth BH · 1-800-244-6224',
+    preCertPenalty: '50% reduction',
+    assignment: 'Yes',
+    paysTo: 'Facility',
+    innMedPayer: '62308',
+    innMedClaims: 'N/A — use BH payer for all claims',
+    innBhPayer: '62308',
+    innBhClaims: 'Evernorth BH, PO Box 182223, Chattanooga, TN 37422',
+    oonMedPayer: '62308',
+    oonMedClaims: 'N/A',
+    oonBhPayer: '62308',
+    oonBhClaims: 'Evernorth BH, PO Box 182223, Chattanooga, TN 37422',
+    pharmBenefits: 'Yes',
+    pharmPhone: '1-800-244-6224',
+    pharmProvider: 'Cigna Pharmacy',
+    pharmBin: '004336',
+    pharmPcn: 'ADV',
+    pharmGrp: '00402',
+    cigmrc2: 'No',
+    multiplan: 'No',
+    bcbsState: 'N/A',
+    cobra: 'No',
+    employer: 'Self-Employed',
+    exchange: 'Exchange',
+    otherIns: 'No',
+    timelyFiling: 'Yes — 12 months',
+    notes: 'Benefits verified Aug 5, 2026 at 10:31 AM EST with Evernorth Behavioral Health. Rep: Sandra L. Ref: EVN-UR-2026-4421. ALL BH claims and auths must route to Evernorth (62308) — do not use Cigna medical payer ID. Pre-cert penalty of 50% applies if auth not obtained before admission.',
+    agent: 'Ananya Mehta',
+    verifiedDate: 'Aug 5, 2026',
+    callRef: 'EVN-UR-2026-4421',
+    repName: 'Sandra L. · 10:31 AM EST'
+  },
+  'V-0047': {
+    patient: 'Carlos M.',
+    dob: 'Sep 8, 1985',
+    gender: 'Male',
+    insurance: 'Aetna Behavioral Health',
+    insId: 'AET-662091',
+    groupNum: 'GRP-88201',
+    insPhone: '1-888-632-3862',
+    primary: 'Primary',
+    active: 'Active',
+    effectiveDate: 'Jan 1, 2026',
+    termDate: 'Dec 31, 2026',
+    policyType: 'HMO',
+    selfFunded: 'Self Funded',
+    carveOut: 'No',
+    innIndDed: '$2,000',
+    innMetId: '$500',
+    innFamDed: '$4,000',
+    innMetFd: '$500',
+    innIndOOP: '$7,000',
+    innMetIOOP: '$500',
+    innFamOOP: '$14,000',
+    innMetFOOP: '$500',
+    innCoins: '10 / 90',
+    dedOopCombined: 'No',
+    crossAccum: 'No',
+    hsa: 'No',
+    oonBenefits: 'No',
+    rateType: 'Contracted Rate',
+    ratePct: '90%',
+    freestanding: 'Yes',
+    maxPerDay: 'N/A',
+    maxVisits: 'N/A',
+    calLifetime: 'Calendar Year',
+    combinedDays: 'N/A',
+    adminCoPays: 'N/A',
+    locData: [{
+      loc: 'Sub-Acute Detox',
+      notes: 'Covered — INN only',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'Residential (RTC)',
+      notes: 'Covered — INN only',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'PHP',
+      notes: 'Covered — Requested LOC',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'IOP',
+      notes: 'Covered — INN only',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Non-Routine',
+      notes: 'Covered — INN only',
+      auth: 'Required',
+      accred: 'JCAHO or CARF'
+    }, {
+      loc: 'OP — Routine',
+      notes: 'Covered',
+      auth: 'Not Required',
+      accred: 'N/A'
+    }],
+    oonLocData: [],
+    preCertCo: 'Aetna BH · 1-888-632-3862',
+    preCertPenalty: 'Benefits denied',
+    assignment: 'Yes',
+    paysTo: 'Facility',
+    innMedPayer: '60054',
+    innMedClaims: 'Aetna, PO Box 981106, El Paso, TX 79998',
+    innBhPayer: '60054',
+    innBhClaims: 'Aetna BH, PO Box 981106, El Paso, TX 79998',
+    oonMedPayer: 'N/A',
+    oonMedClaims: 'N/A',
+    oonBhPayer: 'N/A',
+    oonBhClaims: 'N/A',
+    pharmBenefits: 'Yes',
+    pharmPhone: '1-888-792-3862',
+    pharmProvider: 'CVS Caremark',
+    pharmBin: '004336',
+    pharmPcn: 'ADV',
+    pharmGrp: 'AETNA1',
+    cigmrc2: 'N/A',
+    multiplan: 'No',
+    bcbsState: 'N/A',
+    cobra: 'No',
+    employer: 'Pacific Industries LLC',
+    exchange: 'Employer',
+    otherIns: 'No',
+    timelyFiling: 'Yes — 12 months',
+    notes: 'Benefits verified Jul 31, 2026 at 11:15 AM EST with Aetna BH. Rep: Maria G. Ref: AET-UR-2026-6612. Plan is self-funded HMO — OON benefits not available. Facility must be in-network with Aetna for coverage to apply. PHP requires auth before admission.',
+    agent: 'Priya Sharma',
+    verifiedDate: 'Jul 31, 2026',
+    callRef: 'AET-UR-2026-6612',
+    repName: 'Maria G. · 11:15 AM EST'
+  }
+};
+
+// ─── VOB Report Modal ─────────────────────────────────────────────
+function VOBReportModal(_ref13) {
+  var _d$oonLocData;
+  var vobId = _ref13.vobId,
+    vob = _ref13.vob,
+    facility = _ref13.facility,
+    onClose = _ref13.onClose;
+  var d = VOB_REPORTS[vobId] || {};
+  var F = function F(_ref14) {
+    var label = _ref14.label,
+      value = _ref14.value,
+      big = _ref14.big,
+      mono = _ref14.mono,
+      ok = _ref14.ok,
+      warn = _ref14.warn,
+      muted = _ref14.muted,
+      sub = _ref14.sub,
+      span2 = _ref14.span2;
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        gridColumn: span2 ? 'span 2' : 'span 1',
+        padding: '8px 12px',
+        borderRight: "1px solid ".concat(DS.line),
+        borderBottom: "1px solid ".concat(DS.line)
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: DS.fm,
+        fontSize: '7.5px',
+        letterSpacing: '.12em',
+        color: DS.ink3,
+        textTransform: 'uppercase',
+        marginBottom: 3
+      }
+    }, label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: big ? DS.fd : mono ? DS.fm : 'inherit',
+        fontSize: big ? 17 : mono ? 11 : 12.5,
+        fontWeight: big ? 600 : mono ? 500 : 600,
+        color: ok ? DS.success : warn ? DS.sand : muted ? DS.ink4 : DS.ink,
+        lineHeight: 1.4
+      }
+    }, value || '—'), sub && /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: DS.fm,
+        fontSize: 9,
+        color: DS.ink3,
+        marginTop: 2
+      }
+    }, sub));
+  };
+  var Grid = function Grid(_ref15) {
+    var cols = _ref15.cols,
+      children = _ref15.children,
+      _ref15$style = _ref15.style,
+      style = _ref15$style === void 0 ? {} : _ref15$style;
+    return /*#__PURE__*/React.createElement("div", {
+      style: _objectSpread({
+        display: 'grid',
+        gridTemplateColumns: "repeat(".concat(cols, ",1fr)"),
+        border: "1px solid ".concat(DS.line),
+        borderRight: 'none',
+        borderBottom: 'none',
+        borderRadius: 5,
+        overflow: 'hidden',
+        background: DS.white
+      }, style)
+    }, children);
+  };
+  var Chip = function Chip(_ref16) {
+    var v = _ref16.v,
+      req = _ref16.req;
+    return v === 'Required' || v === 'Yes' ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: DS.fm,
+        fontSize: 8.5,
+        padding: '2px 7px',
+        borderRadius: 2,
+        background: 'rgba(201,169,97,.10)',
+        color: '#8A6D28',
+        border: '1px solid rgba(201,169,97,.28)'
+      }
+    }, v) : v === 'Not Required' || v === 'No' ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: DS.fm,
+        fontSize: 8.5,
+        padding: '2px 7px',
+        borderRadius: 2,
+        background: DS.paper2,
+        color: DS.ink4,
+        border: "1px solid ".concat(DS.line)
+      }
+    }, v) : /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: DS.fm,
+        fontSize: 8.5,
+        padding: '2px 7px',
+        borderRadius: 2,
+        background: DS.tealTint,
+        color: DS.tealD,
+        border: "1px solid ".concat(DS.tealLine)
+      }
+    }, v);
+  };
+  var Sec = function Sec(_ref17) {
+    var title = _ref17.title,
+      badge = _ref17.badge,
+      badgeColor = _ref17.badgeColor,
+      children = _ref17.children;
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: '14px 24px',
+        borderBottom: "1px solid ".concat(DS.line)
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 12
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: DS.fd,
+        fontSize: 13.5,
+        fontWeight: 600,
+        color: DS.ink,
+        letterSpacing: '-.01em'
+      }
+    }, title), badge && /*#__PURE__*/React.createElement("span", {
+      style: _objectSpread({
+        fontFamily: DS.fm,
+        fontSize: 7.5,
+        fontWeight: 500,
+        letterSpacing: '.1em',
+        textTransform: 'uppercase',
+        padding: '2px 7px',
+        borderRadius: 2
+      }, badgeColor || {
+        background: DS.tealTint,
+        color: DS.tealD,
+        border: "1px solid ".concat(DS.tealLine)
+      })
+    }, badge)), children);
+  };
+  var LOCTable = function LOCTable(_ref18) {
+    var rows = _ref18.rows;
+    return /*#__PURE__*/React.createElement("table", {
+      style: {
+        width: '100%',
+        borderCollapse: 'collapse',
+        border: "1px solid ".concat(DS.line),
+        borderRadius: 5,
+        overflow: 'hidden'
+      }
+    }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+      style: {
+        background: DS.paper2
+      }
+    }, ['Level of Care', 'Notes', 'Authorization Required', 'Accreditation Required'].map(function (h) {
+      return /*#__PURE__*/React.createElement("th", {
+        key: h,
+        style: {
+          fontFamily: DS.fm,
+          fontSize: 7.5,
+          letterSpacing: '.1em',
+          textTransform: 'uppercase',
+          color: DS.ink3,
+          padding: '7px 12px',
+          textAlign: 'left',
+          borderBottom: "1px solid ".concat(DS.line),
+          borderRight: "1px solid ".concat(DS.line),
+          width: h === 'Level of Care' ? '22%' : h === 'Notes' ? 'auto' : '16%'
+        }
+      }, h);
+    }))), /*#__PURE__*/React.createElement("tbody", null, rows.map(function (r, i) {
+      return /*#__PURE__*/React.createElement("tr", {
+        key: i,
+        style: {
+          background: i % 2 === 0 ? DS.paper : DS.white
+        }
+      }, /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: '8px 12px',
+          borderRight: "1px solid ".concat(DS.line),
+          borderBottom: "1px solid ".concat(DS.line),
+          verticalAlign: 'middle'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 12,
+          fontWeight: 600,
+          color: DS.ink
+        }
+      }, r.loc)), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: '8px 12px',
+          borderRight: "1px solid ".concat(DS.line),
+          borderBottom: "1px solid ".concat(DS.line),
+          fontSize: 11.5,
+          color: DS.ink2
+        }
+      }, r.notes), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: '8px 12px',
+          borderRight: "1px solid ".concat(DS.line),
+          borderBottom: "1px solid ".concat(DS.line)
+        }
+      }, /*#__PURE__*/React.createElement(Chip, {
+        v: r.auth
+      })), /*#__PURE__*/React.createElement("td", {
+        style: {
+          padding: '8px 12px',
+          borderBottom: "1px solid ".concat(DS.line)
+        }
+      }, /*#__PURE__*/React.createElement(Chip, {
+        v: r.accred
+      })));
+    })));
+  };
+  var PG = function PG(_ref19) {
+    var children = _ref19.children,
+      last = _ref19.last;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "vob-pg",
+      style: {
+        pageBreakAfter: last ? 'avoid' : 'always',
+        breakAfter: last ? 'avoid' : 'page'
+      }
+    }, children);
+  };
+  var hdr = /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderBottom: "2px solid ".concat(DS.teal),
+      paddingBottom: 8,
+      marginBottom: 14,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "/assets/logo/KAREPOINT-logo-only.svg",
+    width: "14",
+    height: "14",
+    alt: ""
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'Mokoto',sans-serif",
+      fontSize: 10,
+      color: DS.ink,
+      letterSpacing: '.04em'
+    }
+  }, "Karepoint Billing Service LLP"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 8.5,
+      color: DS.ink3,
+      marginLeft: 4
+    }
+  }, "\xB7 Verification of Benefits")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 8.5,
+      color: DS.ink3
+    }
+  }, vobId, " \xB7 ", d.patient, " \xB7 ", d.verifiedDate));
+  return /*#__PURE__*/React.createElement("div", {
+    id: "vob-print-root",
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 300,
+      display: 'flex',
+      flexDirection: 'column',
+      background: DS.paper,
+      fontFamily: DS.fb,
+      WebkitFontSmoothing: 'antialiased',
+      overflowY: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    "data-noprint": "true",
+    style: {
+      position: 'sticky',
+      top: 0,
+      zIndex: 10,
+      background: 'rgba(251,250,248,.95)',
+      backdropFilter: 'blur(12px)',
+      borderBottom: "1px solid ".concat(DS.line),
+      padding: '12px 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fd,
+      fontSize: 16,
+      fontWeight: 600,
+      color: DS.ink,
+      letterSpacing: '-.01em'
+    }
+  }, "Verification of Benefits Report"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 10,
+      color: DS.ink3,
+      letterSpacing: '.06em',
+      marginTop: 2
+    }
+  }, vobId, " \xB7 ", d.patient, " \xB7 ", d.insurance, " \xB7 ", vob === null || vob === void 0 ? void 0 : vob.loc)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      var el = document.getElementById('vob-print-root');
+      if (el) {
+        var prev = el.style.cssText;
+        el.style.position = 'absolute';
+        el.style.overflow = 'visible';
+        el.style.height = 'auto';
+        el.style.maxHeight = 'none';
+        setTimeout(function () {
+          window.print();
+          el.style.cssText = prev;
+        }, 150);
+      } else window.print();
+    },
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      padding: '8px 16px',
+      borderRadius: 4,
+      border: "1px solid ".concat(DS.line2),
+      background: DS.white,
+      color: DS.ink2,
+      fontSize: 12,
+      fontWeight: 500,
+      cursor: 'pointer',
+      fontFamily: DS.fb
+    }
+  }, "\u2B07 Save / Print"), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      padding: '8px 16px',
+      borderRadius: 4,
+      border: 'none',
+      background: DS.teal,
+      color: '#fff',
+      fontSize: 12,
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontFamily: DS.fb
+    }
+  }, "\u2190 Back to Portal"))), /*#__PURE__*/React.createElement("div", {
+    className: "vob-doc",
+    style: {
+      maxWidth: 900,
+      margin: '0 auto',
+      padding: '20px 20px',
+      width: '100%'
+    }
+  }, /*#__PURE__*/React.createElement(PG, null, hdr, /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec",
+    style: {
+      background: DS.tealDD,
+      padding: '11px 20px',
+      borderRadius: '5px 5px 0 0',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 9
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "/assets/logo/KAREPOINT-logo-only.svg",
+    width: "15",
+    height: "15",
+    alt: "",
+    style: {
+      filter: 'brightness(0) invert(1)',
+      opacity: .7
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'Mokoto',sans-serif",
+      fontSize: 10,
+      color: '#fff',
+      letterSpacing: '.04em'
+    }
+  }, "Karepoint Billing Service LLP"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 7,
+      color: 'rgba(232,240,241,.5)',
+      letterSpacing: '.14em',
+      textTransform: 'uppercase',
+      marginLeft: 6
+    }
+  }, "Verification of Benefits")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      background: DS.success,
+      fontFamily: DS.fm,
+      fontSize: 7.5,
+      fontWeight: 500,
+      color: '#fff',
+      padding: '2px 8px',
+      borderRadius: 2,
+      letterSpacing: '.1em',
+      textTransform: 'uppercase'
+    }
+  }, "\u2713 Verified"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 11,
+      color: '#fff',
+      letterSpacing: '.06em'
+    }
+  }, vobId))), /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec",
+    style: {
+      background: DS.paper,
+      border: "1px solid ".concat(DS.line),
+      borderTop: 'none',
+      padding: '11px 20px',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(4,1fr)',
+      gap: 14,
+      marginBottom: 10
+    }
+  }, [['Patient', d.patient, "DOB: ".concat(d.dob, " \xB7 ").concat(d.gender)], ['Insurance', d.insurance, "ID: ".concat(d.insId, " \xB7 Grp: ").concat(d.groupNum)], ['Level of Care', vob === null || vob === void 0 ? void 0 : vob.loc, (facility === null || facility === void 0 ? void 0 : facility.name) + ' · ' + (facility === null || facility === void 0 ? void 0 : facility.loc)], ['Policy', d.policyType + ' — ' + d.selfFunded, d.primary + ' · ' + d.active + ' · ' + d.effectiveDate + '–' + d.termDate]].map(function (_ref20) {
+    var _ref21 = _slicedToArray(_ref20, 3),
+      l = _ref21[0],
+      v = _ref21[1],
+      s = _ref21[2];
+    return /*#__PURE__*/React.createElement("div", {
+      key: l
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: DS.fm,
+        fontSize: 7,
+        letterSpacing: '.14em',
+        color: DS.ink3,
+        textTransform: 'uppercase',
+        marginBottom: 2
+      }
+    }, l), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        fontWeight: 600,
+        color: DS.ink
+      }
+    }, v), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: DS.fm,
+        fontSize: 8.5,
+        color: DS.ink3,
+        marginTop: 1
+      }
+    }, s));
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Insurance"
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 4
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "Insurance Name",
+    value: d.insurance
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Insurance ID #",
+    value: d.insId,
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Group #",
+    value: d.groupNum,
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Insurance Phone",
+    value: d.insPhone,
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Primary vs Secondary",
+    value: d.primary
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Is Plan Active?",
+    value: d.active,
+    ok: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Effective Date",
+    value: d.effectiveDate,
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Future Term Date",
+    value: d.termDate,
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Policy Type",
+    value: d.policyType
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Self Funded or Commercial?",
+    value: d.selfFunded
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Employer",
+    value: d.employer
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Exchange or Employer?",
+    value: d.exchange
+  })))), d.carveOut === 'Yes' && /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Carve Out",
+    badge: "\u26A0 Active",
+    badgeColor: {
+      background: DS.sandTint,
+      color: '#8A6D28',
+      border: "1px solid ".concat(DS.sandLine)
+    }
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 4
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "Carve Out",
+    value: d.carveOut,
+    warn: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Carve Out To",
+    value: d.carveOutTo
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Carve Out Phone",
+    value: d.carveOutPhone,
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Carve Out ID #",
+    value: d.carveOutId,
+    mono: true
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 9,
+      padding: '8px 11px',
+      borderRadius: 4,
+      background: DS.sandTint,
+      border: "1px solid ".concat(DS.sandLine),
+      marginTop: 10,
+      fontSize: 11,
+      color: '#7A5F20',
+      lineHeight: 1.5
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\u26A0"), /*#__PURE__*/React.createElement("div", null, "ALL BH claims, auths, and concurrent reviews must go to ", /*#__PURE__*/React.createElement("strong", null, d.carveOutTo), ". Do not use the primary insurance BH line."))))), /*#__PURE__*/React.createElement(PG, null, hdr, /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "In-Network \u2014 Deductible & Out-of-Pocket",
+    badge: "INN",
+    badgeColor: {
+      background: DS.tealTint,
+      color: DS.tealD,
+      border: "1px solid ".concat(DS.tealLine)
+    }
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 4
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "INN Individual Deductible",
+    value: d.innIndDed,
+    big: true,
+    sub: 'Met: ' + d.innMetId
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "INN Family Deductible",
+    value: d.innFamDed,
+    big: true,
+    sub: 'Met: ' + d.innMetFd
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "INN Individual OOP",
+    value: d.innIndOOP,
+    big: true,
+    sub: 'Met: ' + d.innMetIOOP
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "INN Family OOP",
+    value: d.innFamOOP,
+    big: true,
+    sub: 'Met: ' + d.innMetFOOP
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "INN Patient Coinsurance %",
+    value: d.innCoins,
+    big: true,
+    sub: "Patient / Plan \u2014 after deductible"
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Deductible & OOP Combined?",
+    value: d.dedOopCombined
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "INN & OON Cross Accumulate?",
+    value: d.crossAccum
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "HSA or HRA?",
+    value: d.hsa
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "In-Network \u2014 Coverage by Level of Care",
+    badge: "INN",
+    badgeColor: {
+      background: DS.tealTint,
+      color: DS.tealD,
+      border: "1px solid ".concat(DS.tealLine)
+    }
+  }, /*#__PURE__*/React.createElement(LOCTable, {
+    rows: d.locData || []
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Rate & Reimbursement"
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 4,
+    style: {
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "Rate Type",
+    value: d.rateType
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Rate Type %",
+    value: d.ratePct,
+    big: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Freestanding Covered?",
+    value: d.freestanding,
+    ok: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Out-of-State Restrictions?",
+    value: "N/A",
+    muted: true
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(5,1fr)',
+      gap: 8
+    }
+  }, [['Max $ Per Day', d.maxPerDay], ['Max Visit Limits', d.maxVisits], ['Cal / Lifetime Max', d.calLifetime], ['Combined Days', d.combinedDays], ['Admin Co-Pays', d.adminCoPays]].map(function (_ref22) {
+    var _ref23 = _slicedToArray(_ref22, 2),
+      l = _ref23[0],
+      v = _ref23[1];
+    return /*#__PURE__*/React.createElement("div", {
+      key: l,
+      style: {
+        background: DS.white,
+        border: "1px solid ".concat(DS.line),
+        borderRadius: 4,
+        padding: '7px 9px'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: DS.fm,
+        fontSize: 7,
+        letterSpacing: '.1em',
+        color: DS.ink3,
+        textTransform: 'uppercase',
+        marginBottom: 2
+      }
+    }, l), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        fontWeight: 600,
+        color: v === 'N/A' ? DS.ink4 : DS.ink
+      }
+    }, v || '—'));
+  }))))), /*#__PURE__*/React.createElement(PG, {
+    last: !d.oonBenefits || d.oonBenefits === 'No'
+  }, hdr, d.oonBenefits === 'Yes' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Out-of-Network \u2014 Deductible & Out-of-Pocket",
+    badge: "OON",
+    badgeColor: {
+      background: DS.sandTint,
+      color: '#8A6D28',
+      border: "1px solid ".concat(DS.sandLine)
+    }
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 4
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "OON Individual Deductible",
+    value: d.oonIndDed,
+    big: true,
+    sub: 'Met: ' + d.oonMetId
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "OON Family Deductible",
+    value: d.oonFamDed,
+    big: true,
+    sub: 'Met: ' + d.oonMetFd
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "OON Individual OOP",
+    value: d.oonIndOOP,
+    big: true,
+    sub: 'Met: ' + d.oonMetIOOP
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "OON Family OOP",
+    value: d.oonFamOOP,
+    big: true,
+    sub: 'Met: ' + d.oonMetFOOP
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "OON Patient Coinsurance %",
+    value: d.oonCoins,
+    big: true,
+    sub: "After OON deductible",
+    span2: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Cross Accumulate INN/OON?",
+    value: d.crossAccum,
+    span2: true
+  })))), ((_d$oonLocData = d.oonLocData) === null || _d$oonLocData === void 0 ? void 0 : _d$oonLocData.length) > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Out-of-Network \u2014 Coverage by Level of Care",
+    badge: "OON",
+    badgeColor: {
+      background: DS.sandTint,
+      color: '#8A6D28',
+      border: "1px solid ".concat(DS.sandLine)
+    }
+  }, /*#__PURE__*/React.createElement(LOCTable, {
+    rows: d.oonLocData
+  })))) : /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Out-of-Network Benefits",
+    badge: "OON",
+    badgeColor: {
+      background: DS.sandTint,
+      color: '#8A6D28',
+      border: "1px solid ".concat(DS.sandLine)
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '9px 13px',
+      background: DS.paper2,
+      borderRadius: 4,
+      fontFamily: DS.fm,
+      fontSize: 11,
+      color: DS.ink3
+    }
+  }, "OON benefits not available on this plan."))), /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "In-Network \u2014 Claims & Payer IDs",
+    badge: "INN",
+    badgeColor: {
+      background: DS.tealTint,
+      color: DS.tealD,
+      border: "1px solid ".concat(DS.tealLine)
+    }
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 2
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "INN Medical Payer ID",
+    value: d.innMedPayer,
+    mono: true,
+    sub: d.innMedClaims
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "INN BH Payer ID",
+    value: d.innBhPayer,
+    mono: true,
+    sub: d.innBhClaims
+  })))), d.oonBenefits === 'Yes' && /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Out-of-Network \u2014 Claims & Payer IDs",
+    badge: "OON",
+    badgeColor: {
+      background: DS.sandTint,
+      color: '#8A6D28',
+      border: "1px solid ".concat(DS.sandLine)
+    }
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 2
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "OON Medical Payer ID",
+    value: d.oonMedPayer,
+    mono: true,
+    sub: d.oonMedClaims
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "OON BH Payer ID",
+    value: d.oonBhPayer,
+    mono: true,
+    sub: d.oonBhClaims
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Pre-Certification"
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 4
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "Pre Cert Company & Phone #",
+    value: d.preCertCo
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Pre Cert Penalty?",
+    value: d.preCertPenalty,
+    warn: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Assignment Accepted?",
+    value: d.assignment,
+    ok: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Pays to Member or Facility?",
+    value: d.paysTo
+  })))), d.pharmBenefits === 'Yes' && /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Pharmacy",
+    badge: "Yes",
+    badgeColor: {
+      background: DS.successTint,
+      color: '#1a7a4a',
+      border: '1px solid rgba(26,158,92,.2)'
+    }
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 3
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "Pharmacy Phone #",
+    value: d.pharmPhone,
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Pharmacy Provider",
+    value: d.pharmProvider
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Rx BIN / PCN / Group",
+    value: d.pharmBin + ' / ' + d.pharmPcn + ' / ' + d.pharmGrp,
+    mono: true
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Payer-Specific"
+  }, /*#__PURE__*/React.createElement(Grid, {
+    cols: 4
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "Cigna: MRC2 Plan?",
+    value: d.cigmrc2 || 'N/A',
+    muted: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "MultiPlan Pricing?",
+    value: d.multiplan
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "BCBS Out-of-State",
+    value: d.bcbsState || 'N/A',
+    muted: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "COBRA Policy?",
+    value: d.cobra
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "vob-sec"
+  }, /*#__PURE__*/React.createElement(Sec, {
+    title: "Notes & Timely Filing"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: DS.white,
+      border: "1px solid ".concat(DS.line),
+      borderRadius: 4,
+      padding: '10px 13px',
+      marginBottom: 8,
+      fontSize: 11,
+      color: DS.ink2,
+      lineHeight: 1.65
+    }
+  }, d.notes), /*#__PURE__*/React.createElement(Grid, {
+    cols: 2,
+    style: {
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement(F, {
+    label: "Timely Filing",
+    value: d.timelyFiling,
+    ok: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "Other Insurance on File?",
+    value: d.otherIns
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      padding: '8px 11px',
+      borderRadius: 4,
+      background: DS.tealMist,
+      border: "1px solid ".concat(DS.tealLine),
+      fontSize: 11,
+      color: DS.ink2,
+      lineHeight: 1.5
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDD12"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "42 CFR Part 2:"), " This record relates to a patient in SUD treatment. Written patient consent required prior to submission. Re-disclosure requires new signed consent.")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: DS.tealDD,
+      borderRadius: '0 0 5px 5px',
+      padding: '10px 20px',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: 20,
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 7,
+      letterSpacing: '.14em',
+      color: 'rgba(232,240,241,.45)',
+      textTransform: 'uppercase',
+      marginBottom: 2
+    }
+  }, "Completed by"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: '#fff'
+    }
+  }, d.agent, " \xB7 Karepoint Billing Service LLP"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 8,
+      color: 'rgba(232,240,241,.5)',
+      marginTop: 1
+    }
+  }, d.verifiedDate, " \xB7 AI-Assisted \u26A1 \xB7 vob@mykarepoint.com")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 7.5,
+      color: 'rgba(232,240,241,.38)',
+      lineHeight: 1.55,
+      maxWidth: 300,
+      textAlign: 'right'
+    }
+  }, "For authorized use by ", facility === null || facility === void 0 ? void 0 : facility.name, " only. Benefits reflect verification date and are subject to change.")))));
 }
 ReactDOM.render(React.createElement(FCApp), document.getElementById('root'));
   </script>
