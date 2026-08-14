@@ -10,6 +10,14 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
+  @font-face {
+    font-family: 'Mokoto';
+    src: url('/assets/fonts/mokoto_regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
   --teal:#3C7882;--teal-d:#2C5A63;--teal-dd:#1C3B42;
   --teal-pale:#E8F0F1;--teal-mist:#F3F8F8;--teal-tint:rgba(60,120,130,.08);--teal-line:rgba(60,120,130,.18);
   --ink:#12262A;--ink2:#3A5257;--ink3:#6B858A;--ink4:#9DB0B4;
@@ -51,7 +59,7 @@ a{color:inherit}
 /* Top bar */
 .top-bar{background:var(--teal-dd);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .brand{display:flex;align-items:center;gap:9px}
-.brand-nm{font-family:var(--fb);font-size:13px;font-weight:700;letter-spacing:.13em;color:#fff;text-transform:uppercase;line-height:1}
+.brand-nm{font-family:"Mokoto",sans-serif;font-size:13px;font-weight:400;letter-spacing:.04em;color:#fff;line-height:1}
 .brand-tag{font-family:var(--fm);font-size:7px;letter-spacing:.22em;color:rgba(232,240,241,.55);text-transform:uppercase;margin-top:3px}
 .doc-ref{text-align:right}
 .doc-label{font-family:var(--fm);font-size:7.5px;letter-spacing:.18em;color:rgba(232,240,241,.5);text-transform:uppercase;margin-bottom:2px}
@@ -155,7 +163,7 @@ a{color:inherit}
     <!-- Top bar -->
     <div class="top-bar">
       <div class="brand">
-        <svg width="20" height="20" viewBox="0 0 100 108" fill="none"><path d="M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z" fill="none" stroke="rgba(232,240,241,.65)" stroke-width="8" stroke-linejoin="round"/><path d="M25 73l20-22 10 11 21-24" fill="none" stroke="rgba(232,240,241,.65)" stroke-width="10"/></svg>
+        <img src="/assets/logo/KAREPOINT-logo-only.svg" width="20" height="20" alt="" style="display:block;filter:brightness(0) invert(1);opacity:.7">
         <div>
           <div class="brand-nm">Karepoint Billing Service LLP</div>
           <div class="brand-tag">Verification of Benefits</div>
