@@ -14,10 +14,7 @@
 <meta property="og:url" content="https://mykarepoint.com/">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="icon" type="image/png" sizes="32x32" href="assets/logo/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/logo/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/logo/apple-touch-icon.png">
-<link rel="manifest" href="assets/logo/site.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 108'%3E%3Cpath d='M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z' fill='none' stroke='%233C7882' stroke-width='8' stroke-linejoin='round'/%3E%3Cpath d='M25 73l20-22 10 11 21-24' fill='none' stroke='%233C7882' stroke-width='10'/%3E%3Cpath d='M62 34h20v20' fill='none' stroke='%233C7882' stroke-width='10'/%3E%3C/svg%3E">
 
 <script type="application/ld+json">
 {
@@ -119,8 +116,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-@font-face{font-family:'Mokoto';src:url('assets/fonts/mokoto_regular.ttf') format('truetype');font-weight:400;font-style:normal}
-
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
@@ -179,8 +174,6 @@ nav{position:sticky;top:0;z-index:200;background:rgba(251,250,248,.86);backdrop-
 .brand-tx{display:flex;flex-direction:column;line-height:1}
 .brand-nm{font-family:var(--fb);font-size:18px;font-weight:700;letter-spacing:.13em;color:var(--ink);text-transform:uppercase}
 .brand-tag{font-family:var(--fm);font-size:8.5px;font-weight:500;letter-spacing:.22em;color:var(--teal);text-transform:uppercase;margin-top:4px}
-.brand-font{font-family:'Mokoto',sans-serif;font-weight:400}
-.brand-logo{display:block;object-fit:contain;flex-shrink:0}
 
 .nav-mid{display:flex;gap:34px;list-style:none}
 .nav-mid a{text-decoration:none;font-size:14.5px;font-weight:500;color:var(--ink2);position:relative;padding:4px 0;transition:color .2s}
@@ -517,9 +510,13 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
 <nav>
   <div class="nav-in">
     <a href="#top" class="brand" aria-label="Karepoint home">
-      <img src="assets/logo/KAREPOINT-logo-only.svg" alt="Karepoint logo" class="brand-logo" width="38" height="38">
+      <svg viewBox="0 0 100 108" fill="none" aria-hidden="true">
+        <path d="M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z" stroke="#3C7882" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M25 73l20-22 10 11 21-24" stroke="#3C7882" stroke-width="9" stroke-linecap="square" stroke-linejoin="miter"/>
+        <path d="M62 34h20v20" stroke="#3C7882" stroke-width="9" stroke-linecap="square"/>
+      </svg>
       <span class="brand-tx">
-        <span class="brand-nm brand-font">Karepoint</span>
+        <span class="brand-nm">Karepoint</span>
         <span class="brand-tag">Faith Over Fear</span>
       </span>
     </a>
@@ -530,7 +527,10 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
       <li><a href="#process">Process</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
-    <a href="#contact" class="nav-cta">Book a Discovery Call</a>
+    <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+      <a href="/facility" style="text-decoration:none;font-size:14px;font-weight:600;color:var(--teal);border:1.5px solid var(--teal);padding:9px 18px;border-radius:4px;white-space:nowrap;transition:background .2s,color .2s;" onmouseover="this.style.background='var(--teal)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--teal)'">Facility Login</a>
+      <a href="#contact" class="nav-cta">Book a Discovery Call</a>
+    </div>
     <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
       <span></span><span></span><span></span>
     </button>
@@ -551,6 +551,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
       <li><a href="#process">Process</a></li>
       <li><a href="#why">Why Karepoint</a></li>
       <li><a href="#faq">FAQ</a></li>
+      <li><a href="/facility" style="color:var(--teal);">Facility Login →</a></li>
     </ul>
     <a href="#contact" class="drawer-cta">Book a Discovery Call</a>
     <div class="drawer-ft">
@@ -863,7 +864,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
 <section class="sec" id="why">
   <div class="wrap">
     <div class="sec-head ctr rv-a">
-      <div class="eyebrow ctr">Why <span class="brand-font">Karepoint</span></div>
+      <div class="eyebrow ctr">Why Karepoint</div>
       <h2 class="h2">Specialists, <em>not generalists</em></h2>
       <p class="body-l">Behavioral health is the only thing we do, which means it is the only thing we have to be excellent at.</p>
     </div>
@@ -906,7 +907,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
   <div class="wrap quote rv-a">
     <div class="qmark">&ldquo;</div>
     <p class="qtx">In behavioral health, revenue is not lost at the claim. It is lost at the verification nobody completed and the concurrent review nobody submitted.</p>
-    <div class="qat">The <span class="brand-font">Karepoint</span> operating principle</div>
+    <div class="qat">The Karepoint operating principle</div>
   </div>
 </section>
 
@@ -1062,8 +1063,12 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
   <div class="wrap">
     <div class="ft-grid">
       <div class="ft-brand">
-        <img src="assets/logo/KAREPOINT-logo-only.svg" alt="Karepoint logo" class="brand-logo" width="42" height="42">
-        <div class="ft-nm"><span class="brand-font">Karepoint</span></div>
+        <svg viewBox="0 0 100 108" fill="none" aria-hidden="true">
+          <path d="M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z" stroke="#3C7882" stroke-width="7" stroke-linejoin="round"/>
+          <path d="M25 73l20-22 10 11 21-24" stroke="#3C7882" stroke-width="9" stroke-linecap="square" stroke-linejoin="miter"/>
+          <path d="M62 34h20v20" stroke="#3C7882" stroke-width="9" stroke-linecap="square"/>
+        </svg>
+        <div class="ft-nm">Karepoint</div>
         <div class="ft-tag">Faith Over Fear</div>
         <p class="ft-bd">Revenue cycle management built exclusively for behavioral health and substance use disorder treatment facilities across the United States.</p>
       </div>
@@ -1090,7 +1095,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
       <div>
         <div class="ft-ct">Company</div>
         <ul class="ft-l">
-          <li><a href="#why">About <span class="brand-font">Karepoint</span></a></li>
+          <li><a href="#why">About Karepoint</a></li>
           <li><a href="#levels">Levels of Care</a></li>
           <li><a href="#process">Process</a></li>
           <li><a href="#faq">FAQ</a></li>
@@ -1099,7 +1104,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
       </div>
     </div>
     <div class="ft-bot">
-      <p class="ft-cp">&copy; 2026 <span class="brand-font">Karepoint</span> Billing Service LLP. All rights reserved.<br>Serving behavioral health and substance use disorder providers throughout the United States.</p>
+      <p class="ft-cp">&copy; 2026 Karepoint Billing Service LLP. All rights reserved.<br>Serving behavioral health and substance use disorder providers throughout the United States.</p>
       <div class="ft-badges">
         <span class="ft-bg">HIPAA Compliant</span>
         <span class="ft-bg">42 CFR Part 2</span>
