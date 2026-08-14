@@ -119,6 +119,14 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
+  @font-face {
+    font-family: 'Mokoto';
+    src: url('/assets/fonts/mokoto_regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  
   --teal:#3C7882;
   --teal-d:#2C5A63;
   --teal-dd:#1C3B42;
@@ -172,7 +180,7 @@ nav{position:sticky;top:0;z-index:200;background:rgba(251,250,248,.86);backdrop-
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0}
 .brand svg{width:34px;height:34px}
 .brand-tx{display:flex;flex-direction:column;line-height:1}
-.brand-nm{font-family:var(--fb);font-size:18px;font-weight:700;letter-spacing:.13em;color:var(--ink);text-transform:uppercase}
+.brand-nm{font-family:"Mokoto",sans-serif;font-size:18px;font-weight:400;letter-spacing:.04em;color:var(--ink)}
 .brand-tag{font-family:var(--fm);font-size:8.5px;font-weight:500;letter-spacing:.22em;color:var(--teal);text-transform:uppercase;margin-top:4px}
 
 .nav-mid{display:flex;gap:34px;list-style:none}
@@ -444,7 +452,7 @@ section{position:relative}
 footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 34px}
 .ft-grid{display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr;gap:56px;padding-bottom:52px;border-bottom:1px solid var(--line)}
 .ft-brand svg{width:38px;height:38px;margin-bottom:18px}
-.ft-nm{font-size:17px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);margin-bottom:5px}
+.ft-nm{font-family:"Mokoto",sans-serif;font-size:22px;font-weight:400;letter-spacing:.04em;color:#fff;margin-bottom:4px}
 .ft-tag{font-family:var(--fm);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:18px}
 .ft-bd{font-size:14px;line-height:1.72;color:var(--ink3);max-width:300px;font-weight:350}
 .ft-ct{font-family:var(--fm);font-size:10.5px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--ink);margin-bottom:19px}
@@ -510,11 +518,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
 <nav>
   <div class="nav-in">
     <a href="#top" class="brand" aria-label="Karepoint home">
-      <svg viewBox="0 0 100 108" fill="none" aria-hidden="true">
-        <path d="M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z" stroke="#3C7882" stroke-width="7" stroke-linejoin="round"/>
-        <path d="M25 73l20-22 10 11 21-24" stroke="#3C7882" stroke-width="9" stroke-linecap="square" stroke-linejoin="miter"/>
-        <path d="M62 34h20v20" stroke="#3C7882" stroke-width="9" stroke-linecap="square"/>
-      </svg>
+      <img src="/assets/logo/KAREPOINT-logo-only.svg" width="34" height="34" alt="Karepoint logo" style="display:block">
       <span class="brand-tx">
         <span class="brand-nm">Karepoint</span>
         <span class="brand-tag">Faith Over Fear</span>
@@ -1063,11 +1067,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
   <div class="wrap">
     <div class="ft-grid">
       <div class="ft-brand">
-        <svg viewBox="0 0 100 108" fill="none" aria-hidden="true">
-          <path d="M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z" stroke="#3C7882" stroke-width="7" stroke-linejoin="round"/>
-          <path d="M25 73l20-22 10 11 21-24" stroke="#3C7882" stroke-width="9" stroke-linecap="square" stroke-linejoin="miter"/>
-          <path d="M62 34h20v20" stroke="#3C7882" stroke-width="9" stroke-linecap="square"/>
-        </svg>
+        <img src="/assets/logo/KAREPOINT-logo-only.svg" width="38" height="38" alt="Karepoint logo" style="display:block;margin-bottom:18px">
         <div class="ft-nm">Karepoint</div>
         <div class="ft-tag">Faith Over Fear</div>
         <p class="ft-bd">Revenue cycle management built exclusively for behavioral health and substance use disorder treatment facilities across the United States.</p>
