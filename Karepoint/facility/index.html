@@ -426,7 +426,7 @@ var seedVOBs = function seedVOBs() {
     status: 'Completed',
     submitted: 'Aug 3',
     fac: 'Sunrise Recovery Center',
-    pdfLink: '#',
+    pdfLink: '/vob',
     chatClosed: true,
     paSubmitted: true,
     messages: [{
@@ -443,10 +443,10 @@ var seedVOBs = function seedVOBs() {
     insurance: 'Cigna / Evernorth',
     memberId: 'CIG-334891',
     loc: 'IOP',
-    status: 'In Progress',
+    status: 'Completed',
     submitted: 'Aug 5',
     fac: 'Sunrise Recovery Center',
-    pdfLink: null,
+    pdfLink: '/vob',
     chatClosed: false,
     paSubmitted: false,
     messages: [{
@@ -475,7 +475,7 @@ var seedVOBs = function seedVOBs() {
     loc: 'Detox',
     status: 'Pending',
     submitted: 'Aug 6',
-    fac: 'Blue Ridge Wellness',
+    fac: 'Sunrise Recovery Center',
     pdfLink: null,
     chatClosed: false,
     paSubmitted: false,
@@ -490,7 +490,7 @@ var seedVOBs = function seedVOBs() {
     loc: 'PHP',
     status: 'In Progress',
     submitted: 'Aug 6',
-    fac: 'Pacific Crest Treatment',
+    fac: 'Sunrise Recovery Center',
     pdfLink: null,
     chatClosed: false,
     paSubmitted: false,
@@ -532,10 +532,25 @@ var seedVOBs = function seedVOBs() {
     status: 'Completed',
     submitted: 'Jul 31',
     fac: 'Pacific Crest Treatment',
-    pdfLink: '#',
+    pdfLink: '/vob',
     chatClosed: true,
     paSubmitted: false,
     messages: [],
+    versions: []
+  },{
+    id: 'V-0048',
+    patient: 'Liam P.',
+    dob: 'Jun 1, 1993',
+    insurance: 'Cigna / Evernorth',
+    memberId: 'CIG-774421',
+    loc: 'IOP',
+    status: 'Withdrawn',
+    submitted: 'Aug 1',
+    fac: 'Sunrise Recovery Center',
+    pdfLink: null,
+    chatClosed: false,
+    paSubmitted: false,
+    messages: [{id:'m1',from:'KP',text:'VOB withdrawn at facility request.',time:'Aug 2, 11:00 AM'}],
     versions: []
   }];
 };
@@ -4008,6 +4023,8 @@ function Dashboard(_ref12) {
       }
     }, v.pdfLink && /*#__PURE__*/React.createElement("a", {
       href: v.pdfLink,
+      target: '_blank',
+      rel: 'noopener noreferrer',
       style: _objectSpread(_objectSpread({}, btnOutline), {}, {
         padding: '5px 9px',
         fontSize: 11,
