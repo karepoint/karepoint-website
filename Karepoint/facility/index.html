@@ -1,46 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Karepoint — Facility Portal</title>
-  <link rel="icon" href="/assets/logo/KAREPOINT-logo-only.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    @font-face{font-family:'Mokoto';src:url('/assets/fonts/mokoto_regular.ttf') format('truetype');font-weight:normal;font-style:normal;font-display:swap;}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-    body{background:#FBFAF8;color:#12262A;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-    input,button,select,textarea{font-family:inherit}
-    a{color:inherit}
-    img,svg{display:block;max-width:100%}
-    ::-webkit-scrollbar{width:5px;height:5px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:rgba(60,120,130,.25);border-radius:3px}
-    @media print{
-      .no-print{display:none!important}
-      body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin:0;padding:0}
-      body *{visibility:hidden}
-      #vob-print-root,#vob-print-root *{visibility:visible!important}
-      #vob-print-root{position:absolute!important;top:0!important;left:0!important;width:100%!important;height:auto!important;overflow:visible!important;background:#fff!important;z-index:9999!important;display:block!important}
-      #vob-print-root [data-noprint]{display:none!important}
-      #vob-print-root>div{position:static!important;overflow:visible!important;height:auto!important;max-height:none!important;display:block!important}
-      #vob-print-root [style*="sticky"]{position:static!important}
-      #vob-print-root [style*="fixed"]{position:static!important}
-      .vob-doc{padding:0!important}
-      .vob-pg{page-break-after:always;break-after:page;padding:20px 24px;background:#fff}
-      .vob-pg:last-child{page-break-after:avoid;break-after:avoid}
-      .vob-sec{break-inside:avoid;page-break-inside:avoid}
-      tr{break-inside:avoid;page-break-inside:avoid}
-      td,th{break-inside:avoid;page-break-inside:avoid}
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Karepoint — Facility Portal</title>
+<link rel="icon" href="/assets/logo/KAREPOINT-logo-only.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'Mokoto';src:url('/assets/fonts/mokoto_regular.ttf') format('truetype');font-weight:normal;font-style:normal;font-display:swap;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:#FBFAF8;color:#12262A;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+input,button,select,textarea{font-family:inherit}
+a{color:inherit}
+img,svg{display:block;max-width:100%}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(60,120,130,.25);border-radius:3px}
+@media print{
+.no-print{display:none!important}
+body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin:0;padding:0}
+body *{visibility:hidden}
+#vob-print-root,#vob-print-root *{visibility:visible!important}
+#vob-print-root{position:absolute!important;top:0!important;left:0!important;width:100%!important;height:auto!important;overflow:visible!important;background:#fff!important;z-index:9999!important;display:block!important}
+#vob-print-root [data-noprint]{display:none!important}
+#vob-print-root>div{position:static!important;overflow:visible!important;height:auto!important;max-height:none!important;display:block!important}
+#vob-print-root [style*="sticky"]{position:static!important}
+#vob-print-root [style*="fixed"]{position:static!important}
+.vob-doc{padding:0!important}
+.vob-pg{page-break-after:always;break-after:page;padding:20px 24px;background:#fff}
+.vob-pg:last-child{page-break-after:avoid;break-after:avoid}
+.vob-sec{break-inside:avoid;page-break-inside:avoid}
+tr{break-inside:avoid;page-break-inside:avoid}
+td,th{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
 </head>
 <body>
-  <div id="root"></div>
-  <script>/**
+<div id="root"></div>
+<script>/**
  * @license React
  * react.production.min.js
  *
@@ -72,7 +72,7 @@ c.useEffect=function(a,b){return g.current.useEffect(a,b)};c.useId=function(){re
 c.useState=function(a){return g.current.useState(a)};c.useSyncExternalStore=function(a,b,c){return g.current.useSyncExternalStore(a,b,c)};c.useTransition=function(){return g.current.useTransition()};c.version="18.3.1"});
 })();
 </script>
-  <script>/**
+<script>/**
  * @license React
  * react-dom.production.min.js
  *
@@ -340,7 +340,7 @@ var d=null!=c&&c.hydratedSources||null,e=!1,f="",g=aj;null!==c&&void 0!==c&&(!0=
 function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmountComponentAtNode=function(a){if(!Vd(a))throw Error(m(40));return a._reactRootContainer?(yb(function(){Wd(null,null,a,!1,function(){a._reactRootContainer=null;a[Ja]=null})}),!0):!1};Q.unstable_batchedUpdates=Tf;Q.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!Vd(c))throw Error(m(200));if(null==a||void 0===a._reactInternals)throw Error(m(38));return Wd(a,b,c,!1,d)};Q.version="18.3.1-next-f1338f8080-20240426"});
 })();
 </script>
-  <script>
+<script>
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -352,15 +352,398 @@ function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) 
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 var _React = React,
   useState = _React.useState,
   useEffect = _React.useEffect,
   useRef = _React.useRef;
+
+// ─── Supabase ────────────────────────────────────────────────────
+var SUPABASE_URL = 'https://qjtudgtbiizoicuqexml.supabase.co';
+var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0';
+var SB_HDR = {
+  headers: {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': "Bearer ".concat(SUPABASE_KEY),
+    'Prefer': 'resolution=merge-duplicates'
+  }
+};
+var SB = {
+  saveVOB: function saveVOB(row) {
+    return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+      var r, _t, _t2;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.p = _context.n) {
+          case 0:
+            _context.p = 0;
+            _context.n = 1;
+            return fetch("".concat(SUPABASE_URL, "/rest/v1/vob_requests"), _objectSpread(_objectSpread({
+              method: 'POST'
+            }, SB_HDR), {}, {
+              body: JSON.stringify(row)
+            }));
+          case 1:
+            r = _context.v;
+            if (r.ok) {
+              _context.n = 3;
+              break;
+            }
+            _t = console;
+            _context.n = 2;
+            return r.text();
+          case 2:
+            _t.error.call(_t, 'SB.saveVOB:', _context.v);
+            return _context.a(2, false);
+          case 3:
+            return _context.a(2, true);
+          case 4:
+            _context.p = 4;
+            _t2 = _context.v;
+            console.error('SB.saveVOB:', _t2);
+            return _context.a(2, false);
+        }
+      }, _callee, null, [[0, 4]]);
+    }))();
+  },
+  updateVOB: function updateVOB(id, patch) {
+    return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+      var r, _t3;
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.p = _context2.n) {
+          case 0:
+            _context2.p = 0;
+            _context2.n = 1;
+            return fetch("".concat(SUPABASE_URL, "/rest/v1/vob_requests?id=eq.").concat(id), _objectSpread(_objectSpread({
+              method: 'PATCH'
+            }, SB_HDR), {}, {
+              body: JSON.stringify(patch)
+            }));
+          case 1:
+            r = _context2.v;
+            return _context2.a(2, r.ok);
+          case 2:
+            _context2.p = 2;
+            _t3 = _context2.v;
+            return _context2.a(2, false);
+        }
+      }, _callee2, null, [[0, 2]]);
+    }))();
+  },
+  getVOB: function getVOB(id) {
+    return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+      var r, d, _t4;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
+          case 0:
+            _context3.p = 0;
+            _context3.n = 1;
+            return fetch("".concat(SUPABASE_URL, "/rest/v1/vob_requests?id=eq.").concat(encodeURIComponent(id), "&limit=1"), {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': "Bearer ".concat(SUPABASE_KEY)
+              }
+            });
+          case 1:
+            r = _context3.v;
+            if (r.ok) {
+              _context3.n = 2;
+              break;
+            }
+            return _context3.a(2, null);
+          case 2:
+            _context3.n = 3;
+            return r.json();
+          case 3:
+            d = _context3.v;
+            return _context3.a(2, d[0] || null);
+          case 4:
+            _context3.p = 4;
+            _t4 = _context3.v;
+            return _context3.a(2, null);
+        }
+      }, _callee3, null, [[0, 4]]);
+    }))();
+  },
+  getVOBsByFacility: function getVOBsByFacility(name) {
+    return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+      var r, _t5;
+      return _regenerator().w(function (_context4) {
+        while (1) switch (_context4.p = _context4.n) {
+          case 0:
+            _context4.p = 0;
+            _context4.n = 1;
+            return fetch("".concat(SUPABASE_URL, "/rest/v1/vob_requests?facility_name=eq.").concat(encodeURIComponent(name), "&order=submitted_at.desc"), {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': "Bearer ".concat(SUPABASE_KEY)
+              }
+            });
+          case 1:
+            r = _context4.v;
+            if (r.ok) {
+              _context4.n = 2;
+              break;
+            }
+            return _context4.a(2, []);
+          case 2:
+            _context4.n = 3;
+            return r.json();
+          case 3:
+            return _context4.a(2, _context4.v);
+          case 4:
+            _context4.p = 4;
+            _t5 = _context4.v;
+            return _context4.a(2, []);
+        }
+      }, _callee4, null, [[0, 4]]);
+    }))();
+  },
+  saveMessage: function saveMessage(vobId, fromRole, text) {
+    var _arguments = arguments;
+    return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
+      var attachment, r, _t6;
+      return _regenerator().w(function (_context5) {
+        while (1) switch (_context5.p = _context5.n) {
+          case 0:
+            attachment = _arguments.length > 3 && _arguments[3] !== undefined ? _arguments[3] : null;
+            _context5.p = 1;
+            _context5.n = 2;
+            return fetch("".concat(SUPABASE_URL, "/rest/v1/messages"), _objectSpread(_objectSpread({
+              method: 'POST'
+            }, SB_HDR), {}, {
+              body: JSON.stringify({
+                vob_id: vobId,
+                from_role: fromRole,
+                text: text,
+                attachment: attachment
+              })
+            }));
+          case 2:
+            r = _context5.v;
+            return _context5.a(2, r.ok);
+          case 3:
+            _context5.p = 3;
+            _t6 = _context5.v;
+            return _context5.a(2, false);
+        }
+      }, _callee5, null, [[1, 3]]);
+    }))();
+  },
+  getMessages: function getMessages(vobId) {
+    return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6() {
+      var r, _t7;
+      return _regenerator().w(function (_context6) {
+        while (1) switch (_context6.p = _context6.n) {
+          case 0:
+            _context6.p = 0;
+            _context6.n = 1;
+            return fetch("".concat(SUPABASE_URL, "/rest/v1/messages?vob_id=eq.").concat(encodeURIComponent(vobId), "&order=sent_at.asc"), {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': "Bearer ".concat(SUPABASE_KEY)
+              }
+            });
+          case 1:
+            r = _context6.v;
+            if (r.ok) {
+              _context6.n = 2;
+              break;
+            }
+            return _context6.a(2, []);
+          case 2:
+            _context6.n = 3;
+            return r.json();
+          case 3:
+            return _context6.a(2, _context6.v);
+          case 4:
+            _context6.p = 4;
+            _t7 = _context6.v;
+            return _context6.a(2, []);
+        }
+      }, _callee6, null, [[0, 4]]);
+    }))();
+  },
+  rowToVOB: function rowToVOB(row) {
+    return {
+      id: row.id,
+      patient: row.patient_first ? (row.patient_first + ' ' + row.patient_last).trim() : row.id,
+      dob: row.patient_dob,
+      insurance: row.insurance_name,
+      memberId: row.ins_id,
+      loc: row.requested_loc,
+      status: row.status,
+      submitted: row.verified_date || new Date(row.submitted_at).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      }),
+      fac: row.facility_name,
+      pdfLink: row.status === 'Completed' ? row.id : null,
+      chatClosed: row.chat_closed,
+      paSubmitted: row.pa_submitted,
+      pauseReason: row.pause_reason,
+      messages: [],
+      versions: []
+    };
+  },
+  rowToReport: function rowToReport(row) {
+    if (!row) return null;
+    return {
+      patient: "".concat(row.patient_first || '', " ").concat(row.patient_last || '').trim(),
+      dob: row.patient_dob,
+      gender: row.patient_gender,
+      insurance: row.insurance_name,
+      insId: row.ins_id,
+      groupNum: row.group_num,
+      insPhone: row.ins_phone,
+      primary: row.primary_secondary || 'Primary',
+      active: row.plan_active || 'Active',
+      effectiveDate: row.effective_date,
+      termDate: row.term_date,
+      policyType: row.policy_type,
+      selfFunded: row.self_funded,
+      employer: row.employer_name,
+      exchange: row.exchange_or_emp,
+      otherIns: row.other_insurance || 'No',
+      carveOut: row.carve_out || 'No',
+      carveOutTo: row.carve_out_to,
+      carveOutPhone: row.carve_out_phone,
+      carveOutId: row.carve_out_id,
+      innIndDed: row.inn_ind_ded,
+      innMetId: row.inn_met_ind,
+      innFamDed: row.inn_fam_ded,
+      innMetFd: row.inn_met_fam,
+      innIndOOP: row.inn_ind_oop,
+      innMetIOOP: row.inn_met_ioop,
+      innFamOOP: row.inn_fam_oop,
+      innMetFOOP: row.inn_met_foop,
+      innCoins: row.inn_coins,
+      dedOopCombined: row.ded_oop_combined,
+      crossAccum: row.cross_accum,
+      hsa: row.hsa_hra,
+      oonBenefits: row.oon_benefits || 'No',
+      oonIndDed: row.oon_ind_ded,
+      oonMetId: row.oon_met_ind,
+      oonFamDed: row.oon_fam_ded,
+      oonMetFd: row.oon_met_fam,
+      oonIndOOP: row.oon_ind_oop,
+      oonMetIOOP: row.oon_met_ioop,
+      oonFamOOP: row.oon_fam_oop,
+      oonMetFOOP: row.oon_met_foop,
+      oonCoins: row.oon_coins,
+      rateType: row.rate_type,
+      ratePct: row.rate_pct,
+      freestanding: row.freestanding,
+      maxPerDay: row.max_per_day,
+      maxVisits: row.max_visits,
+      calLifetime: row.cal_lifetime,
+      combinedDays: row.combined_days,
+      adminCoPays: row.admin_copays,
+      locData: [{
+        loc: 'Sub-Acute Detox',
+        notes: row.cov_detox,
+        auth: row.auth_detox,
+        accred: row.accred_detox
+      }, {
+        loc: 'Residential (RTC)',
+        notes: row.cov_rtc,
+        auth: row.auth_rtc,
+        accred: row.accred_rtc
+      }, {
+        loc: 'PHP',
+        notes: row.cov_php,
+        auth: row.auth_php,
+        accred: row.accred_php
+      }, {
+        loc: 'IOP',
+        notes: row.cov_iop,
+        auth: row.auth_iop,
+        accred: row.accred_iop
+      }, {
+        loc: 'OP — Non-Routine',
+        notes: row.cov_op_nr,
+        auth: row.auth_op_nr,
+        accred: row.accred_op_nr
+      }, {
+        loc: 'OP — Routine',
+        notes: row.cov_op_ro,
+        auth: row.auth_op_ro,
+        accred: row.accred_op_ro
+      }].filter(function (r) {
+        return r.notes;
+      }),
+      oonLocData: row.oon_benefits === 'Yes' ? [{
+        loc: 'Sub-Acute Detox',
+        notes: (row.cov_detox || '') + ' — OON deductible applies',
+        auth: row.auth_detox,
+        accred: row.accred_detox
+      }, {
+        loc: 'Residential (RTC)',
+        notes: (row.cov_rtc || '') + ' — OON deductible applies',
+        auth: row.auth_rtc,
+        accred: row.accred_rtc
+      }, {
+        loc: 'PHP',
+        notes: (row.cov_php || '') + ' — OON deductible applies',
+        auth: row.auth_php,
+        accred: row.accred_php
+      }, {
+        loc: 'IOP',
+        notes: (row.cov_iop || '') + ' — OON deductible applies',
+        auth: row.auth_iop,
+        accred: row.accred_iop
+      }, {
+        loc: 'OP — Non-Routine',
+        notes: (row.cov_op_nr || '') + ' — OON deductible applies',
+        auth: row.auth_op_nr,
+        accred: row.accred_op_nr
+      }, {
+        loc: 'OP — Routine',
+        notes: (row.cov_op_ro || '') + ' — OON deductible applies',
+        auth: row.auth_op_ro,
+        accred: row.accred_op_ro
+      }].filter(function (r) {
+        return r.notes;
+      }) : [],
+      precertCo: row.precert_co,
+      preCertPenalty: row.precert_penalty,
+      assignment: row.assignment,
+      paysTo: row.pays_to,
+      innMedPayer: row.inn_med_payer,
+      innMedClaims: row.inn_med_claims,
+      innBhPayer: row.inn_bh_payer,
+      innBhClaims: row.inn_bh_claims,
+      oonMedPayer: row.oon_med_payer,
+      oonMedClaims: row.oon_med_claims,
+      oonBhPayer: row.oon_bh_payer,
+      oonBhClaims: row.oon_bh_claims,
+      pharmBenefits: row.pharm_benefits,
+      pharmPhone: row.pharm_phone,
+      pharmProvider: row.pharm_provider,
+      pharmBin: row.rx_bin,
+      pharmPcn: row.rx_pcn,
+      pharmGrp: row.rx_group,
+      cigmrc2: row.cigna_mrc2,
+      multiplan: row.multiplan,
+      bcbs_state: row.bcbs_state,
+      cobra: row.cobra_policy,
+      notes: row.notes,
+      timelyFiling: row.timely_filing,
+      agent: row.vob_completed_by,
+      verifiedDate: row.verified_date,
+      callRef: row.call_ref,
+      repName: row.ins_rep_name
+    };
+  }
+};
 
 // ─── Design System (exact match to mykarepoint.com) ──────────────
 var DS = {
@@ -3440,6 +3823,33 @@ function Dashboard(_ref12) {
     _useState60 = _slicedToArray(_useState59, 2),
     vobReport = _useState60[0],
     setVobReport = _useState60[1];
+  var _useState61 = useState(true),
+    _useState62 = _slicedToArray(_useState61, 2),
+    sbLoading = _useState62[0],
+    setSbLoading = _useState62[1];
+
+  // Load live VOBs from Supabase on mount, merge with seed
+  useEffect(function () {
+    SB.getVOBsByFacility(facility.name).then(function (rows) {
+      if (rows && rows.length > 0) {
+        var live = rows.map(function (r) {
+          return _objectSpread(_objectSpread({}, SB.rowToVOB(r)), {}, {
+            messages: [],
+            versions: []
+          });
+        });
+        // Merge: live rows first, then any seed rows not already in live
+        var liveIds = new Set(live.map(function (v) {
+          return v.id;
+        }));
+        var merged = [].concat(_toConsumableArray(live), _toConsumableArray(seedVOBs().filter(function (v) {
+          return !liveIds.has(v.id);
+        })));
+        setVobs(merged);
+      }
+      setSbLoading(false);
+    });
+  }, [facility.name]);
   useEffect(function () {
     var h = function h() {
       return setScrolled(window.scrollY > 4);
@@ -3466,20 +3876,51 @@ function Dashboard(_ref12) {
       });
     });
   };
-  var addVOB = function addVOB(v) {
-    setVobs(function (p) {
-      return [v].concat(_toConsumableArray(p));
-    });
-    setShowNew(false);
-    setToast('VOB request submitted — we\'ll verify benefits within 4 hours.');
-  };
+  var addVOB = /*#__PURE__*/function () {
+    var _addVOB = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(v) {
+      return _regenerator().w(function (_context7) {
+        while (1) switch (_context7.n) {
+          case 0:
+            _context7.n = 1;
+            return SB.saveVOB({
+              id: v.id,
+              facility_name: facility.name,
+              status: 'Pending',
+              patient_first: v.patient.split(' ')[0],
+              patient_last: v.patient.split(' ').slice(1).join(' '),
+              patient_dob: v.dob,
+              insurance_name: v.insurance,
+              ins_id: v.memberId,
+              requested_loc: v.loc,
+              urgency: v.urgency || 'Standard',
+              submitted_at: new Date().toISOString(),
+              chat_closed: false,
+              pa_submitted: false
+            });
+          case 1:
+            setVobs(function (p) {
+              return [v].concat(_toConsumableArray(p));
+            });
+            setShowNew(false);
+            setToast('VOB request submitted — we\'ll verify benefits within 4 hours.');
+          case 2:
+            return _context7.a(2);
+        }
+      }, _callee7);
+    }));
+    function addVOB(_x) {
+      return _addVOB.apply(this, arguments);
+    }
+    return addVOB;
+  }();
   var sendMsg = function sendMsg(vid, msg) {
     var _vobs$find;
-    return updV(vid, {
+    updV(vid, {
       messages: [].concat(_toConsumableArray(((_vobs$find = vobs.find(function (v) {
         return v.id === vid;
       })) === null || _vobs$find === void 0 ? void 0 : _vobs$find.messages) || []), [msg])
     });
+    SB.saveMessage(vid, msg.from, msg.text, msg.attachment || null);
   };
   var sendPA = function sendPA(pid, msg) {
     return setPas(function (p) {
@@ -4397,10 +4838,10 @@ function Dashboard(_ref12) {
 
 // ─── Root ─────────────────────────────────────────────────────────
 function FCApp() {
-  var _useState61 = useState(null),
-    _useState62 = _slicedToArray(_useState61, 2),
-    facility = _useState62[0],
-    setFacility = _useState62[1];
+  var _useState63 = useState(null),
+    _useState64 = _slicedToArray(_useState63, 2),
+    facility = _useState64[0],
+    setFacility = _useState64[1];
   return facility ? /*#__PURE__*/React.createElement(Dashboard, {
     facility: facility,
     onLogout: function onLogout() {
@@ -4803,7 +5244,51 @@ function VOBReportModal(_ref13) {
     vob = _ref13.vob,
     facility = _ref13.facility,
     onClose = _ref13.onClose;
-  var d = VOB_REPORTS[vobId] || {};
+  var _useState65 = useState(null),
+    _useState66 = _slicedToArray(_useState65, 2),
+    liveData = _useState66[0],
+    setLiveData = _useState66[1];
+  var _useState67 = useState(true),
+    _useState68 = _slicedToArray(_useState67, 2),
+    loading = _useState68[0],
+    setLoading = _useState68[1];
+  useEffect(function () {
+    SB.getVOB(vobId).then(function (row) {
+      if (row) setLiveData(SB.rowToReport(row));
+      setLoading(false);
+    });
+  }, [vobId]);
+  var d = liveData || VOB_REPORTS[vobId] || {};
+  if (loading) return /*#__PURE__*/React.createElement("div", {
+    id: "vob-print-root",
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 300,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: DS.paper
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fd,
+      fontSize: 18,
+      fontWeight: 600,
+      color: DS.ink,
+      marginBottom: 8
+    }
+  }, "Loading VOB Report\u2026"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 11,
+      color: DS.ink3
+    }
+  }, "Fetching data from Karepoint database")));
   var F = function F(_ref14) {
     var label = _ref14.label,
       value = _ref14.value,
@@ -5570,17 +6055,21 @@ function VOBReportModal(_ref13) {
       border: "1px solid ".concat(DS.tealLine)
     }
   }, /*#__PURE__*/React.createElement(Grid, {
-    cols: 2
+    cols: 4
   }, /*#__PURE__*/React.createElement(F, {
     label: "INN Medical Payer ID",
     value: d.innMedPayer,
-    mono: true,
-    sub: d.innMedClaims
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "INN Medical Claims Address",
+    value: d.innMedClaims
   }), /*#__PURE__*/React.createElement(F, {
     label: "INN BH Payer ID",
     value: d.innBhPayer,
-    mono: true,
-    sub: d.innBhClaims
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "INN BH Claims Address",
+    value: d.innBhClaims
   })))), d.oonBenefits === 'Yes' && /*#__PURE__*/React.createElement("div", {
     className: "vob-sec"
   }, /*#__PURE__*/React.createElement(Sec, {
@@ -5592,17 +6081,21 @@ function VOBReportModal(_ref13) {
       border: "1px solid ".concat(DS.sandLine)
     }
   }, /*#__PURE__*/React.createElement(Grid, {
-    cols: 2
+    cols: 4
   }, /*#__PURE__*/React.createElement(F, {
     label: "OON Medical Payer ID",
     value: d.oonMedPayer,
-    mono: true,
-    sub: d.oonMedClaims
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "OON Medical Claims Address",
+    value: d.oonMedClaims
   }), /*#__PURE__*/React.createElement(F, {
     label: "OON BH Payer ID",
     value: d.oonBhPayer,
-    mono: true,
-    sub: d.oonBhClaims
+    mono: true
+  }), /*#__PURE__*/React.createElement(F, {
+    label: "OON BH Claims Address",
+    value: d.oonBhClaims
   })))), /*#__PURE__*/React.createElement("div", {
     className: "vob-sec"
   }, /*#__PURE__*/React.createElement(Sec, {
@@ -5749,7 +6242,7 @@ function VOBReportModal(_ref13) {
     }
   }, "For authorized use by ", facility === null || facility === void 0 ? void 0 : facility.name, " only. Benefits reflect verification date and are subject to change.")))));
 }
-ReactDOM.render(React.createElement(FCApp), document.getElementById('root'));
-  </script>
+ReactDOM.render(React.createElement(FCApp),document.getElementById('root'));
+</script>
 </body>
 </html>
