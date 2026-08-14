@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Karepoint — Internal Operations</title><style>html,body{margin:0;padding:0;}</style></head><body><div id="root"></div><script>/**
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Karepoint — Internal Operations</title><style>html,body{margin:0;padding:0;}
+  @font-face {
+    font-family: 'Mokoto';
+    src: url('/assets/fonts/mokoto_regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }</style></head><body><div id="root"></div><script>/**
  * @license React
  * react.production.min.js
  *
@@ -297,6 +304,143 @@ var d=null!=c&&c.hydratedSources||null,e=!1,f="",g=aj;null!==c&&void 0!==c&&(!0=
 function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmountComponentAtNode=function(a){if(!Vd(a))throw Error(m(40));return a._reactRootContainer?(yb(function(){Wd(null,null,a,!1,function(){a._reactRootContainer=null;a[Ja]=null})}),!0):!1};Q.unstable_batchedUpdates=Tf;Q.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!Vd(c))throw Error(m(200));if(null==a||void 0===a._reactInternals)throw Error(m(38));return Wd(a,b,c,!1,d)};Q.version="18.3.1-next-f1338f8080-20240426"});
 })();
 </script><script>
+const SUPABASE_URL = 'https://qjtudgtbiizoicuqexml.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0';
+
+const SB = {
+  headers: {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Prefer': 'resolution=merge-duplicates'
+  },
+  // Upsert a VOB request row
+  async saveVOB(row) {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/vob_requests`, {
+        method: 'POST', headers: this.headers, body: JSON.stringify(row)
+      });
+      if (!r.ok) { console.error('SB.saveVOB failed:', await r.text()); return false; }
+      return true;
+    } catch(e) { console.error('SB.saveVOB error:', e); return false; }
+  },
+  // Update a single column on a VOB row
+  async updateVOB(id, patch) {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/vob_requests?id=eq.${id}`, {
+        method: 'PATCH', headers: this.headers, body: JSON.stringify(patch)
+      });
+      if (!r.ok) { console.error('SB.updateVOB failed:', await r.text()); return false; }
+      return true;
+    } catch(e) { console.error('SB.updateVOB error:', e); return false; }
+  },
+  // Get a single VOB row
+  async getVOB(id) {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/vob_requests?id=eq.${id}&limit=1`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+      if (!r.ok) return null;
+      const d = await r.json();
+      return d[0] || null;
+    } catch(e) { return null; }
+  },
+  // Get all VOBs for a facility
+  async getVOBsForFacility(facilityName) {
+    try {
+      const name = encodeURIComponent(facilityName);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/vob_requests?facility_name=eq.${name}&order=submitted_at.desc`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+      if (!r.ok) return [];
+      return await r.json();
+    } catch(e) { return []; }
+  },
+  // Save a chat message
+  async saveMessage(vobId, fromRole, text, attachment=null) {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
+        method: 'POST', headers: this.headers,
+        body: JSON.stringify({ vob_id: vobId, from_role: fromRole, text, attachment })
+      });
+      return r.ok;
+    } catch(e) { return false; }
+  },
+  // Get messages for a VOB
+  async getMessages(vobId) {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/messages?vob_id=eq.${vobId}&order=sent_at.asc`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+      if (!r.ok) return [];
+      return await r.json();
+    } catch(e) { return []; }
+  },
+  // Map a Supabase vob_requests row to VOBReportModal data shape
+  mapRowToReport(row) {
+    if (!row) return null;
+    return {
+      patient: `${row.patient_first||''} ${row.patient_last||''}`.trim(),
+      dob: row.patient_dob, gender: row.patient_gender,
+      insurance: row.insurance_name, insId: row.ins_id, groupNum: row.group_num,
+      insPhone: row.ins_phone, primary: row.primary_secondary, active: row.plan_active,
+      effectiveDate: row.effective_date, termDate: row.term_date,
+      renewalDate: row.renewal_date, policyType: row.policy_type, selfFunded: row.self_funded,
+      employer: row.employer_name, exchange: row.exchange_or_emp, otherIns: row.other_insurance,
+      carveOut: row.carve_out, carveOutTo: row.carve_out_to,
+      carveOutPhone: row.carve_out_phone, carveOutId: row.carve_out_id,
+      innIndDed: row.inn_ind_ded, innMetId: row.inn_met_ind,
+      innFamDed: row.inn_fam_ded, innMetFd: row.inn_met_fam,
+      innIndOOP: row.inn_ind_oop, innMetIOOP: row.inn_met_ioop,
+      innFamOOP: row.inn_fam_oop, innMetFOOP: row.inn_met_foop,
+      innCoins: row.inn_coins, dedOopCombined: row.ded_oop_combined,
+      crossAccum: row.cross_accum, hsa: row.hsa_hra,
+      oonBenefits: row.oon_benefits,
+      oonIndDed: row.oon_ind_ded, oonMetId: row.oon_met_ind,
+      oonFamDed: row.oon_fam_ded, oonMetFd: row.oon_met_fam,
+      oonIndOOP: row.oon_ind_oop, oonMetIOOP: row.oon_met_ioop,
+      oonFamOOP: row.oon_fam_oop, oonMetFOOP: row.oon_met_foop,
+      oonCoins: row.oon_coins,
+      rateType: row.rate_type, ratePct: row.rate_pct,
+      freestanding: row.freestanding, maxPerDay: row.max_per_day,
+      maxVisits: row.max_visits, calLifetime: row.cal_lifetime,
+      combinedDays: row.combined_days, adminCoPays: row.admin_copays,
+      locData: [
+        {loc:'Sub-Acute Detox',   notes:row.cov_detox, auth:row.auth_detox, accred:row.accred_detox},
+        {loc:'Residential (RTC)', notes:row.cov_rtc,   auth:row.auth_rtc,   accred:row.accred_rtc},
+        {loc:'PHP',               notes:row.cov_php,   auth:row.auth_php,   accred:row.accred_php},
+        {loc:'IOP',               notes:row.cov_iop,   auth:row.auth_iop,   accred:row.accred_iop},
+        {loc:'OP — Non-Routine',  notes:row.cov_op_nr, auth:row.auth_op_nr, accred:row.accred_op_nr},
+        {loc:'OP — Routine',      notes:row.cov_op_ro, auth:row.auth_op_ro, accred:row.accred_op_ro},
+      ].filter(r=>r.notes),
+      oonLocData: row.oon_benefits==='Yes' ? [
+        {loc:'Sub-Acute Detox',   notes:(row.cov_detox||'')+'— OON deductible applies', auth:row.auth_detox, accred:row.accred_detox},
+        {loc:'Residential (RTC)', notes:(row.cov_rtc||'')  +'— OON deductible applies', auth:row.auth_rtc,   accred:row.accred_rtc},
+        {loc:'PHP',               notes:(row.cov_php||'')  +'— OON deductible applies', auth:row.auth_php,   accred:row.accred_php},
+        {loc:'IOP',               notes:(row.cov_iop||'')  +'— OON deductible applies', auth:row.auth_iop,   accred:row.accred_iop},
+        {loc:'OP — Non-Routine',  notes:(row.cov_op_nr||'')+'— OON deductible applies', auth:row.auth_op_nr, accred:row.accred_op_nr},
+        {loc:'OP — Routine',      notes:(row.cov_op_ro||'')+'— OON deductible applies', auth:row.auth_op_ro, accred:row.accred_op_ro},
+      ].filter(r=>r.notes) : [],
+      precert_co: row.precert_co, preCertPenalty: row.precert_penalty,
+      assignment: row.assignment, paysTo: row.pays_to,
+      innMedPayer: row.inn_med_payer, innMedClaims: row.inn_med_claims,
+      innBhPayer: row.inn_bh_payer, innBhClaims: row.inn_bh_claims,
+      oonMedPayer: row.oon_med_payer, oonMedClaims: row.oon_med_claims,
+      oonBhPayer: row.oon_bh_payer, oonBhClaims: row.oon_bh_claims,
+      pharmBenefits: row.pharm_benefits, pharmPhone: row.pharm_phone,
+      pharmProvider: row.pharm_provider, pharmBin: row.rx_bin,
+      pharmPcn: row.rx_pcn, pharmGrp: row.rx_group,
+      cigmrc2: row.cigna_mrc2, multiplan: row.multiplan,
+      bcbsState: row.bcbs_state, cobra: row.cobra_policy,
+      notes: row.notes, timelyFiling: row.timely_filing, otherIns: row.other_insurance,
+      agent: row.vob_completed_by,
+      verifiedDate: row.verified_date || row.submitted_at?.split('T')[0],
+      callRef: row.call_ref, repName: row.ins_rep_name,
+    };
+  }
+};
+
+
 const {
   useState,
   useRef,
@@ -1491,27 +1635,13 @@ const FORM_SECTIONS = [{
 
 // ─── Icons ────────────────────────────────────────────────────────
 const Ico = {
-  logo: () => /*#__PURE__*/React.createElement("svg", {
+  logo: () => /*#__PURE__*/React.createElement("img", {
+    src: "/assets/logo/KAREPOINT-logo-only.svg",
     width: "34",
     height: "34",
-    viewBox: "0 0 34 34",
-    fill: "none"
-  }, /*#__PURE__*/React.createElement("rect", {
-    width: "34",
-    height: "34",
-    rx: "9",
-    fill: "#377985"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M8 17c0-5 4-9 9-9s9 4 9 9",
-    stroke: "#fff",
-    strokeWidth: "2.5",
-    strokeLinecap: "round"
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "17",
-    cy: "21",
-    r: "4",
-    fill: "#fff"
-  })),
+    alt: "Karepoint",
+    style: {display: 'block'}
+  }),
   send: () => /*#__PURE__*/React.createElement("svg", {
     width: "15",
     height: "15",
@@ -7703,9 +7833,10 @@ function KPNav({
   }, /*#__PURE__*/React.createElement(Ico.logo, null), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: th.f.md,
-      fontWeight: 800,
+      fontWeight: 400,
+      fontFamily: "'Mokoto',sans-serif",
       color: th.navText,
-      letterSpacing: '-0.01em'
+      letterSpacing: '0.02em'
     }
   }, "Karepoint Internal"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -7846,9 +7977,10 @@ function Login({
     style: {
       margin: '18px 0 4px',
       fontSize: th.f.xl,
-      fontWeight: 800,
+      fontWeight: 400,
+      fontFamily: "'Mokoto',sans-serif",
       color: th.text,
-      letterSpacing: '-0.02em'
+      letterSpacing: '0.02em'
     }
   }, "Karepoint"), /*#__PURE__*/React.createElement("p", {
     style: {
@@ -8037,14 +8169,10 @@ function ManagerDash({
       type: 'success'
     });
   };
-  const handleApproveVOB = id => {
-    updV(id, {
-      status: 'Completed'
-    });
-    setToast({
-      msg: `${id} approved and delivered to facility`,
-      type: 'success'
-    });
+  const handleApproveVOB = async id => {
+    await SB.updateVOB(id, { status: 'Completed', completed_at: new Date().toISOString(), chat_closed: true });
+    updV(id, { status: 'Completed' });
+    setToast({ msg: `${id} approved and delivered to facility`, type: 'success' });
   };
   const handleReviseVOB = (id, note) => {
     updV(id, {
@@ -9526,43 +9654,69 @@ function AgentDash({
       type: 'success'
     });
   };
-  const handleComplete = (vid, data) => {
+  const handleComplete = async (vid, data) => {
     const agentUser = DEMO_USERS.find(u => u.id === user.id);
     const tier = agentUser?.tier || 1;
-    if (tier === 1) {
-      // Needs manager approval — goes to Ready for Review, FC sees Finalizing
-      updV(vid, {
-        status: 'Ready for Review',
-        formData: data,
-        pdfLink: '#'
-      });
-      setToast({
-        msg: `${vid} submitted for manager review`,
-        type: 'success'
-      });
-    } else if (tier === 2) {
-      // Auto-deliver + notify manager
-      updV(vid, {
-        status: 'Completed',
-        formData: data,
-        pdfLink: '#'
-      });
-      setToast({
-        msg: `${vid} delivered to facility — manager notified`,
-        type: 'success'
-      });
-    } else {
-      // Senior — silent auto-deliver
-      updV(vid, {
-        status: 'Completed',
-        formData: data,
-        pdfLink: '#'
-      });
-      setToast({
-        msg: `${vid} delivered to facility`,
-        type: 'success'
-      });
-    }
+    const newStatus = tier === 1 ? 'Ready for Review' : 'Completed';
+    // Save full VOB data to Supabase
+    const vob = vobs.find(v => v.id === vid) || {};
+    const fd = data || vob.formData || {};
+    const row = {
+      id: vid,
+      facility_name: vob.facility || fd.facilityName || '',
+      status: newStatus,
+      assigned_agent: agentUser?.name || '',
+      vob_completed_by: agentUser?.name || '',
+      call_ref: fd.callRefNum || '',
+      ins_rep_name: (fd.insuranceRepName||'') + (fd.callTime?' · '+fd.callTime:''),
+      verified_date: fd.callDate || new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+      patient_first: fd.patientFirst||'', patient_last: fd.patientLast||'',
+      patient_dob: fd.patientDob||'', patient_gender: fd.patientGender||'',
+      patient_address: fd.patientAddress||'',
+      insurance_name: fd.payerName||'', ins_id: fd.memberId||'',
+      group_num: fd.groupNumber||'', ins_phone: fd.payerPhone||fd.memberServicesPhone||'',
+      primary_secondary: 'Primary', plan_active: fd.planActive||'Active',
+      effective_date: fd.effectiveDate||'', renewal_date: fd.renewalDate||'',
+      policy_type: fd.planType||'', self_funded: fd.fundingType||'',
+      sub_name: fd.subscriberName||'', sub_dob: fd.subscriberDob||'',
+      sub_id: fd.subscriberId||'', relationship: fd.subscriberRelationship||'Self',
+      employer_name: fd.planSponsor||'', cobra_policy: fd.cobra||'No',
+      carve_out: fd.bhCarvedOut||'No', carve_out_to: fd.carveOutCompany||'',
+      carve_out_phone: fd.carveOutPhone||'', carve_out_id: fd.carveOutId||'',
+      inn_ind_ded: fd.dedIndividual||'', inn_fam_ded: fd.dedFamily||'',
+      inn_ind_oop: fd.oopIndividual||'', inn_fam_oop: fd.oopFamily||'',
+      inn_coins: fd.coinsurance||'', cross_accum: fd.crossAccumulation||'No',
+      ded_oop_combined: fd.dedOopInteraction||'No', hsa_hra: 'No',
+      oon_benefits: fd.outOfNetworkCovered||'No',
+      max_per_day: fd.globalMaxDollarPerDay||'N/A',
+      max_visits: fd.globalMaxVisits||'N/A',
+      cal_lifetime: 'Calendar Year', combined_days: 'N/A', admin_copays: 'N/A',
+      cov_detox: fd.locAuth?.detox?.covered||'', auth_detox: fd.locAuth?.detox?.priorAuth||'', accred_detox: fd.locAuth?.detox?.accreditation||'',
+      cov_rtc: fd.locAuth?.rtc?.covered||'', auth_rtc: fd.locAuth?.rtc?.priorAuth||'', accred_rtc: fd.locAuth?.rtc?.accreditation||'',
+      cov_php: fd.locAuth?.php?.covered||'', auth_php: fd.locAuth?.php?.priorAuth||'', accred_php: fd.locAuth?.php?.accreditation||'',
+      cov_iop: fd.locAuth?.iop?.covered||'', auth_iop: fd.locAuth?.iop?.priorAuth||'', accred_iop: fd.locAuth?.iop?.accreditation||'',
+      cov_op_nr: fd.locAuth?.opFacility?.covered||'', auth_op_nr: fd.locAuth?.opFacility?.priorAuth||'', accred_op_nr: fd.locAuth?.opFacility?.accreditation||'',
+      cov_op_ro: fd.locAuth?.opOffice?.covered||'', auth_op_ro: fd.locAuth?.opOffice?.priorAuth||'', accred_op_ro: fd.locAuth?.opOffice?.accreditation||'',
+      precert_co: (fd.inpatientPaVendor||'')+(fd.inpatientPaPhone?' · '+fd.inpatientPaPhone:''),
+      precert_penalty: fd.inpatientPaPenalty||'',
+      assignment: 'Yes', pays_to: 'Facility',
+      inn_med_payer: fd.medicalPayerId||'', inn_med_claims: fd.medicalClaimsAddress||'',
+      inn_bh_payer: fd.bhPayerId||'', inn_bh_claims: fd.bhClaimsAddress||'',
+      oon_med_payer: fd.carvedOutPayerId||'', oon_bh_payer: fd.carvedOutPayerId||'',
+      oon_med_claims: fd.carvedOutClaimsAddress||'', oon_bh_claims: fd.carvedOutClaimsAddress||'',
+      pharm_benefits: fd.pharmacyCovered||'No', pharm_phone: fd.pbmPhone||'',
+      pharm_provider: fd.pbmName||'', rx_bin: fd.rxBin||'', rx_pcn: fd.rxPcn||'', rx_group: fd.rxGroup||'',
+      notes: fd.additionalNotes||'', timely_filing: 'Yes — 12 months',
+      requested_loc: vob.loc||'', completed_at: newStatus==='Completed'?new Date().toISOString():null,
+      chat_closed: newStatus==='Completed', pa_submitted: vob.paSubmitted||false,
+    };
+    await SB.saveVOB(row);
+    // Update local state
+    updV(vid, { status: newStatus, formData: data, pdfLink: newStatus==='Completed'?vid:null });
+    setToast({
+      msg: tier===1?`${vid} submitted for manager review`:tier===2?`${vid} delivered — manager notified`:`${vid} delivered to facility`,
+      type: 'success'
+    });
     setOpenForm(null);
   };
   const handleSaveEdit = (id, data, versionEntry) => {
