@@ -27,8 +27,6 @@ body *{visibility:hidden}
 #vob-print-root{position:absolute!important;top:0!important;left:0!important;width:100%!important;height:auto!important;overflow:visible!important;background:#fff!important;z-index:9999!important;display:block!important}
 #vob-print-root [data-noprint]{display:none!important}
 #vob-print-root>div{position:static!important;overflow:visible!important;height:auto!important;max-height:none!important;display:block!important}
-#vob-print-root [style*="sticky"]{position:static!important}
-#vob-print-root [style*="fixed"]{position:static!important}
 .vob-doc{padding:0!important}
 .vob-pg{page-break-after:always;break-after:page;padding:20px 24px;background:#fff}
 .vob-pg:last-child{page-break-after:avoid;break-after:avoid}
@@ -1619,35 +1617,194 @@ function SignupModal(_ref) {
 // ─── Login ───────────────────────────────────────────────────────
 function Login(_ref5) {
   var onLogin = _ref5.onLogin;
-  var _useState7 = useState(false),
+  var _useState7 = useState(''),
     _useState8 = _slicedToArray(_useState7, 2),
-    showSignup = _useState8[0],
-    setShowSignup = _useState8[1];
+    email = _useState8[0],
+    setEmail = _useState8[1];
   var _useState9 = useState(''),
     _useState0 = _slicedToArray(_useState9, 2),
-    selFac = _useState0[0],
-    setSelFac = _useState0[1];
+    pw = _useState0[0],
+    setPw = _useState0[1];
   var _useState1 = useState(''),
     _useState10 = _slicedToArray(_useState1, 2),
-    email = _useState10[0],
-    setEmail = _useState10[1];
-  var _useState11 = useState(''),
+    err = _useState10[0],
+    setErr = _useState10[1];
+  var _useState11 = useState(false),
     _useState12 = _slicedToArray(_useState11, 2),
-    pw = _useState12[0],
-    setPw = _useState12[1];
-  var _useState13 = useState(''),
+    loading = _useState12[0],
+    setLoading = _useState12[1];
+  var _useState13 = useState(true),
     _useState14 = _slicedToArray(_useState13, 2),
-    err = _useState14[0],
-    setErr = _useState14[1];
-  var handle = function handle() {
-    if (!selFac) {
-      setErr('Please select a facility to continue.');
-      return;
-    }
-    onLogin(FACILITIES.find(function (f) {
-      return f.id === selFac;
+    checking = _useState14[0],
+    setChecking = _useState14[1];
+
+  // On mount: check if session token was passed from website modal
+  useEffect(function () {
+    var token = sessionStorage.getItem('kp_token');
+    var storedEmail = sessionStorage.getItem('kp_email');
+    if (token && storedEmail) {
+      // Validate token and load facility data
+      fetch("".concat(SUPABASE_URL, "/rest/v1/facilities?contact_email=eq.").concat(encodeURIComponent(storedEmail), "&status=eq.Active&limit=1"), {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': "Bearer ".concat(token)
+        }
+      }).then(function (r) {
+        return r.json();
+      }).then(function (rows) {
+        if (rows && rows.length > 0) {
+          var f = rows[0];
+          onLogin({
+            id: f.id,
+            name: f.name,
+            loc: f.location,
+            email: storedEmail
+          });
+        } else setChecking(false);
+      })["catch"](function () {
+        return setChecking(false);
+      });
+    } else setChecking(false);
+  }, []);
+  var handle = /*#__PURE__*/function () {
+    var _handle = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7() {
+      var authRes, authData, token, facRes, facRows, f, _t8;
+      return _regenerator().w(function (_context7) {
+        while (1) switch (_context7.p = _context7.n) {
+          case 0:
+            if (!(!email || !pw)) {
+              _context7.n = 1;
+              break;
+            }
+            setErr('Please enter your email and password.');
+            return _context7.a(2);
+          case 1:
+            setLoading(true);
+            setErr('');
+            _context7.p = 2;
+            _context7.n = 3;
+            return fetch("".concat(SUPABASE_URL, "/auth/v1/token?grant_type=password"), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_KEY
+              },
+              body: JSON.stringify({
+                email: email,
+                password: pw
+              })
+            });
+          case 3:
+            authRes = _context7.v;
+            _context7.n = 4;
+            return authRes.json();
+          case 4:
+            authData = _context7.v;
+            if (authData.access_token) {
+              _context7.n = 5;
+              break;
+            }
+            setErr(authData.error_description || authData.msg || 'Invalid email or password.');
+            setLoading(false);
+            return _context7.a(2);
+          case 5:
+            token = authData.access_token;
+            sessionStorage.setItem('kp_token', token);
+            sessionStorage.setItem('kp_email', email);
+
+            // Load facility record
+            _context7.n = 6;
+            return fetch("".concat(SUPABASE_URL, "/rest/v1/facilities?contact_email=eq.").concat(encodeURIComponent(email), "&limit=1"), {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': "Bearer ".concat(token)
+              }
+            });
+          case 6:
+            facRes = _context7.v;
+            _context7.n = 7;
+            return facRes.json();
+          case 7:
+            facRows = _context7.v;
+            if (!(facRows && facRows.length > 0)) {
+              _context7.n = 10;
+              break;
+            }
+            f = facRows[0];
+            if (!(f.status === 'Pending')) {
+              _context7.n = 8;
+              break;
+            }
+            setErr('Your account is pending approval. You\'ll receive an email once access is activated.');
+            setLoading(false);
+            return _context7.a(2);
+          case 8:
+            if (!(f.status === 'Inactive')) {
+              _context7.n = 9;
+              break;
+            }
+            setErr('Your account is inactive. Contact onboarding@mykarepoint.com.');
+            setLoading(false);
+            return _context7.a(2);
+          case 9:
+            onLogin({
+              id: f.id,
+              name: f.name,
+              loc: f.location,
+              email: email
+            });
+            _context7.n = 11;
+            break;
+          case 10:
+            // No facility record — show helpful message
+            setErr('Account not found. If you\'re a new facility, please complete onboarding at mykarepoint.com/signup');
+            setLoading(false);
+          case 11:
+            _context7.n = 13;
+            break;
+          case 12:
+            _context7.p = 12;
+            _t8 = _context7.v;
+            setErr('Connection error. Please try again.');
+            setLoading(false);
+          case 13:
+            return _context7.a(2);
+        }
+      }, _callee7, null, [[2, 12]]);
     }));
-  };
+    function handle() {
+      return _handle.apply(this, arguments);
+    }
+    return handle;
+  }();
+  if (checking) return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: '100vh',
+      background: DS.paper,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "/assets/logo/KAREPOINT-logo-only.svg",
+    width: "32",
+    height: "32",
+    alt: "",
+    style: {
+      margin: '0 auto 16px'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: DS.fm,
+      fontSize: 11,
+      color: DS.ink3,
+      letterSpacing: '.08em'
+    }
+  }, "Loading\u2026")));
   return /*#__PURE__*/React.createElement("div", {
     style: {
       minHeight: '100vh',
@@ -1681,30 +1838,17 @@ function Login(_ref5) {
       alignItems: 'center',
       gap: 10
     }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "28",
-    height: "28",
-    viewBox: "0 0 100 108",
-    fill: "none"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z",
-    fill: "none",
-    stroke: DS.teal,
-    strokeWidth: "8",
-    strokeLinejoin: "round"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M25 73l20-22 10 11 21-24",
-    fill: "none",
-    stroke: DS.teal,
-    strokeWidth: "10"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "/assets/logo/KAREPOINT-logo-only.svg",
+    width: "26",
+    height: "26",
+    alt: "Karepoint"
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: DS.fb,
+      fontFamily: "'Mokoto',sans-serif",
       fontSize: 15,
-      fontWeight: 700,
-      letterSpacing: '.13em',
       color: DS.ink,
-      textTransform: 'uppercase'
+      letterSpacing: '.04em'
     }
   }, "KAREPOINT"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1716,13 +1860,7 @@ function Login(_ref5) {
       textTransform: 'uppercase',
       marginTop: 2
     }
-  }, "FACILITY PORTAL"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 10,
-      alignItems: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("a", {
+  }, "FACILITY PORTAL"))), /*#__PURE__*/React.createElement("a", {
     href: "https://mykarepoint.com",
     style: {
       fontSize: 13,
@@ -1731,12 +1869,7 @@ function Login(_ref5) {
       textDecoration: 'none',
       fontFamily: DS.fb
     }
-  }, "\u2190 Back to site"), /*#__PURE__*/React.createElement("button", {
-    onClick: function onClick() {
-      return setShowSignup(true);
-    },
-    style: btnPrimary
-  }, "Request Access")))), /*#__PURE__*/React.createElement("div", {
+  }, "\u2190 Back to site"))), /*#__PURE__*/React.createElement("div", {
     style: {
       maxWidth: 1200,
       margin: '0 auto',
@@ -1899,18 +2032,16 @@ function Login(_ref5) {
       alignItems: 'center',
       gap: 8
     }
-  }, /*#__PURE__*/React.createElement("svg", {
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "/assets/logo/KAREPOINT-logo-only.svg",
     width: "13",
     height: "13",
-    viewBox: "0 0 100 108",
-    fill: "none"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M50 3C38 14 22 20 6 20v46c0 22 18 33 44 39 26-6 44-17 44-39V20C78 20 62 14 50 3z",
-    fill: "none",
-    stroke: "rgba(232,240,241,.5)",
-    strokeWidth: "10",
-    strokeLinejoin: "round"
-  })), /*#__PURE__*/React.createElement("span", {
+    alt: "",
+    style: {
+      filter: 'brightness(0) invert(1)',
+      opacity: .6
+    }
+  }), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: DS.fm,
       fontSize: 9,
@@ -1967,10 +2098,13 @@ function Login(_ref5) {
     },
     onBlur: function onBlur(e) {
       return e.target.style.borderColor = DS.line2;
+    },
+    onKeyDown: function onKeyDown(e) {
+      return e.key === 'Enter' && document.getElementById('fc-pw').focus();
     }
   })), /*#__PURE__*/React.createElement("div", {
     style: {
-      marginBottom: 4
+      marginBottom: 6
     }
   }, /*#__PURE__*/React.createElement("label", {
     style: {
@@ -1984,6 +2118,7 @@ function Login(_ref5) {
       marginBottom: 4
     }
   }, "Password"), /*#__PURE__*/React.createElement("input", {
+    id: "fc-pw",
     value: pw,
     onChange: function onChange(e) {
       setPw(e.target.value);
@@ -1997,6 +2132,9 @@ function Login(_ref5) {
     },
     onBlur: function onBlur(e) {
       return e.target.style.borderColor = DS.line2;
+    },
+    onKeyDown: function onKeyDown(e) {
+      return e.key === 'Enter' && handle();
     }
   })), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2004,7 +2142,7 @@ function Login(_ref5) {
       marginBottom: 18
     }
   }, /*#__PURE__*/React.createElement("a", {
-    href: "#",
+    href: "mailto:onboarding@mykarepoint.com?subject=Password Reset Request",
     style: {
       fontSize: 11,
       color: DS.teal,
@@ -2012,92 +2150,50 @@ function Login(_ref5) {
       fontWeight: 500,
       fontFamily: DS.fb
     }
-  }, "Forgot password?")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: DS.tealMist,
-      border: "1px solid ".concat(DS.tealLine),
-      borderRadius: 5,
-      padding: '8px 12px',
-      marginBottom: 14
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: DS.fm,
-      fontSize: 8,
-      fontWeight: 500,
-      letterSpacing: '.14em',
-      color: DS.tealD,
-      textTransform: 'uppercase',
-      marginBottom: 5
-    }
-  }, "Demo \u2014 select facility"), /*#__PURE__*/React.createElement("select", {
-    value: selFac,
-    onChange: function onChange(e) {
-      setSelFac(e.target.value);
-      setErr('');
-    },
-    style: {
-      width: '100%',
-      background: 'transparent',
-      border: 'none',
-      fontSize: 12,
-      color: selFac ? DS.ink : DS.ink3,
-      outline: 'none',
-      cursor: 'pointer',
-      fontFamily: DS.fb
-    }
-  }, /*#__PURE__*/React.createElement("option", {
-    value: ""
-  }, "\u2014 Choose facility \u2014"), FACILITIES.map(function (f) {
-    return /*#__PURE__*/React.createElement("option", {
-      key: f.id,
-      value: f.id
-    }, f.name);
-  }))), err && /*#__PURE__*/React.createElement("div", {
+  }, "Forgot password?")), err && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: DS.error,
-      marginBottom: 10,
-      padding: '7px 11px',
+      marginBottom: 12,
+      padding: '8px 11px',
       background: DS.errorTint,
       borderRadius: 4,
-      border: "1px solid rgba(192,57,43,.2)"
+      border: "1px solid rgba(192,57,43,.2)",
+      lineHeight: 1.5
     }
   }, err), /*#__PURE__*/React.createElement("button", {
     onClick: handle,
+    disabled: loading,
     style: _objectSpread(_objectSpread({}, btnPrimary), {}, {
       width: '100%',
       padding: '12px',
       fontSize: 14,
-      boxShadow: '0 4px 16px rgba(60,120,130,.25)'
+      boxShadow: '0 4px 16px rgba(60,120,130,.25)',
+      opacity: loading ? .7 : 1
     }),
     onMouseEnter: function onMouseEnter(e) {
-      return e.target.style.background = DS.tealD;
+      return !loading && (e.target.style.background = DS.tealD);
     },
     onMouseLeave: function onMouseLeave(e) {
       return e.target.style.background = DS.teal;
     }
-  }, "Sign In"), /*#__PURE__*/React.createElement("div", {
+  }, loading ? 'Signing in…' : 'Sign In'), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       marginTop: 14,
       fontSize: 12,
       color: DS.ink3
     }
-  }, "New facility? ", /*#__PURE__*/React.createElement("button", {
-    onClick: function onClick() {
-      return setShowSignup(true);
-    },
+  }, "New facility? ", /*#__PURE__*/React.createElement("a", {
+    href: "/signup",
     style: {
-      background: 'none',
-      border: 'none',
       color: DS.teal,
-      cursor: 'pointer',
       fontWeight: 600,
       fontSize: 12,
-      fontFamily: DS.fb
+      fontFamily: DS.fb,
+      textDecoration: 'none'
     }
-  }, "Request access \u2192")))), /*#__PURE__*/React.createElement("div", {
+  }, "Start onboarding \u2192")))), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       marginTop: 12,
@@ -2128,10 +2224,13 @@ function Login(_ref5) {
       display: 'flex',
       gap: 16
     }
-  }, ['Privacy', 'Terms', 'HIPAA Notice', 'BAA'].map(function (l) {
+  }, [['Privacy', '/signup'], ['Terms', '/signup'], ['HIPAA Notice', '/signup'], ['BAA', 'mailto:onboarding@mykarepoint.com?subject=BAA Request']].map(function (_ref8) {
+    var _ref9 = _slicedToArray(_ref8, 2),
+      l = _ref9[0],
+      h = _ref9[1];
     return /*#__PURE__*/React.createElement("a", {
       key: l,
-      href: "#",
+      href: h,
       style: {
         fontFamily: DS.fm,
         fontSize: 10,
@@ -2139,18 +2238,14 @@ function Login(_ref5) {
         textDecoration: 'none'
       }
     }, l);
-  }))), showSignup && /*#__PURE__*/React.createElement(SignupModal, {
-    onClose: function onClose() {
-      return setShowSignup(false);
-    }
-  }));
+  }))));
 }
 
 // ─── New VOB Panel ────────────────────────────────────────────────
-function NewVOBPanel(_ref8) {
-  var facility = _ref8.facility,
-    onClose = _ref8.onClose,
-    onSubmit = _ref8.onSubmit;
+function NewVOBPanel(_ref0) {
+  var facility = _ref0.facility,
+    onClose = _ref0.onClose,
+    onSubmit = _ref0.onSubmit;
   var _useState15 = useState({
       patient: '',
       dob: '',
@@ -2197,12 +2292,12 @@ function NewVOBPanel(_ref8) {
       versions: []
     });
   };
-  var I = function I(_ref9) {
-    var label = _ref9.label,
-      k = _ref9.k,
-      ph = _ref9.ph,
-      type = _ref9.type,
-      half = _ref9.half;
+  var I = function I(_ref1) {
+    var label = _ref1.label,
+      k = _ref1.k,
+      ph = _ref1.ph,
+      type = _ref1.type,
+      half = _ref1.half;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         gridColumn: half ? 'span 1' : 'span 2',
@@ -2599,11 +2694,11 @@ function NewVOBPanel(_ref8) {
 }
 
 // ─── PA Intake Panel ──────────────────────────────────────────────
-function PAIntakePanel(_ref0) {
-  var vob = _ref0.vob,
-    facility = _ref0.facility,
-    onClose = _ref0.onClose,
-    onSubmit = _ref0.onSubmit;
+function PAIntakePanel(_ref10) {
+  var vob = _ref10.vob,
+    facility = _ref10.facility,
+    onClose = _ref10.onClose,
+    onSubmit = _ref10.onSubmit;
   var _useState19 = useState('upload'),
     _useState20 = _slicedToArray(_useState19, 2),
     step = _useState20[0],
@@ -2655,9 +2750,9 @@ function PAIntakePanel(_ref0) {
       setStep('confirm');
     }, 3200);
   };
-  var ERow = function ERow(_ref1) {
-    var label = _ref1.label,
-      value = _ref1.value;
+  var ERow = function ERow(_ref11) {
+    var label = _ref11.label,
+      value = _ref11.value;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         padding: '7px 12px',
@@ -3207,10 +3302,10 @@ function PAIntakePanel(_ref0) {
 }
 
 // ─── Chat Panel ───────────────────────────────────────────────────
-function ChatPanel(_ref10) {
-  var vob = _ref10.vob,
-    onClose = _ref10.onClose,
-    onSend = _ref10.onSend;
+function ChatPanel(_ref12) {
+  var vob = _ref12.vob,
+    onClose = _ref12.onClose,
+    onSend = _ref12.onSend;
   var _useState31 = useState(''),
     _useState32 = _slicedToArray(_useState31, 2),
     msg = _useState32[0],
@@ -3511,10 +3606,10 @@ function ChatPanel(_ref10) {
 }
 
 // ─── PA Thread ────────────────────────────────────────────────────
-function PAThread(_ref11) {
-  var pa = _ref11.pa,
-    onClose = _ref11.onClose,
-    onSend = _ref11.onSend;
+function PAThread(_ref13) {
+  var pa = _ref13.pa,
+    onClose = _ref13.onClose,
+    onSend = _ref13.onSend;
   var _useState35 = useState(''),
     _useState36 = _slicedToArray(_useState35, 2),
     msg = _useState36[0],
@@ -3772,9 +3867,9 @@ function PAThread(_ref11) {
 }
 
 // ─── Dashboard ────────────────────────────────────────────────────
-function Dashboard(_ref12) {
-  var facility = _ref12.facility,
-    onLogout = _ref12.onLogout;
+function Dashboard(_ref14) {
+  var facility = _ref14.facility,
+    onLogout = _ref14.onLogout;
   var _useState37 = useState(seedVOBs),
     _useState38 = _slicedToArray(_useState37, 2),
     vobs = _useState38[0],
@@ -3877,11 +3972,11 @@ function Dashboard(_ref12) {
     });
   };
   var addVOB = /*#__PURE__*/function () {
-    var _addVOB = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee7(v) {
-      return _regenerator().w(function (_context7) {
-        while (1) switch (_context7.n) {
+    var _addVOB = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee8(v) {
+      return _regenerator().w(function (_context8) {
+        while (1) switch (_context8.n) {
           case 0:
-            _context7.n = 1;
+            _context8.n = 1;
             return SB.saveVOB({
               id: v.id,
               facility_name: facility.name,
@@ -3904,9 +3999,9 @@ function Dashboard(_ref12) {
             setShowNew(false);
             setToast('VOB request submitted — we\'ll verify benefits within 4 hours.');
           case 2:
-            return _context7.a(2);
+            return _context8.a(2);
         }
-      }, _callee7);
+      }, _callee8);
     }));
     function addVOB(_x) {
       return _addVOB.apply(this, arguments);
@@ -5238,12 +5333,12 @@ var VOB_REPORTS = {
 };
 
 // ─── VOB Report Modal ─────────────────────────────────────────────
-function VOBReportModal(_ref13) {
+function VOBReportModal(_ref15) {
   var _d$oonLocData;
-  var vobId = _ref13.vobId,
-    vob = _ref13.vob,
-    facility = _ref13.facility,
-    onClose = _ref13.onClose;
+  var vobId = _ref15.vobId,
+    vob = _ref15.vob,
+    facility = _ref15.facility,
+    onClose = _ref15.onClose;
   var _useState65 = useState(null),
     _useState66 = _slicedToArray(_useState65, 2),
     liveData = _useState66[0],
@@ -5289,16 +5384,16 @@ function VOBReportModal(_ref13) {
       color: DS.ink3
     }
   }, "Fetching data from Karepoint database")));
-  var F = function F(_ref14) {
-    var label = _ref14.label,
-      value = _ref14.value,
-      big = _ref14.big,
-      mono = _ref14.mono,
-      ok = _ref14.ok,
-      warn = _ref14.warn,
-      muted = _ref14.muted,
-      sub = _ref14.sub,
-      span2 = _ref14.span2;
+  var F = function F(_ref16) {
+    var label = _ref16.label,
+      value = _ref16.value,
+      big = _ref16.big,
+      mono = _ref16.mono,
+      ok = _ref16.ok,
+      warn = _ref16.warn,
+      muted = _ref16.muted,
+      sub = _ref16.sub,
+      span2 = _ref16.span2;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         gridColumn: span2 ? 'span 2' : 'span 1',
@@ -5332,11 +5427,11 @@ function VOBReportModal(_ref13) {
       }
     }, sub));
   };
-  var Grid = function Grid(_ref15) {
-    var cols = _ref15.cols,
-      children = _ref15.children,
-      _ref15$style = _ref15.style,
-      style = _ref15$style === void 0 ? {} : _ref15$style;
+  var Grid = function Grid(_ref17) {
+    var cols = _ref17.cols,
+      children = _ref17.children,
+      _ref17$style = _ref17.style,
+      style = _ref17$style === void 0 ? {} : _ref17$style;
     return /*#__PURE__*/React.createElement("div", {
       style: _objectSpread({
         display: 'grid',
@@ -5350,9 +5445,9 @@ function VOBReportModal(_ref13) {
       }, style)
     }, children);
   };
-  var Chip = function Chip(_ref16) {
-    var v = _ref16.v,
-      req = _ref16.req;
+  var Chip = function Chip(_ref18) {
+    var v = _ref18.v,
+      req = _ref18.req;
     return v === 'Required' || v === 'Yes' ? /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: DS.fm,
@@ -5385,11 +5480,11 @@ function VOBReportModal(_ref13) {
       }
     }, v);
   };
-  var Sec = function Sec(_ref17) {
-    var title = _ref17.title,
-      badge = _ref17.badge,
-      badgeColor = _ref17.badgeColor,
-      children = _ref17.children;
+  var Sec = function Sec(_ref19) {
+    var title = _ref19.title,
+      badge = _ref19.badge,
+      badgeColor = _ref19.badgeColor,
+      children = _ref19.children;
     return /*#__PURE__*/React.createElement("div", {
       style: {
         padding: '14px 24px',
@@ -5426,8 +5521,8 @@ function VOBReportModal(_ref13) {
       })
     }, badge)), children);
   };
-  var LOCTable = function LOCTable(_ref18) {
-    var rows = _ref18.rows;
+  var LOCTable = function LOCTable(_ref20) {
+    var rows = _ref20.rows;
     return /*#__PURE__*/React.createElement("table", {
       style: {
         width: '100%',
@@ -5501,9 +5596,9 @@ function VOBReportModal(_ref13) {
       })));
     })));
   };
-  var PG = function PG(_ref19) {
-    var children = _ref19.children,
-      last = _ref19.last;
+  var PG = function PG(_ref21) {
+    var children = _ref21.children,
+      last = _ref21.last;
     return /*#__PURE__*/React.createElement("div", {
       className: "vob-pg",
       style: {
@@ -5735,11 +5830,11 @@ function VOBReportModal(_ref13) {
       gap: 14,
       marginBottom: 10
     }
-  }, [['Patient', d.patient, "DOB: ".concat(d.dob, " \xB7 ").concat(d.gender)], ['Insurance', d.insurance, "ID: ".concat(d.insId, " \xB7 Grp: ").concat(d.groupNum)], ['Level of Care', vob === null || vob === void 0 ? void 0 : vob.loc, (facility === null || facility === void 0 ? void 0 : facility.name) + ' · ' + (facility === null || facility === void 0 ? void 0 : facility.loc)], ['Policy', d.policyType + ' — ' + d.selfFunded, d.primary + ' · ' + d.active + ' · ' + d.effectiveDate + '–' + d.termDate]].map(function (_ref20) {
-    var _ref21 = _slicedToArray(_ref20, 3),
-      l = _ref21[0],
-      v = _ref21[1],
-      s = _ref21[2];
+  }, [['Patient', d.patient, "DOB: ".concat(d.dob, " \xB7 ").concat(d.gender)], ['Insurance', d.insurance, "ID: ".concat(d.insId, " \xB7 Grp: ").concat(d.groupNum)], ['Level of Care', vob === null || vob === void 0 ? void 0 : vob.loc, (facility === null || facility === void 0 ? void 0 : facility.name) + ' · ' + (facility === null || facility === void 0 ? void 0 : facility.loc)], ['Policy', d.policyType + ' — ' + d.selfFunded, d.primary + ' · ' + d.active + ' · ' + d.effectiveDate + '–' + d.termDate]].map(function (_ref22) {
+    var _ref23 = _slicedToArray(_ref22, 3),
+      l = _ref23[0],
+      v = _ref23[1],
+      s = _ref23[2];
     return /*#__PURE__*/React.createElement("div", {
       key: l
     }, /*#__PURE__*/React.createElement("div", {
@@ -5941,10 +6036,10 @@ function VOBReportModal(_ref13) {
       gridTemplateColumns: 'repeat(5,1fr)',
       gap: 8
     }
-  }, [['Max $ Per Day', d.maxPerDay], ['Max Visit Limits', d.maxVisits], ['Cal / Lifetime Max', d.calLifetime], ['Combined Days', d.combinedDays], ['Admin Co-Pays', d.adminCoPays]].map(function (_ref22) {
-    var _ref23 = _slicedToArray(_ref22, 2),
-      l = _ref23[0],
-      v = _ref23[1];
+  }, [['Max $ Per Day', d.maxPerDay], ['Max Visit Limits', d.maxVisits], ['Cal / Lifetime Max', d.calLifetime], ['Combined Days', d.combinedDays], ['Admin Co-Pays', d.adminCoPays]].map(function (_ref24) {
+    var _ref25 = _slicedToArray(_ref24, 2),
+      l = _ref25[0],
+      v = _ref25[1];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
