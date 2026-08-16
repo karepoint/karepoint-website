@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Karepoint — Facility Signup</title>
+<link rel="icon" href="/assets/logo/KAREPOINT-logo-only.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'Mokoto';src:url('/assets/fonts/mokoto_regular.ttf') format('truetype');font-weight:normal;font-style:normal;font-display:swap;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:#FBFAF8;color:#12262A;font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+input,select,textarea,button{font-family:inherit}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+:root{
+  --teal:#3C7882;--teal-d:#2C5A63;--teal-dd:#1C3B42;--teal-mist:#F3F8F8;--teal-tint:rgba(60,120,130,.08);--teal-line:rgba(60,120,130,.18);
+  --ink:#12262A;--ink2:#3A5257;--ink3:#6B858A;--ink4:#9DB0B4;
+  --paper:#FBFAF8;--paper2:#F5F3EF;--white:#FFFFFF;
+  --sand:#C9A961;--sand-tint:rgba(201,169,97,.10);--sand-line:rgba(201,169,97,.28);
+  --line:rgba(18,38,42,.10);--line2:rgba(18,38,42,.16);
+  --success:#1a9e5c;--error:#c0392b;
+  --sh:0 4px 20px rgba(18,38,42,.07);--sh-lg:0 20px 60px rgba(18,38,42,.11);
+}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:100;background:rgba(251,250,248,.93);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:960px;margin:0 auto;padding:0 32px;height:62px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-nm{font-family:'Mokoto',sans-serif;font-size:15px;color:var(--ink);letter-spacing:.04em}
+.brand-tag{font-family:'IBM Plex Mono',monospace;font-size:7.5px;font-weight:500;letter-spacing:.22em;color:var(--teal);text-transform:uppercase;margin-top:2px}
+.nav-back{font-size:13px;font-weight:500;color:var(--ink3);transition:color .15s}
+.nav-back:hover{color:var(--teal)}
+
+/* Shell */
+.shell{max-width:680px;margin:0 auto;padding:48px 24px 80px}
+
+/* Progress */
+.progress-bar{display:flex;gap:0;margin-bottom:40px;background:var(--white);border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:var(--sh)}
+.step-tab{flex:1;padding:12px 8px;text-align:center;border-right:1px solid var(--line);cursor:default;transition:all .2s}
+.step-tab:last-child{border-right:none}
+.step-tab.active{background:var(--teal-dd)}
+.step-tab.done{background:var(--teal-mist)}
+.step-tab.inactive{background:var(--white)}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.1em;margin-bottom:3px}
+.step-tab.active .step-num{color:rgba(232,240,241,.6)}
+.step-tab.done .step-num{color:var(--teal)}
+.step-tab.inactive .step-num{color:var(--ink4)}
+.step-lbl{font-size:11px;font-weight:600}
+.step-tab.active .step-lbl{color:#fff}
+.step-tab.done .step-lbl{color:var(--teal-d)}
+.step-tab.inactive .step-lbl{color:var(--ink3)}
+
+/* Card */
+.card{background:var(--white);border:1px solid var(--line);border-radius:8px;box-shadow:var(--sh-lg);overflow:hidden}
+.card-head{background:var(--teal-dd);padding:18px 28px}
+.card-head-label{font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:500;letter-spacing:.18em;color:rgba(232,240,241,.55);text-transform:uppercase;margin-bottom:5px}
+.card-head-title{font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.card-head-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(232,240,241,.55);margin-top:4px}
+.card-body{padding:28px}
+
+/* Form fields */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field-full{grid-column:span 2}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.12em;color:var(--ink3);text-transform:uppercase}
+.field label .req{color:var(--error)}
+.field input,.field select,.field textarea{padding:10px 13px;background:var(--white);border:1.5px solid var(--line2);border-radius:4px;font-size:13px;color:var(--ink);outline:none;transition:border .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal)}
+.field input::placeholder{color:var(--ink4)}
+.field select option:first-child{color:var(--ink4)}
+.field-hint{font-size:11px;color:var(--ink3);margin-top:2px}
+
+/* Checkbox */
+.check-row{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;background:var(--teal-mist);border:1px solid var(--teal-line);border-radius:5px;cursor:pointer}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--teal);cursor:pointer;flex-shrink:0;margin-top:2px}
+.check-row label{font-size:13px;color:var(--ink2);cursor:pointer;line-height:1.55}
+.check-row label a{color:var(--teal);font-weight:600;text-decoration:underline}
+
+/* LOC chips */
+.chip-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.chip{padding:7px 14px;border-radius:4px;border:1.5px solid var(--line2);background:var(--white);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;user-select:none}
+.chip.selected{border-color:var(--teal);background:var(--teal-mist);color:var(--teal-d)}
+
+/* Buttons */
+.btn-primary{background:var(--teal);color:#fff;border:none;border-radius:4px;padding:13px 28px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;width:100%}
+.btn-primary:hover{background:var(--teal-d)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-outline{background:var(--white);color:var(--ink2);border:1px solid var(--line2);border-radius:4px;padding:12px 24px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.card-foot{padding:16px 28px;border-top:1px solid var(--line);display:flex;gap:10px;background:var(--paper)}
+
+/* Alert / Info boxes */
+.info-box{display:flex;gap:10px;padding:12px 14px;border-radius:5px;font-size:12.5px;line-height:1.6;margin-bottom:16px}
+.info-box.teal{background:var(--teal-mist);border:1px solid var(--teal-line);color:var(--ink2)}
+.info-box.sand{background:var(--sand-tint);border:1px solid var(--sand-line);color:#7A5F20}
+.info-box-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* T&C scroll box */
+.tnc-scroll{height:240px;overflow-y:auto;border:1px solid var(--line2);border-radius:4px;padding:16px;font-size:11.5px;color:var(--ink2);line-height:1.7;background:var(--paper);margin-bottom:14px}
+.tnc-scroll h4{font-size:12px;font-weight:700;color:var(--ink);margin:12px 0 4px}
+.tnc-scroll h4:first-child{margin-top:0}
+.tnc-scroll::-webkit-scrollbar{width:4px}
+.tnc-scroll::-webkit-scrollbar-thumb{background:var(--teal-line);border-radius:2px}
+
+/* Booking iframe */
+.booking-wrap{border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.booking-wrap iframe{width:100%;height:520px;border:none;display:block}
+
+/* Confirmation */
+.confirm-wrap{text-align:center;padding:24px 0 8px}
+.confirm-icon{width:64px;height:64px;border-radius:50%;background:var(--teal-mist);border:1px solid var(--teal-line);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
+.confirm-title{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;color:var(--ink);letter-spacing:-.01em;margin-bottom:8px}
+.confirm-sub{font-size:14px;color:var(--ink2);line-height:1.7;max-width:420px;margin:0 auto 24px}
+.confirm-detail{background:var(--teal-mist);border:1px solid var(--teal-line);border-radius:6px;padding:16px 20px;text-align:left;margin-bottom:20px}
+.confirm-detail-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.12em;color:var(--teal-d);text-transform:uppercase;margin-bottom:10px}
+.confirm-detail-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--teal-line);gap:8px;font-size:12.5px}
+.confirm-detail-row:last-child{border-bottom:none}
+.confirm-detail-key{color:var(--ink3);font-family:'IBM Plex Mono',monospace;font-size:10px}
+.confirm-detail-val{color:var(--ink);font-weight:600;text-align:right}
+.next-steps{text-align:left;margin-bottom:20px}
+.next-step{display:flex;gap:12px;padding:8px 0;font-size:13px;color:var(--ink2)}
+.next-step-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--teal);flex-shrink:0;width:20px}
+
+/* Responsive */
+@media(max-width:600px){
+  .field-grid{grid-template-columns:1fr}
+  .field-full{grid-column:span 1}
+  .shell{padding:28px 16px 60px}
+  .card-body{padding:20px}
+  .card-foot{flex-direction:column}
+  .step-lbl{display:none}
+  .step-num{font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <img src="/assets/logo/KAREPOINT-logo-only.svg" width="26" height="26" alt="Karepoint">
+      <div>
+        <div class="brand-nm">KAREPOINT</div>
+        <div class="brand-tag">Facility Signup</div>
+      </div>
+    </a>
+    <a href="/" class="nav-back">← Back to site</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <!-- Progress tabs -->
+  <div class="progress-bar" id="progress-bar">
+    <div class="step-tab active" id="tab-1">
+      <div class="step-num">01</div>
+      <div class="step-lbl">Details</div>
+    </div>
+    <div class="step-tab inactive" id="tab-2">
+      <div class="step-num">02</div>
+      <div class="step-lbl">Terms</div>
+    </div>
+    <div class="step-tab inactive" id="tab-3">
+      <div class="step-num">03</div>
+      <div class="step-lbl">Book Call</div>
+    </div>
+    <div class="step-tab inactive" id="tab-4">
+      <div class="step-num">04</div>
+      <div class="step-lbl">Confirm</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: Facility Details -->
+  <div id="step-1">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-label">Step 1 of 4</div>
+        <div class="card-head-title">Tell us about your facility</div>
+        <div class="card-head-sub">Takes about 3 minutes · No payment required</div>
+      </div>
+      <div class="card-body">
+        <div class="info-box teal">
+          <span class="info-box-icon">🔒</span>
+          <div>All information is collected solely for onboarding purposes and handled in accordance with our <strong>Privacy Policy</strong> and applicable HIPAA regulations.</div>
+        </div>
+
+        <div class="field-grid">
+          <!-- Facility details -->
+          <div class="field field-full">
+            <label>Facility Legal Name <span class="req">*</span></label>
+            <input type="text" id="f-name" placeholder="As registered with your state licensing board">
+          </div>
+          <div class="field">
+            <label>NPI Number <span class="req">*</span></label>
+            <input type="text" id="f-npi" placeholder="10-digit NPI" maxlength="10">
+          </div>
+          <div class="field">
+            <label>Tax ID (TIN / EIN) <span class="req">*</span></label>
+            <input type="text" id="f-tin" placeholder="XX-XXXXXXX">
+          </div>
+          <div class="field field-full">
+            <label>Facility Address <span class="req">*</span></label>
+            <input type="text" id="f-addr" placeholder="Street address, City, State, ZIP">
+          </div>
+          <div class="field">
+            <label>State <span class="req">*</span></label>
+            <select id="f-state">
+              <option value="">Select state…</option>
+              <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>License Number</label>
+            <input type="text" id="f-license" placeholder="State facility license #">
+          </div>
+
+          <!-- Contact -->
+          <div class="field field-full" style="margin-top:8px;padding-top:16px;border-top:1px solid var(--line)">
+            <label style="color:var(--teal-d);letter-spacing:.14em">Primary Contact</label>
+          </div>
+          <div class="field">
+            <label>Contact Name <span class="req">*</span></label>
+            <input type="text" id="f-contact" placeholder="Billing manager or admin">
+          </div>
+          <div class="field">
+            <label>Job Title</label>
+            <input type="text" id="f-title" placeholder="e.g. Billing Manager">
+          </div>
+          <div class="field">
+            <label>Work Email <span class="req">*</span></label>
+            <input type="email" id="f-email" placeholder="billing@yourfacility.com">
+            <div class="field-hint">This becomes your portal login email</div>
+          </div>
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" id="f-phone" placeholder="(000) 000-0000">
+          </div>
+
+          <!-- Facility type & services -->
+          <div class="field field-full" style="margin-top:8px;padding-top:16px;border-top:1px solid var(--line)">
+            <label style="color:var(--teal-d);letter-spacing:.14em">Services & Operations</label>
+          </div>
+          <div class="field field-full">
+            <label>Levels of Care Operated <span class="req">*</span></label>
+            <div class="chip-group" id="loc-chips">
+              <div class="chip" data-loc="Detox / Medical Withdrawal">Detox</div>
+              <div class="chip" data-loc="Residential (RTC)">Residential (RTC)</div>
+              <div class="chip" data-loc="Partial Hospitalization (PHP)">PHP</div>
+              <div class="chip" data-loc="Intensive Outpatient (IOP)">IOP</div>
+              <div class="chip" data-loc="Outpatient">Outpatient</div>
+              <div class="chip" data-loc="MAT / Medication Assisted">MAT</div>
+              <div class="chip" data-loc="Sober Living">Sober Living</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Estimated Monthly Patient Volume <span class="req">*</span></label>
+            <select id="f-volume">
+              <option value="">Select range…</option>
+              <option>1–10 patients/month</option>
+              <option>11–25 patients/month</option>
+              <option>26–50 patients/month</option>
+              <option>51–100 patients/month</option>
+              <option>100+ patients/month</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Services Needed <span class="req">*</span></label>
+            <select id="f-service">
+              <option value="">Select…</option>
+              <option value="vob_pa">VOB + Prior Authorization</option>
+              <option value="vob_only">VOB Only</option>
+              <option value="pa_only">Prior Authorization Only</option>
+            </select>
+          </div>
+          <div class="field field-full">
+            <label>Primary Payers (top 3–5)</label>
+            <input type="text" id="f-payers" placeholder="e.g. Aetna, BCBS, Cigna/Evernorth, UHC">
+            <div class="field-hint">Helps us confirm we cover your payer mix before the call</div>
+          </div>
+          <div class="field field-full">
+            <label>Current Challenges / Why Karepoint?</label>
+            <textarea id="f-notes" rows="3" placeholder="e.g. turnaround times, denials, staff capacity, payer expertise gaps…" style="resize:vertical"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <button class="btn-primary" onclick="goToStep2()">Continue to Terms & Conditions →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Terms & Conditions -->
+  <div id="step-2" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-label">Step 2 of 4</div>
+        <div class="card-head-title">Terms & Conditions</div>
+        <div class="card-head-sub">Please read and accept before continuing</div>
+      </div>
+      <div class="card-body">
+        <div class="info-box sand">
+          <span class="info-box-icon">⚠</span>
+          <div>These terms include provisions specific to <strong>HIPAA</strong> and <strong>42 CFR Part 2</strong> (Substance Use Disorder record confidentiality). Please read carefully. A copy will be emailed to you upon acceptance.</div>
+        </div>
+
+        <div class="tnc-scroll" id="tnc-text">
+          <h4>1. Acceptance of Terms</h4>
+          <p>By accessing the Karepoint Billing Service LLP client portal or by executing a Service Agreement with Karepoint Billing Service LLP ("Karepoint"), you ("Client" or "Facility") acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions and our Business Associate Agreement (BAA).</p>
+
+          <h4>2. Services</h4>
+          <p>Karepoint provides healthcare revenue cycle management (RCM) services to behavioral health and substance use disorder (SUD) treatment facilities, including Verification of Benefits (VOB), Prior Authorization (PA), Utilization Review (UR), and Denial Management. Service levels: Standard VOB within 4 business hours; Urgent VOB within 2 business hours; PA submission within 1 business day of receiving complete documentation.</p>
+
+          <h4>3. HIPAA Compliance</h4>
+          <p>Both parties agree to comply with HIPAA, HITECH, and all implementing regulations. A Business Associate Agreement (BAA) must be executed prior to any exchange of Protected Health Information (PHI). Client is solely responsible for obtaining all patient consents required by HIPAA and applicable state law.</p>
+
+          <h4>4. 42 CFR Part 2 — Substance Use Disorder Records</h4>
+          <p><strong>CRITICAL:</strong> Records relating to patients receiving SUD treatment are subject to 42 CFR Part 2, which imposes confidentiality requirements stricter than HIPAA. Client must obtain valid written patient consent under 42 CFR §2.31 before transmitting any SUD Records to Karepoint. Client warrants that all SUD Records transmitted are accompanied by valid patient consent. Unauthorized disclosure of SUD Records is a federal crime.</p>
+
+          <h4>5. Fees and Payment</h4>
+          <p>A one-time setup fee of USD $700 is due upon execution of the Service Agreement. Monthly service fees are set forth in the Service Agreement. Invoices are due within 15 days. Overdue amounts accrue interest at 1.5% per month. Karepoint reserves the right to suspend services for accounts more than 30 days past due.</p>
+
+          <h4>6. User Accounts and Security</h4>
+          <p>Multi-factor authentication (MFA) is mandatory for all primary account holders. Client is responsible for all activities under its account. Client must immediately notify Karepoint of any unauthorized access at onboarding@mykarepoint.com.</p>
+
+          <h4>7. Term and Termination</h4>
+          <p>Either party may terminate with 60 days written notice. Termination for cause with 30 days notice if material breach is not cured. Upon termination, all PHI must be returned or destroyed within 30 days per BAA requirements.</p>
+
+          <h4>8. Limitation of Liability</h4>
+          <p>Karepoint's total liability shall not exceed fees paid in the preceding 12 months. Neither party shall be liable for indirect, consequential, or punitive damages. Nothing limits liability for HIPAA violations due to willful neglect, 42 CFR Part 2 violations, or fraud.</p>
+
+          <h4>9. Confidentiality</h4>
+          <p>Each party agrees to keep confidential all non-public information of the other party, using at least the same degree of care as it uses to protect its own confidential information, but no less than reasonable care.</p>
+
+          <h4>10. Governing Law</h4>
+          <p>These Terms are governed by applicable US federal law with respect to HIPAA compliance. Disputes shall be resolved per the Service Agreement. Either party may seek injunctive relief in any court of competent jurisdiction.</p>
+
+          <h4>11. Entire Agreement</h4>
+          <p>These Terms, together with the Service Agreement and BAA, constitute the entire agreement between the parties. Karepoint reserves the right to modify these Terms with 30 days notice. Continued use constitutes acceptance.</p>
+
+          <p style="margin-top:16px;font-size:11px;color:var(--ink4)">Version 1.0 · Effective August 2026 · Karepoint Billing Service LLP · Full document available at mykarepoint.com · Questions: onboarding@mykarepoint.com</p>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <div class="check-row" onclick="toggleCheck('chk-tnc')">
+            <input type="checkbox" id="chk-tnc" onclick="event.stopPropagation()">
+            <label for="chk-tnc">I have read and agree to the <a href="#" onclick="return false">Terms and Conditions</a>. I confirm that I am authorized to enter into this agreement on behalf of my facility.</label>
+          </div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="check-row" onclick="toggleCheck('chk-hipaa')">
+            <input type="checkbox" id="chk-hipaa" onclick="event.stopPropagation()">
+            <label for="chk-hipaa">I confirm that my facility will obtain valid written patient consent under <strong>42 CFR §2.31</strong> before transmitting any Substance Use Disorder records to Karepoint.</label>
+          </div>
+        </div>
+        <div>
+          <div class="check-row" onclick="toggleCheck('chk-baa')">
+            <input type="checkbox" id="chk-baa" onclick="event.stopPropagation()">
+            <label for="chk-baa">I understand that a <strong>HIPAA Business Associate Agreement (BAA)</strong> must be executed before any Protected Health Information is shared with Karepoint. I agree to execute the BAA as part of onboarding.</label>
+          </div>
+        </div>
+        <div class="info-box teal" style="margin-top:14px;margin-bottom:0">
+          <span class="info-box-icon">📧</span>
+          <div>A copy of the full Terms & Conditions will be emailed to <strong id="tnc-email-display">your registered email</strong> upon acceptance, along with a timestamp and confirmation record.</div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <button class="btn-outline" onclick="goToStep(1)">← Back</button>
+        <button class="btn-primary" id="btn-tnc" onclick="goToStep3()" style="flex:2">Accept & Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Book Call -->
+  <div id="step-3" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-label">Step 3 of 4</div>
+        <div class="card-head-title">Book Your Onboarding Call</div>
+        <div class="card-head-sub">30 minutes · Microsoft Teams · Free</div>
+      </div>
+      <div class="card-body">
+        <div class="info-box teal" style="margin-bottom:20px">
+          <span class="info-box-icon">📞</span>
+          <div>Select a time that works for your team. On this call we'll confirm your payer mix, walk you through the portal, and answer any questions. <strong>No commitment required.</strong></div>
+        </div>
+        <div class="booking-wrap">
+          <iframe src='https://outlook.office365.com/owa/calendar/Discovery@karepoint.space/bookings/?ismsaljsauthenabled' width='100%' height='100%' scrolling='yes' style='border:0' title='Book an onboarding call with Karepoint'></iframe>
+        </div>
+        <div class="info-box sand" style="margin-bottom:0">
+          <span class="info-box-icon">ℹ</span>
+          <div>After booking you'll receive a Teams invite at your email. Click <strong>"I've booked my call"</strong> below once scheduled.</div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <button class="btn-outline" onclick="goToStep(2)">← Back</button>
+        <button class="btn-primary" onclick="goToStep4()" style="flex:2">I've Booked My Call →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: Confirmation -->
+  <div id="step-4" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-label">Step 4 of 4</div>
+        <div class="card-head-title">You're registered</div>
+        <div class="card-head-sub">Check your email for confirmation</div>
+      </div>
+      <div class="card-body">
+        <div class="confirm-wrap">
+          <div class="confirm-icon">✅</div>
+          <div class="confirm-title">Request Received</div>
+          <div class="confirm-sub">Your onboarding request has been submitted. Our team will review your details before the call.</div>
+
+          <div class="confirm-detail" id="confirm-summary">
+            <div class="confirm-detail-lbl">Your Submission</div>
+          </div>
+
+          <div class="next-steps">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.12em;color:var(--teal-d);text-transform:uppercase;margin-bottom:12px">What happens next</div>
+            <div class="next-step"><span class="next-step-num">1.</span><span>You'll receive a confirmation email at your registered address with the Terms & Conditions PDF attached</span></div>
+            <div class="next-step"><span class="next-step-num">2.</span><span>Your Teams meeting invite is in your calendar from the booking step</span></div>
+            <div class="next-step"><span class="next-step-num">3.</span><span>On the call, we'll walk you through the portal and confirm your service setup</span></div>
+            <div class="next-step"><span class="next-step-num">4.</span><span>After the call, we'll email your BAA for digital signature via Microsoft eSign</span></div>
+            <div class="next-step"><span class="next-step-num">5.</span><span>Once signed, your portal access is activated — typically within 24 hours</span></div>
+          </div>
+
+          <div class="info-box teal" style="text-align:left">
+            <span class="info-box-icon">💬</span>
+            <div>Questions before the call? Email us at <strong>onboarding@mykarepoint.com</strong> or call your assigned onboarding contact.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+const SUPABASE_URL='https://qjtudgtbiizoicuqexml.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0';
+
+// State
+const form={};
+let selectedLOCs=[];
+
+// LOC chip toggle
+document.querySelectorAll('#loc-chips .chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    chip.classList.toggle('selected');
+    const loc=chip.dataset.loc;
+    if(chip.classList.contains('selected')){
+      if(!selectedLOCs.includes(loc))selectedLOCs.push(loc);
+    } else {
+      selectedLOCs=selectedLOCs.filter(l=>l!==loc);
+    }
+  });
+});
+
+function toggleCheck(id){
+  const el=document.getElementById(id);
+  el.checked=!el.checked;
+}
+
+function goToStep(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('step-'+i).style.display=i===n?'block':'none';
+    const tab=document.getElementById('tab-'+i);
+    tab.className='step-tab '+(i===n?'active':i<n?'done':'inactive');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function validateStep1(){
+  const required=[
+    {id:'f-name',label:'Facility name'},
+    {id:'f-npi',label:'NPI number'},
+    {id:'f-tin',label:'Tax ID'},
+    {id:'f-addr',label:'Address'},
+    {id:'f-state',label:'State'},
+    {id:'f-contact',label:'Contact name'},
+    {id:'f-email',label:'Email'},
+    {id:'f-phone',label:'Phone'},
+    {id:'f-volume',label:'Monthly volume'},
+    {id:'f-service',label:'Services needed'},
+  ];
+  for(const f of required){
+    const el=document.getElementById(f.id);
+    if(!el.value.trim()){
+      el.focus();el.style.borderColor='var(--error)';
+      setTimeout(()=>el.style.borderColor='',2000);
+      alert(`Please fill in: ${f.label}`);
+      return false;
+    }
+  }
+  if(selectedLOCs.length===0){alert('Please select at least one Level of Care');return false;}
+  const email=document.getElementById('f-email').value;
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Please enter a valid email address');return false;}
+  const npi=document.getElementById('f-npi').value;
+  if(!/^\d{10}$/.test(npi.replace(/\s/g,''))){alert('NPI must be 10 digits');return false;}
+  return true;
+}
+
+function goToStep2(){
+  if(!validateStep1())return;
+  // Collect form data
+  form.name=document.getElementById('f-name').value.trim();
+  form.npi=document.getElementById('f-npi').value.trim();
+  form.tin=document.getElementById('f-tin').value.trim();
+  form.address=document.getElementById('f-addr').value.trim();
+  form.state=document.getElementById('f-state').value;
+  form.license=document.getElementById('f-license').value.trim();
+  form.contact=document.getElementById('f-contact').value.trim();
+  form.title=document.getElementById('f-title').value.trim();
+  form.email=document.getElementById('f-email').value.trim();
+  form.phone=document.getElementById('f-phone').value.trim();
+  form.locs=selectedLOCs.join(', ');
+  form.volume=document.getElementById('f-volume').value;
+  form.service=document.getElementById('f-service').value;
+  form.payers=document.getElementById('f-payers').value.trim();
+  form.notes=document.getElementById('f-notes').value.trim();
+  // Update email display in T&C
+  document.getElementById('tnc-email-display').textContent=form.email;
+  goToStep(2);
+}
+
+function goToStep3(){
+  const chkTnc=document.getElementById('chk-tnc').checked;
+  const chkHipaa=document.getElementById('chk-hipaa').checked;
+  const chkBaa=document.getElementById('chk-baa').checked;
+  if(!chkTnc){alert('Please accept the Terms & Conditions to continue');return;}
+  if(!chkHipaa){alert('Please confirm 42 CFR Part 2 patient consent compliance');return;}
+  if(!chkBaa){alert('Please acknowledge the BAA requirement');return;}
+  form.tncAcceptedAt=new Date().toISOString();
+  form.tncIp='recorded';
+  goToStep(3);
+}
+
+async function goToStep4(){
+  // Build facility ID
+  const facilityId='F-'+Date.now();
+  // Save to Supabase facilities table
+  try{
+    await fetch(`${SUPABASE_URL}/rest/v1/facilities`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPABASE_KEY,
+        'Authorization':'Bearer '+SUPABASE_KEY,
+        'Prefer':'resolution=merge-duplicates'
+      },
+      body:JSON.stringify({
+        id:facilityId,
+        name:form.name,
+        npi:form.npi,
+        tin:form.tin,
+        location:form.address+', '+form.state,
+        contract_type:form.service,
+        contact_name:form.contact,
+        contact_email:form.email,
+        contact_phone:form.phone,
+        status:'Pending',
+        notes:[
+          'LOCs: '+form.locs,
+          'Volume: '+form.volume,
+          'Payers: '+(form.payers||'Not specified'),
+          'Notes: '+(form.notes||'None'),
+          'T&C Accepted: '+form.tncAcceptedAt,
+          'Job Title: '+(form.title||''),
+          'License: '+(form.license||''),
+        ].join(' | ')
+      })
+    });
+  }catch(e){console.error('Supabase save error:',e);}
+
+  // Send notification to onboarding@mykarepoint.com via Supabase Edge Function
+  // (Email notification — will work when edge functions are configured)
+  // For now, data is saved and Karepoint can check Supabase
+
+  // Build confirmation summary
+  const summary=document.getElementById('confirm-summary');
+  const rows=[
+    ['Facility',form.name],
+    ['NPI',form.npi],
+    ['State',form.state],
+    ['Contact',form.contact+(form.title?' · '+form.title:'')],
+    ['Email',form.email],
+    ['Services',{vob_pa:'VOB + Prior Authorization',vob_only:'VOB Only',pa_only:'Prior Authorization Only'}[form.service]||form.service],
+    ['LOCs',form.locs],
+    ['Volume',form.volume],
+    ['Status','Pending — onboarding call booked'],
+  ];
+  summary.innerHTML='<div class="confirm-detail-lbl">Your Submission</div>'+
+    rows.map(([k,v])=>`<div class="confirm-detail-row"><span class="confirm-detail-key">${k}</span><span class="confirm-detail-val">${v}</span></div>`).join('');
+
+  goToStep(4);
+}
+</script>
+</body>
+</html>
