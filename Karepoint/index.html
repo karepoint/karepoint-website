@@ -512,7 +512,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
 
 <div class="announce">
   <b>Now accepting Q3 2026 pilot partnerships.</b> Limited to three behavioral health facilities.
-  <a href="#contact">Reserve a slot &rsaquo;</a>
+  <a href="/signup">Reserve a slot &rsaquo;</a>
 </div>
 
 <nav>
@@ -533,7 +533,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
     </ul>
     <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
       <a href="/facility" style="text-decoration:none;font-size:14px;font-weight:600;color:var(--teal);border:1.5px solid var(--teal);padding:9px 18px;border-radius:4px;white-space:nowrap;transition:background .2s,color .2s;" onmouseover="this.style.background='var(--teal)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--teal)'">Facility Login</a>
-      <a href="#contact" class="nav-cta">Book a Discovery Call</a>
+      <a href="/signup" class="nav-cta">Book a Discovery Call</a>
     </div>
     <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
       <span></span><span></span><span></span>
@@ -557,7 +557,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
       <li><a href="#faq">FAQ</a></li>
       <li><a href="/facility" style="color:var(--teal);">Facility Login →</a></li>
     </ul>
-    <a href="#contact" class="drawer-cta">Book a Discovery Call</a>
+    <a href="/signup" class="drawer-cta">Book a Discovery Call</a>
     <div class="drawer-ft">
       <div class="drawer-badges">
         <span class="ft-bg">HIPAA</span>
@@ -578,7 +578,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
         Verification of benefits and prior authorization built exclusively for behavioral health and substance use disorder treatment. Every level of care. Every major payer. Handled before your patient walks through the door.
       </p>
       <div class="hero-btns">
-        <a href="#contact" class="btn btn-a">Book a Discovery Call
+        <a href="/signup" class="btn btn-a">Book a Discovery Call
           <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
         <a href="#process" class="btn btn-b">See how it works</a>
@@ -1209,12 +1209,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
       'Phone: ' + (document.getElementById('f-phone').value.trim() || 'Not provided') + '\n\n' +
       'Challenge:\n' + (document.getElementById('f-msg').value.trim() || 'Not provided');
 
-    window.location.href = 'mailto:info@mykarepoint.com'
-      + '?subject=' + encodeURIComponent('Discovery call request: ' + fac)
-      + '&body=' + encodeURIComponent(body);
-
-    card.classList.add('sent');
-    ok.classList.add('on');
+    fetch('https://qjtudgtbiizoicuqexml.supabase.co/rest/v1/facilities',{method:'POST',headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:'LEAD-'+Date.now(),name:fac,contact_name:name,contact_email:email,status:'Lead',notes:'Source: website form'})}).catch(function(){}).finally(function(){window.location.href='/signup';});
   });
 })();
 </script>
