@@ -532,7 +532,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-      <a href="/facility" style="text-decoration:none;font-size:14px;font-weight:600;color:var(--teal);border:1.5px solid var(--teal);padding:9px 18px;border-radius:4px;white-space:nowrap;transition:background .2s,color .2s;" onmouseover="this.style.background='var(--teal)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--teal)'">Facility Login</a>
+      <a onclick="openLoginModal()" style="text-decoration:none;font-size:14px;font-weight:600;color:var(--teal);border:1.5px solid var(--teal);padding:9px 18px;border-radius:4px;white-space:nowrap;transition:background .2s,color .2s;cursor:pointer;" onmouseover="this.style.background='var(--teal)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--teal)'">Facility Login</a>
       <a href="/signup" class="nav-cta">Book a Discovery Call</a>
     </div>
     <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
@@ -555,7 +555,7 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
       <li><a href="#process">Process</a></li>
       <li><a href="#why">Why Karepoint</a></li>
       <li><a href="#faq">FAQ</a></li>
-      <li><a href="/facility" style="color:var(--teal);">Facility Login →</a></li>
+      <li><a onclick="openLoginModal();closeDrawer&&closeDrawer();" style="color:var(--teal);cursor:pointer;">Facility Login →</a></li>
     </ul>
     <a href="/signup" class="drawer-cta">Book a Discovery Call</a>
     <div class="drawer-ft">
@@ -1212,6 +1212,171 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:72px 0 3
     fetch('https://qjtudgtbiizoicuqexml.supabase.co/rest/v1/facilities',{method:'POST',headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:'LEAD-'+Date.now(),name:fac,contact_name:name,contact_email:email,status:'Lead',notes:'Source: website form'})}).catch(function(){}).finally(function(){window.location.href='/signup';});
   });
 })();
+</script>
+
+<!-- ── Facility Login Modal ──────────────────────────────────────── -->
+<div id="login-overlay" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(18,38,42,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
+  <div id="login-modal" style="background:#FBFAF8;border-radius:10px;width:100%;max-width:420px;box-shadow:0 32px 80px rgba(18,38,42,.22);overflow:hidden;transform:translateY(20px);opacity:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s ease">
+
+    <!-- Modal top bar -->
+    <div style="background:#1C3B42;padding:16px 22px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:9px">
+        <img src="/assets/logo/KAREPOINT-logo-only.svg" width="16" height="16" alt="" style="filter:brightness(0) invert(1);opacity:.7">
+        <div>
+          <div style="font-family:'Mokoto',sans-serif;font-size:12px;color:#fff;letter-spacing:.04em">KAREPOINT</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:7px;font-weight:500;letter-spacing:.2em;color:rgba(232,240,241,.5);text-transform:uppercase;margin-top:1px">Facility Portal</div>
+        </div>
+      </div>
+      <button onclick="closeLoginModal()" style="background:rgba(255,255,255,.12);border:none;border-radius:4px;width:28px;height:28px;cursor:pointer;font-size:16px;color:#fff;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
+    </div>
+
+    <!-- Modal body -->
+    <div style="padding:24px 24px 20px">
+      <div style="font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600;color:#12262A;letter-spacing:-.01em;margin-bottom:4px">Welcome back</div>
+      <div style="font-size:13px;color:#6B858A;margin-bottom:22px">Sign in to your facility's Karepoint portal</div>
+
+      <!-- Email -->
+      <div style="margin-bottom:13px">
+        <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.12em;color:#6B858A;text-transform:uppercase;margin-bottom:4px">Work Email</label>
+        <input id="modal-email" type="email" placeholder="billing@yourfacility.com" autocomplete="email"
+          style="width:100%;padding:10px 13px;background:#fff;border:1.5px solid rgba(18,38,42,.16);border-radius:4px;font-size:13px;color:#12262A;outline:none;font-family:'Inter',system-ui,sans-serif;transition:border .15s"
+          onfocus="this.style.borderColor='#3C7882'" onblur="this.style.borderColor='rgba(18,38,42,.16)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('modal-pass').focus()">
+      </div>
+
+      <!-- Password -->
+      <div style="margin-bottom:6px">
+        <label style="display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.12em;color:#6B858A;text-transform:uppercase;margin-bottom:4px">Password</label>
+        <input id="modal-pass" type="password" placeholder="••••••••" autocomplete="current-password"
+          style="width:100%;padding:10px 13px;background:#fff;border:1.5px solid rgba(18,38,42,.16);border-radius:4px;font-size:13px;color:#12262A;outline:none;font-family:'Inter',system-ui,sans-serif;transition:border .15s"
+          onfocus="this.style.borderColor='#3C7882'" onblur="this.style.borderColor='rgba(18,38,42,.16)'"
+          onkeydown="if(event.key==='Enter')handleModalLogin()">
+      </div>
+
+      <!-- Forgot -->
+      <div style="text-align:right;margin-bottom:18px">
+        <a href="/facility#reset" style="font-size:12px;color:#3C7882;font-weight:500;font-family:'Inter',system-ui,sans-serif">Forgot password?</a>
+      </div>
+
+      <!-- Error -->
+      <div id="modal-error" style="display:none;font-size:12px;color:#c0392b;margin-bottom:12px;padding:8px 12px;background:rgba(192,57,43,.07);border-radius:4px;border:1px solid rgba(192,57,43,.2)"></div>
+
+      <!-- Sign in button -->
+      <button id="modal-btn" onclick="handleModalLogin()"
+        style="width:100%;background:#3C7882;color:#fff;border:none;border-radius:4px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',system-ui,sans-serif;box-shadow:0 4px 16px rgba(60,120,130,.25);transition:background .15s;margin-bottom:16px"
+        onmouseover="this.style.background='#2C5A63'" onmouseout="this.style.background='#3C7882'">
+        Sign In →
+      </button>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="flex:1;height:1px;background:rgba(18,38,42,.10)"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#9DB0B4;letter-spacing:.08em">OR</div>
+        <div style="flex:1;height:1px;background:rgba(18,38,42,.10)"></div>
+      </div>
+
+      <!-- New facility link -->
+      <div style="text-align:center;font-size:13px;color:#6B858A;margin-bottom:4px">
+        New facility? <a href="/signup" style="color:#3C7882;font-weight:600;font-family:'Inter',system-ui,sans-serif">Start onboarding →</a>
+      </div>
+    </div>
+
+    <!-- Modal footer -->
+    <div style="padding:10px 24px 14px;border-top:1px solid rgba(18,38,42,.08);text-align:center">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#9DB0B4;letter-spacing:.08em">🔒 HIPAA-compliant · BAA required · mykarepoint.com</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL_LOGIN='https://qjtudgtbiizoicuqexml.supabase.co';
+const SUPABASE_KEY_LOGIN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0';
+
+function openLoginModal(){
+  var overlay=document.getElementById('login-overlay');
+  var modal=document.getElementById('login-modal');
+  overlay.style.display='flex';
+  document.body.style.overflow='hidden';
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      modal.style.transform='translateY(0)';
+      modal.style.opacity='1';
+      setTimeout(function(){document.getElementById('modal-email').focus();},200);
+    });
+  });
+}
+
+function closeLoginModal(){
+  var overlay=document.getElementById('login-overlay');
+  var modal=document.getElementById('login-modal');
+  modal.style.transform='translateY(20px)';
+  modal.style.opacity='0';
+  setTimeout(function(){
+    overlay.style.display='none';
+    document.body.style.overflow='';
+    document.getElementById('modal-email').value='';
+    document.getElementById('modal-pass').value='';
+    document.getElementById('modal-error').style.display='none';
+    modal.style.transform='translateY(20px)';
+    modal.style.opacity='0';
+  },220);
+}
+
+// Close on overlay click
+document.getElementById('login-overlay').addEventListener('click',function(e){
+  if(e.target===this)closeLoginModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')closeLoginModal();
+});
+
+async function handleModalLogin(){
+  var email=document.getElementById('modal-email').value.trim();
+  var pass=document.getElementById('modal-pass').value;
+  var btn=document.getElementById('modal-btn');
+  var errEl=document.getElementById('modal-error');
+
+  if(!email||!pass){
+    errEl.textContent='Please enter your email and password.';
+    errEl.style.display='block';
+    return;
+  }
+
+  btn.textContent='Signing in…';
+  btn.disabled=true;
+  errEl.style.display='none';
+
+  try{
+    var res=await fetch(SUPABASE_URL_LOGIN+'/auth/v1/token?grant_type=password',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY_LOGIN},
+      body:JSON.stringify({email:email,password:pass})
+    });
+    var data=await res.json();
+
+    if(data.access_token){
+      // Store session
+      sessionStorage.setItem('kp_token',data.access_token);
+      sessionStorage.setItem('kp_refresh',data.refresh_token||'');
+      sessionStorage.setItem('kp_email',email);
+      // Redirect to facility portal
+      window.location.href='/facility';
+    } else {
+      var msg=data.error_description||data.msg||'Invalid email or password.';
+      errEl.textContent=msg;
+      errEl.style.display='block';
+      btn.textContent='Sign In →';
+      btn.disabled=false;
+    }
+  }catch(e){
+    errEl.textContent='Connection error. Please try again.';
+    errEl.style.display='block';
+    btn.textContent='Sign In →';
+    btn.disabled=false;
+  }
+}
 </script>
 
 </body>
