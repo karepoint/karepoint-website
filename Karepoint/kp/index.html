@@ -11,16 +11,18 @@
 <style>
 @font-face{font-family:"Mokoto";src:url("/assets/fonts/mokoto_regular.ttf") format("truetype");font-display:swap;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{background:#F4F7F8;color:#0F1F23;font-family:"Inter",-apple-system,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:#F4F7F8;color:#0F1F23;font-family:"Inter",-apple-system,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 input,button,select,textarea{font-family:inherit;font-size:inherit}
 a{color:inherit}
 img,svg{display:block;max-width:100%}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(55,121,133,.28);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(55,121,133,.48)}
 input:focus,select:focus,textarea:focus{border-color:#377985!important;box-shadow:0 0 0 3px rgba(55,121,133,.12)!important;outline:none}
 button:focus-visible{outline:2px solid #377985;outline-offset:2px}
+[contenteditable]:focus{outline:none;box-shadow:0 0 0 3px rgba(55,121,133,.15)}
 </style>
 </head>
 <body>
@@ -4184,61 +4186,173 @@ function useFormSchema() {
     setLoading = _useState48[1];
   var load = /*#__PURE__*/function () {
     var _load2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0() {
-      var _yield$Promise$all, _yield$Promise$all2, rows, locs, i, s, seeded;
+      var _yield$Promise$all, _yield$Promise$all2, rows, locs, dbRows, i, s, seeded, DEFAULT_LOC, dbLocs, _t9;
       return _regenerator().w(function (_context0) {
-        while (1) switch (_context0.n) {
+        while (1) switch (_context0.p = _context0.n) {
           case 0:
             _context0.n = 1;
-            return Promise.all([sb.get('form_schema', 'order=section_order.asc'), sb.get('loc_schema', 'visible=eq.true&order=loc_order.asc')]);
+            return Promise.all([sb.get('form_schema', 'order=section_order.asc'), sb.get('loc_schema', 'order=loc_order.asc')]);
           case 1:
             _yield$Promise$all = _context0.v;
             _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 2);
             rows = _yield$Promise$all2[0];
             locs = _yield$Promise$all2[1];
-            if (!(!rows || rows.length === 0)) {
-              _context0.n = 6;
+            // Always use DEFAULT_SCHEMA as immediate fallback so UI never blanks
+            dbRows = rows && rows.length > 0 ? rows : null;
+            if (dbRows) {
+              _context0.n = 9;
               break;
             }
+            // Use DEFAULT_SCHEMA immediately so UI renders now
+            setSchema(DEFAULT_SCHEMA);
+            setLoading(false);
+            // Then try to seed DB in background
+            _context0.p = 2;
             i = 0;
-          case 2:
+          case 3:
             if (!(i < DEFAULT_SCHEMA.length)) {
-              _context0.n = 4;
+              _context0.n = 5;
               break;
             }
             s = DEFAULT_SCHEMA[i];
-            _context0.n = 3;
-            return sb.post('form_schema', {
-              id: s.system_id,
-              system_id: s.system_id,
-              section_label: s.section_label,
-              section_order: s.section_order,
-              visible: s.visible,
-              is_fixed: s.is_fixed,
-              locked: s.locked,
-              fields: s.fields,
-              active: true
+            _context0.n = 4;
+            return fetch("".concat(SB_URL, "/rest/v1/form_schema"), {
+              method: 'POST',
+              headers: _objectSpread(_objectSpread({}, SB_H.headers), {}, {
+                Prefer: 'resolution=merge-duplicates'
+              }),
+              body: JSON.stringify({
+                id: s.system_id,
+                system_id: s.system_id,
+                section_name: s.section_label,
+                section_label: s.section_label,
+                section_order: s.section_order,
+                visible: s.visible,
+                is_fixed: s.is_fixed,
+                locked: s.locked,
+                fields: s.fields,
+                active: true
+              })
             });
-          case 3:
-            i++;
-            _context0.n = 2;
-            break;
           case 4:
-            _context0.n = 5;
-            return sb.get('form_schema', 'order=section_order.asc');
-          case 5:
-            seeded = _context0.v;
-            setSchema(seeded || DEFAULT_SCHEMA);
-            _context0.n = 7;
+            i++;
+            _context0.n = 3;
             break;
+          case 5:
+            _context0.n = 6;
+            return sb.get('form_schema', 'order=section_order.asc');
           case 6:
-            setSchema(rows);
+            seeded = _context0.v;
+            if (seeded && seeded.length > 0) setSchema(seeded);
+            _context0.n = 8;
+            break;
           case 7:
-            setLocRows(locs || []);
-            setLoading(false);
+            _context0.p = 7;
+            _t9 = _context0.v;
+            // DB seed failed — DEFAULT_SCHEMA already shown, no blank screen
+            console.warn('form_schema seed failed, using defaults:', _t9);
           case 8:
+            _context0.n = 10;
+            break;
+          case 9:
+            setSchema(dbRows);
+          case 10:
+            // LOC rows: use DB if available, else built-in defaults
+            DEFAULT_LOC = [{
+              id: 'detox',
+              loc_key: 'detox',
+              loc_label: 'Sub-Acute Detox',
+              cpt_codes: 'H0010',
+              visible: true,
+              loc_order: 1,
+              col_covered_type: 'dropdown',
+              col_covered_options: 'Yes|No|N/A',
+              col_auth_type: 'dropdown',
+              col_auth_options: 'Yes|No',
+              col_accred_type: 'text',
+              col_accred_options: ''
+            }, {
+              id: 'rtc',
+              loc_key: 'rtc',
+              loc_label: 'Residential (RTC)',
+              cpt_codes: 'H0018',
+              visible: true,
+              loc_order: 2,
+              col_covered_type: 'dropdown',
+              col_covered_options: 'Yes|No|N/A',
+              col_auth_type: 'dropdown',
+              col_auth_options: 'Yes|No',
+              col_accred_type: 'text',
+              col_accred_options: ''
+            }, {
+              id: 'php',
+              loc_key: 'php',
+              loc_label: 'PHP',
+              cpt_codes: 'H0035',
+              visible: true,
+              loc_order: 3,
+              col_covered_type: 'dropdown',
+              col_covered_options: 'Yes|No|N/A',
+              col_auth_type: 'dropdown',
+              col_auth_options: 'Yes|No',
+              col_accred_type: 'text',
+              col_accred_options: ''
+            }, {
+              id: 'iop',
+              loc_key: 'iop',
+              loc_label: 'IOP',
+              cpt_codes: 'H0015',
+              visible: true,
+              loc_order: 4,
+              col_covered_type: 'dropdown',
+              col_covered_options: 'Yes|No|N/A',
+              col_auth_type: 'dropdown',
+              col_auth_options: 'Yes|No',
+              col_accred_type: 'text',
+              col_accred_options: ''
+            }, {
+              id: 'op_nr',
+              loc_key: 'op_nr',
+              loc_label: 'OP — Non-Routine',
+              cpt_codes: 'H0014',
+              visible: true,
+              loc_order: 5,
+              col_covered_type: 'dropdown',
+              col_covered_options: 'Yes|No|N/A',
+              col_auth_type: 'dropdown',
+              col_auth_options: 'Yes|No',
+              col_accred_type: 'text',
+              col_accred_options: ''
+            }, {
+              id: 'op_ro',
+              loc_key: 'op_ro',
+              loc_label: 'OP — Routine',
+              cpt_codes: 'H0014',
+              visible: true,
+              loc_order: 6,
+              col_covered_type: 'dropdown',
+              col_covered_options: 'Yes|No|N/A',
+              col_auth_type: 'dropdown',
+              col_auth_options: 'Yes|No',
+              col_accred_type: 'text',
+              col_accred_options: ''
+            }];
+            dbLocs = locs && locs.length > 0 ? locs.filter(function (l) {
+              return l.visible !== false;
+            }) : null;
+            setLocRows(dbLocs || DEFAULT_LOC);
+            if (dbRows) {
+              _context0.n = 11;
+              break;
+            }
+            return _context0.a(2);
+          case 11:
+            // already set loading false above
+            setLoading(false);
+          case 12:
             return _context0.a(2);
         }
-      }, _callee0);
+      }, _callee0, null, [[2, 7]]);
     }));
     function load() {
       return _load2.apply(this, arguments);
@@ -9222,167 +9336,30 @@ var FIELD_TYPES = [{
   label: '── Section Divider ──'
 }];
 
-// ─── Dynamic section renderer (appended to VOBForm) ───────────────
-function DynamicSections(_ref39) {
-  var customFields = _ref39.customFields,
-    setCustomFields = _ref39.setCustomFields;
-  var _useState117 = useState([]),
-    _useState118 = _slicedToArray(_useState117, 2),
-    schema = _useState118[0],
-    setSchema = _useState118[1];
-  useEffect(function () {
-    sb.get('form_schema', 'active=eq.true&order=section_order.asc').then(setSchema);
-  }, []);
-  var setField = function setField(key, val) {
-    return setCustomFields(function (cf) {
-      return _objectSpread(_objectSpread({}, cf), {}, _defineProperty({}, key, val));
-    });
-  };
-  if (schema.length === 0) return null;
-  return /*#__PURE__*/React.createElement(React.Fragment, null, schema.map(function (sec, si) {
-    return /*#__PURE__*/React.createElement("div", {
-      key: sec.id
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '20px 0 12px',
-        borderTop: "1px solid ".concat(C.line),
-        marginTop: 24
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: 32,
-        height: 32,
-        borderRadius: 8,
-        background: C.teal,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#fff',
-        fontFamily: FM,
-        fontSize: 12,
-        fontWeight: 700,
-        flexShrink: 0
-      }
-    }, 17 + si + 1), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: FD,
-        fontSize: 18,
-        fontWeight: 600,
-        color: C.ink,
-        letterSpacing: '-.01em'
-      }
-    }, sec.section_name), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: FM,
-        fontSize: 9,
-        color: C.teal,
-        padding: '2px 8px',
-        background: C.tealL,
-        border: "1px solid ".concat(C.tealLine),
-        borderRadius: 3,
-        flexShrink: 0
-      }
-    }, "Custom")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: 14,
-        marginBottom: 4
-      }
-    }, (sec.fields || []).map(function (f) {
-      if (f.type === 'divider') return /*#__PURE__*/React.createElement("div", {
-        key: f.key,
-        style: {
-          gridColumn: 'span 2',
-          borderTop: "1px solid ".concat(C.line),
-          margin: '4px 0'
-        }
-      });
-      var val = customFields[f.key] || '';
-      return /*#__PURE__*/React.createElement("div", {
-        key: f.key,
-        style: {
-          gridColumn: f.span2 ? 'span 2' : 'span 1'
-        }
-      }, /*#__PURE__*/React.createElement("label", {
-        style: lbl
-      }, f.label, f.required && /*#__PURE__*/React.createElement("span", {
-        style: {
-          color: C.red
-        }
-      }, " *")), f.type === 'dropdown' ? /*#__PURE__*/React.createElement("select", {
-        style: inp,
-        value: val,
-        onChange: function onChange(e) {
-          return setField(f.key, e.target.value);
-        }
-      }, /*#__PURE__*/React.createElement("option", {
-        value: ""
-      }, "\u2014"), (f.options || []).map(function (o) {
-        return /*#__PURE__*/React.createElement("option", {
-          key: o,
-          value: o
-        }, o);
-      })) : f.type === 'yesno' ? /*#__PURE__*/React.createElement("select", {
-        style: inp,
-        value: val,
-        onChange: function onChange(e) {
-          return setField(f.key, e.target.value);
-        }
-      }, /*#__PURE__*/React.createElement("option", {
-        value: ""
-      }, "\u2014"), /*#__PURE__*/React.createElement("option", {
-        value: "Yes"
-      }, "Yes"), /*#__PURE__*/React.createElement("option", {
-        value: "No"
-      }, "No")) : f.type === 'textarea' ? /*#__PURE__*/React.createElement("textarea", {
-        style: _objectSpread(_objectSpread({}, inp), {}, {
-          height: 72,
-          resize: 'vertical'
-        }),
-        value: val,
-        onChange: function onChange(e) {
-          return setField(f.key, e.target.value);
-        }
-      }) : /*#__PURE__*/React.createElement("input", {
-        style: inp,
-        type: f.type === 'date' ? 'date' : f.type === 'number' ? 'number' : f.type === 'phone' ? 'tel' : 'text',
-        value: val,
-        onChange: function onChange(e) {
-          return setField(f.key, e.target.value);
-        }
-      }));
-    })));
-  }));
-}
-
 // ─── Login ────────────────────────────────────────────────────────
-function Login(_ref40) {
-  var onLogin = _ref40.onLogin;
+function Login(_ref39) {
+  var onLogin = _ref39.onLogin;
+  var _useState117 = useState(''),
+    _useState118 = _slicedToArray(_useState117, 2),
+    email = _useState118[0],
+    setEmail = _useState118[1];
   var _useState119 = useState(''),
     _useState120 = _slicedToArray(_useState119, 2),
-    email = _useState120[0],
-    setEmail = _useState120[1];
+    pw = _useState120[0],
+    setPw = _useState120[1];
   var _useState121 = useState(''),
     _useState122 = _slicedToArray(_useState121, 2),
-    pw = _useState122[0],
-    setPw = _useState122[1];
-  var _useState123 = useState(''),
+    err = _useState122[0],
+    setErr = _useState122[1];
+  var _useState123 = useState(false),
     _useState124 = _slicedToArray(_useState123, 2),
-    err = _useState124[0],
-    setErr = _useState124[1];
+    loading = _useState124[0],
+    setLoading = _useState124[1];
+  // Demo quick login
   var _useState125 = useState(false),
     _useState126 = _slicedToArray(_useState125, 2),
-    loading = _useState126[0],
-    setLoading = _useState126[1];
-  // Demo quick login
-  var _useState127 = useState(false),
-    _useState128 = _slicedToArray(_useState127, 2),
-    showDemo = _useState128[0],
-    setShowDemo = _useState128[1];
+    showDemo = _useState126[0],
+    setShowDemo = _useState126[1];
   var handle = /*#__PURE__*/function () {
     var _handle = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26() {
       var session, rows, user, demo;
@@ -9696,12 +9673,12 @@ function Login(_ref40) {
 }
 
 // ─── New VOB Modal ────────────────────────────────────────────────
-function NewVOBModal(_ref41) {
-  var onClose = _ref41.onClose,
-    onSubmit = _ref41.onSubmit,
-    _ref41$facilities = _ref41.facilities,
-    facilities = _ref41$facilities === void 0 ? [] : _ref41$facilities;
-  var _useState129 = useState({
+function NewVOBModal(_ref40) {
+  var onClose = _ref40.onClose,
+    onSubmit = _ref40.onSubmit,
+    _ref40$facilities = _ref40.facilities,
+    facilities = _ref40$facilities === void 0 ? [] : _ref40$facilities;
+  var _useState127 = useState({
       facilityName: '',
       patientFirst: '',
       patientLast: '',
@@ -9711,9 +9688,9 @@ function NewVOBModal(_ref41) {
       urgency: 'Standard',
       notes: ''
     }),
-    _useState130 = _slicedToArray(_useState129, 2),
-    d = _useState130[0],
-    setD = _useState130[1];
+    _useState128 = _slicedToArray(_useState127, 2),
+    d = _useState128[0],
+    setD = _useState128[1];
   var set = function set(k) {
     return function (e) {
       return setD(function (p) {
@@ -9970,30 +9947,30 @@ function NewVOBModal(_ref41) {
 
 // ─── Payer Directory Page ─────────────────────────────────────────
 function PayerDirectoryPage() {
-  var _useState131 = useState([]),
+  var _useState129 = useState([]),
+    _useState130 = _slicedToArray(_useState129, 2),
+    payers = _useState130[0],
+    setPayers = _useState130[1];
+  var _useState131 = useState(true),
     _useState132 = _slicedToArray(_useState131, 2),
-    payers = _useState132[0],
-    setPayers = _useState132[1];
-  var _useState133 = useState(true),
+    loading = _useState132[0],
+    setLoading = _useState132[1];
+  var _useState133 = useState(''),
     _useState134 = _slicedToArray(_useState133, 2),
-    loading = _useState134[0],
-    setLoading = _useState134[1];
-  var _useState135 = useState(''),
+    search = _useState134[0],
+    setSearch = _useState134[1];
+  var _useState135 = useState(null),
     _useState136 = _slicedToArray(_useState135, 2),
-    search = _useState136[0],
-    setSearch = _useState136[1];
-  var _useState137 = useState(null),
+    editing = _useState136[0],
+    setEditing = _useState136[1];
+  var _useState137 = useState({}),
     _useState138 = _slicedToArray(_useState137, 2),
-    editing = _useState138[0],
-    setEditing = _useState138[1];
-  var _useState139 = useState({}),
+    draft = _useState138[0],
+    setDraft = _useState138[1];
+  var _useState139 = useState(''),
     _useState140 = _slicedToArray(_useState139, 2),
-    draft = _useState140[0],
-    setDraft = _useState140[1];
-  var _useState141 = useState(''),
-    _useState142 = _slicedToArray(_useState141, 2),
-    toast = _useState142[0],
-    setToast = _useState142[1];
+    toast = _useState140[0],
+    setToast = _useState140[1];
   var fileRef = useRef(null);
   var load = /*#__PURE__*/function () {
     var _load5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28() {
@@ -10666,33 +10643,33 @@ function PayerDirectoryPage() {
 }
 
 // ─── Manager Queue View ───────────────────────────────────────────
-function ManagerQueue(_ref42) {
-  var vobs = _ref42.vobs,
-    setVobs = _ref42.setVobs,
-    user = _ref42.user,
-    onOpenWorkspace = _ref42.onOpenWorkspace,
-    facilities = _ref42.facilities,
-    setToast = _ref42.setToast;
+function ManagerQueue(_ref41) {
+  var vobs = _ref41.vobs,
+    setVobs = _ref41.setVobs,
+    user = _ref41.user,
+    onOpenWorkspace = _ref41.onOpenWorkspace,
+    facilities = _ref41.facilities,
+    setToast = _ref41.setToast;
+  var _useState141 = useState('All'),
+    _useState142 = _slicedToArray(_useState141, 2),
+    filter = _useState142[0],
+    setFilter = _useState142[1];
   var _useState143 = useState('All'),
     _useState144 = _slicedToArray(_useState143, 2),
-    filter = _useState144[0],
-    setFilter = _useState144[1];
-  var _useState145 = useState('All'),
+    agentFilter = _useState144[0],
+    setAgentFilter = _useState144[1];
+  var _useState145 = useState(false),
     _useState146 = _slicedToArray(_useState145, 2),
-    agentFilter = _useState146[0],
-    setAgentFilter = _useState146[1];
-  var _useState147 = useState(false),
+    newVOBOpen = _useState146[0],
+    setNewVOBOpen = _useState146[1];
+  var _useState147 = useState(''),
     _useState148 = _slicedToArray(_useState147, 2),
-    newVOBOpen = _useState148[0],
-    setNewVOBOpen = _useState148[1];
-  var _useState149 = useState(''),
+    reviseNote = _useState148[0],
+    setReviseNote = _useState148[1];
+  var _useState149 = useState(null),
     _useState150 = _slicedToArray(_useState149, 2),
-    reviseNote = _useState150[0],
-    setReviseNote = _useState150[1];
-  var _useState151 = useState(null),
-    _useState152 = _slicedToArray(_useState151, 2),
-    revisingId = _useState152[0],
-    setRevisingId = _useState152[1];
+    revisingId = _useState150[0],
+    setRevisingId = _useState150[1];
   var updV = function updV(id, ch) {
     return setVobs(function (prev) {
       return prev.map(function (v) {
@@ -10819,13 +10796,13 @@ function ManagerQueue(_ref42) {
       gap: 8,
       marginBottom: 16
     }
-  }, [['Total', stats.total, C.ink3, C.paper2, C.line2], ['Pending', stats.pending, C.ink3, C.paper2, C.line2], ['In Progress', stats.inProgress, C.teal, C.tealL, C.tealLine], ['Review', stats.review, '#8A6D28', C.sandTint, C.sandLine], ['Completed', stats.completed, C.green, C.greenTint, C.greenLine]].map(function (_ref43) {
-    var _ref44 = _slicedToArray(_ref43, 5),
-      l = _ref44[0],
-      n = _ref44[1],
-      color = _ref44[2],
-      bg = _ref44[3],
-      border = _ref44[4];
+  }, [['Total', stats.total, C.ink3, C.paper2, C.line2], ['Pending', stats.pending, C.ink3, C.paper2, C.line2], ['In Progress', stats.inProgress, C.teal, C.tealL, C.tealLine], ['Review', stats.review, '#8A6D28', C.sandTint, C.sandLine], ['Completed', stats.completed, C.green, C.greenTint, C.greenLine]].map(function (_ref42) {
+    var _ref43 = _slicedToArray(_ref42, 5),
+      l = _ref43[0],
+      n = _ref43[1],
+      color = _ref43[2],
+      bg = _ref43[3],
+      border = _ref43[4];
     return /*#__PURE__*/React.createElement("div", {
       key: l,
       style: {
@@ -11235,17 +11212,17 @@ function ManagerQueue(_ref42) {
 }
 
 // ─── Agent Queue View ─────────────────────────────────────────────
-function AgentQueue(_ref45) {
-  var vobs = _ref45.vobs,
-    setVobs = _ref45.setVobs,
-    user = _ref45.user,
-    onOpenWorkspace = _ref45.onOpenWorkspace,
-    facilities = _ref45.facilities,
-    setToast = _ref45.setToast;
-  var _useState153 = useState(false),
-    _useState154 = _slicedToArray(_useState153, 2),
-    newVOBOpen = _useState154[0],
-    setNewVOBOpen = _useState154[1];
+function AgentQueue(_ref44) {
+  var vobs = _ref44.vobs,
+    setVobs = _ref44.setVobs,
+    user = _ref44.user,
+    onOpenWorkspace = _ref44.onOpenWorkspace,
+    facilities = _ref44.facilities,
+    setToast = _ref44.setToast;
+  var _useState151 = useState(false),
+    _useState152 = _slicedToArray(_useState151, 2),
+    newVOBOpen = _useState152[0],
+    setNewVOBOpen = _useState152[1];
   var myVobs = vobs.filter(function (v) {
     return v.assignedTo === user.id || !v.assignedTo || v.status === 'Pending';
   });
@@ -11464,17 +11441,17 @@ function AgentQueue(_ref45) {
 }
 
 // ─── Team View (manager only) ─────────────────────────────────────
-function TeamView(_ref46) {
-  var vobs = _ref46.vobs,
-    setToast = _ref46.setToast;
-  var _useState155 = useState(function () {
+function TeamView(_ref45) {
+  var vobs = _ref45.vobs,
+    setToast = _ref45.setToast;
+  var _useState153 = useState(function () {
       return Object.fromEntries(AGENTS.map(function (a) {
         return [a.id, a.tier || 1];
       }));
     }),
-    _useState156 = _slicedToArray(_useState155, 2),
-    agentTiers = _useState156[0],
-    setAgentTiers = _useState156[1];
+    _useState154 = _slicedToArray(_useState153, 2),
+    agentTiers = _useState154[0],
+    setAgentTiers = _useState154[1];
   var setTier = /*#__PURE__*/function () {
     var _setTier = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(agentId, tier) {
       return _regenerator().w(function (_context37) {
@@ -11657,34 +11634,34 @@ function TeamView(_ref46) {
 // ─── Main KP App ──────────────────────────────────────────────────
 function KPApp() {
   var _NAV_ITEMS$find;
-  var _useState157 = useState(null),
+  var _useState155 = useState(null),
+    _useState156 = _slicedToArray(_useState155, 2),
+    user = _useState156[0],
+    setUser = _useState156[1];
+  var _useState157 = useState('queue'),
     _useState158 = _slicedToArray(_useState157, 2),
-    user = _useState158[0],
-    setUser = _useState158[1];
-  var _useState159 = useState('queue'),
+    page = _useState158[0],
+    setPage = _useState158[1];
+  var _useState159 = useState(false),
     _useState160 = _slicedToArray(_useState159, 2),
-    page = _useState160[0],
-    setPage = _useState160[1];
-  var _useState161 = useState(false),
+    navOpen = _useState160[0],
+    setNavOpen = _useState160[1];
+  var _useState161 = useState(SEED_VOBS),
     _useState162 = _slicedToArray(_useState161, 2),
-    navOpen = _useState162[0],
-    setNavOpen = _useState162[1];
-  var _useState163 = useState(SEED_VOBS),
+    vobs = _useState162[0],
+    setVobs = _useState162[1];
+  var _useState163 = useState([]),
     _useState164 = _slicedToArray(_useState163, 2),
-    vobs = _useState164[0],
-    setVobs = _useState164[1];
-  var _useState165 = useState([]),
+    facilities = _useState164[0],
+    setFacilities = _useState164[1];
+  var _useState165 = useState(null),
     _useState166 = _slicedToArray(_useState165, 2),
-    facilities = _useState166[0],
-    setFacilities = _useState166[1];
+    toast = _useState166[0],
+    setToast = _useState166[1];
   var _useState167 = useState(null),
     _useState168 = _slicedToArray(_useState167, 2),
-    toast = _useState168[0],
-    setToast = _useState168[1];
-  var _useState169 = useState(null),
-    _useState170 = _slicedToArray(_useState169, 2),
-    activeVOB = _useState170[0],
-    setActiveVOB = _useState170[1]; // workspace open
+    activeVOB = _useState168[0],
+    setActiveVOB = _useState168[1]; // workspace open
   var isMobile = useIsMobile();
   useEffect(function () {
     if (!user) return;
