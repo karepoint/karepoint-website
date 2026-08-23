@@ -1014,11 +1014,11 @@ var LOC_KEYS = [{
   label: 'IOP',
   code: 'H0015'
 }, {
-  key: 'opFacility',
+  key: 'op_nr',
   label: 'OP — Non-Routine',
   code: 'H0014'
 }, {
-  key: 'opOffice',
+  key: 'op_ro',
   label: 'OP — Routine',
   code: 'H0014'
 }];
@@ -1127,7 +1127,7 @@ function emptyForm() {
 function formPct(f) {
   var keys = ['patientFirst', 'patientLast', 'payerName', 'memberId', 'planType', 'fundingType', 'dedIndividual', 'oopIndividual', 'coinsurance', 'agentName', 'callDate', 'facilityName', 'bhCarvedOut', 'networkType'];
   return Math.round(keys.filter(function (k) {
-    return f[k] && f[k] != '';
+    return f[k] && f[k] !== '';
   }).length / keys.length * 100);
 }
 function VInp(_ref6) {
@@ -4741,6 +4741,7 @@ function FormBuilderPage() {
             return sb.post('form_schema', {
               id: "custom_".concat(Date.now()),
               system_id: "custom_".concat(Date.now()),
+              section_name: secDraft.section_label,
               section_label: secDraft.section_label,
               section_order: maxOrder + 1,
               visible: true,
@@ -7470,12 +7471,12 @@ function buildRow(id, form, flagged) {
     cov_iop: (_form$locAuth0 = form.locAuth) === null || _form$locAuth0 === void 0 || (_form$locAuth0 = _form$locAuth0.iop) === null || _form$locAuth0 === void 0 ? void 0 : _form$locAuth0.covered,
     auth_iop: (_form$locAuth1 = form.locAuth) === null || _form$locAuth1 === void 0 || (_form$locAuth1 = _form$locAuth1.iop) === null || _form$locAuth1 === void 0 ? void 0 : _form$locAuth1.priorAuth,
     accred_iop: (_form$locAuth10 = form.locAuth) === null || _form$locAuth10 === void 0 || (_form$locAuth10 = _form$locAuth10.iop) === null || _form$locAuth10 === void 0 ? void 0 : _form$locAuth10.accreditation,
-    cov_op_nr: (_form$locAuth11 = form.locAuth) === null || _form$locAuth11 === void 0 || (_form$locAuth11 = _form$locAuth11.opFacility) === null || _form$locAuth11 === void 0 ? void 0 : _form$locAuth11.covered,
-    auth_op_nr: (_form$locAuth12 = form.locAuth) === null || _form$locAuth12 === void 0 || (_form$locAuth12 = _form$locAuth12.opFacility) === null || _form$locAuth12 === void 0 ? void 0 : _form$locAuth12.priorAuth,
-    accred_op_nr: (_form$locAuth13 = form.locAuth) === null || _form$locAuth13 === void 0 || (_form$locAuth13 = _form$locAuth13.opFacility) === null || _form$locAuth13 === void 0 ? void 0 : _form$locAuth13.accreditation,
-    cov_op_ro: (_form$locAuth14 = form.locAuth) === null || _form$locAuth14 === void 0 || (_form$locAuth14 = _form$locAuth14.opOffice) === null || _form$locAuth14 === void 0 ? void 0 : _form$locAuth14.covered,
-    auth_op_ro: (_form$locAuth15 = form.locAuth) === null || _form$locAuth15 === void 0 || (_form$locAuth15 = _form$locAuth15.opOffice) === null || _form$locAuth15 === void 0 ? void 0 : _form$locAuth15.priorAuth,
-    accred_op_ro: (_form$locAuth16 = form.locAuth) === null || _form$locAuth16 === void 0 || (_form$locAuth16 = _form$locAuth16.opOffice) === null || _form$locAuth16 === void 0 ? void 0 : _form$locAuth16.accreditation,
+    cov_op_nr: (_form$locAuth11 = form.locAuth) === null || _form$locAuth11 === void 0 || (_form$locAuth11 = _form$locAuth11.op_nr) === null || _form$locAuth11 === void 0 ? void 0 : _form$locAuth11.covered,
+    auth_op_nr: (_form$locAuth12 = form.locAuth) === null || _form$locAuth12 === void 0 || (_form$locAuth12 = _form$locAuth12.op_nr) === null || _form$locAuth12 === void 0 ? void 0 : _form$locAuth12.priorAuth,
+    accred_op_nr: (_form$locAuth13 = form.locAuth) === null || _form$locAuth13 === void 0 || (_form$locAuth13 = _form$locAuth13.op_nr) === null || _form$locAuth13 === void 0 ? void 0 : _form$locAuth13.accreditation,
+    cov_op_ro: (_form$locAuth14 = form.locAuth) === null || _form$locAuth14 === void 0 || (_form$locAuth14 = _form$locAuth14.op_ro) === null || _form$locAuth14 === void 0 ? void 0 : _form$locAuth14.covered,
+    auth_op_ro: (_form$locAuth15 = form.locAuth) === null || _form$locAuth15 === void 0 || (_form$locAuth15 = _form$locAuth15.op_ro) === null || _form$locAuth15 === void 0 ? void 0 : _form$locAuth15.priorAuth,
+    accred_op_ro: (_form$locAuth16 = form.locAuth) === null || _form$locAuth16 === void 0 || (_form$locAuth16 = _form$locAuth16.op_ro) === null || _form$locAuth16 === void 0 ? void 0 : _form$locAuth16.accreditation,
     precert_co: (form.inpatientPaVendor || '') + (form.inpatientPaPhone ? ' · ' + form.inpatientPaPhone : ''),
     precert_penalty: form.inpatientPaPenalty,
     inn_med_payer: form.medicalPayerId,
@@ -7667,14 +7668,10 @@ function VOBWorkspace(_ref36) {
       return _regenerator().w(function (_context21) {
         while (1) switch (_context21.n) {
           case 0:
+            // Single source of truth: parent (KPApp) handleComplete does the Supabase write.
+            // Just update local tab state here to reflect the new status immediately.
             tier = user.tier || 1;
             newStatus = tier === 1 ? 'Ready for Review' : 'Completed';
-            _context21.n = 1;
-            return sb.post('vob_requests', _objectSpread(_objectSpread({}, buildRow(tabId, form, flagged)), {}, {
-              status: newStatus,
-              completed_at: newStatus === 'Completed' ? new Date().toISOString() : null
-            }));
-          case 1:
             setTabs(function (prev) {
               return prev.map(function (t) {
                 return t.id === tabId ? _objectSpread(_objectSpread({}, t), {}, {
@@ -7684,7 +7681,7 @@ function VOBWorkspace(_ref36) {
               });
             });
             onComplete && onComplete(form, tabId, flagged);
-          case 2:
+          case 1:
             return _context21.a(2);
         }
       }, _callee21);
@@ -9736,9 +9733,49 @@ function Login(_ref39) {
       borderRadius: 5,
       padding: '10px 14px',
       fontSize: 13,
-      color: C.tealD
+      color: C.tealD,
+      marginBottom: 16
     }
-  }, "Contact ", /*#__PURE__*/React.createElement("strong", null, "suvraneelm@mykarepoint.com"), " to get access."))));
+  }, "Contact ", /*#__PURE__*/React.createElement("strong", null, "suvraneelm@mykarepoint.com"), " to get access."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      setPending(false);
+      setSsoChecking(true);
+      window.location.reload();
+    },
+    style: {
+      flex: 1,
+      padding: '10px',
+      background: C.teal,
+      color: '#fff',
+      border: 'none',
+      borderRadius: 6,
+      fontSize: 13.5,
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontFamily: F
+    }
+  }, "Check Again"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      localStorage.removeItem('kp_token');
+      setPending(false);
+    },
+    style: {
+      flex: 1,
+      padding: '10px',
+      background: C.paper2,
+      color: C.ink3,
+      border: "1px solid ".concat(C.line2),
+      borderRadius: 6,
+      fontSize: 13.5,
+      cursor: 'pointer',
+      fontFamily: F
+    }
+  }, "Sign Out")))));
 
   // ── SSO checking spinner ───────────────────────────────────────
   if (ssoChecking) return /*#__PURE__*/React.createElement("div", {
@@ -11125,6 +11162,22 @@ function ManagerQueue(_ref41) {
     _useState156 = _slicedToArray(_useState155, 2),
     revisingId = _useState156[0],
     setRevisingId = _useState156[1];
+  var _useState157 = useState(AGENTS),
+    _useState158 = _slicedToArray(_useState157, 2),
+    realAgents = _useState158[0],
+    setRealAgents = _useState158[1];
+  useEffect(function () {
+    sb.get('users', "role=eq.vob_agent&status=neq.pending&order=name.asc").then(function (rows) {
+      if (rows && rows.length > 0) setRealAgents(rows);
+    });
+  }, []);
+  var findAgent = function findAgent(id) {
+    return realAgents.find(function (u) {
+      return u.id === id;
+    }) || DEMO_USERS.find(function (u) {
+      return u.id === id;
+    });
+  };
   var updV = function updV(id, ch) {
     return setVobs(function (prev) {
       return prev.map(function (v) {
@@ -11198,9 +11251,7 @@ function ManagerQueue(_ref41) {
       return _regenerator().w(function (_context39) {
         while (1) switch (_context39.n) {
           case 0:
-            agent = DEMO_USERS.find(function (u) {
-              return u.id === agentId;
-            });
+            agent = findAgent(agentId);
             _context39.n = 1;
             return sb.patch('vob_requests', id, {
               assigned_agent: (agent === null || agent === void 0 ? void 0 : agent.name) || agentId
@@ -11327,7 +11378,7 @@ function ManagerQueue(_ref41) {
     })
   }, /*#__PURE__*/React.createElement("option", {
     value: "All"
-  }, "All Agents"), AGENTS.map(function (a) {
+  }, "All Agents"), realAgents.map(function (a) {
     return /*#__PURE__*/React.createElement("option", {
       key: a.id,
       value: a.id
@@ -11372,10 +11423,8 @@ function ManagerQueue(_ref41) {
     }
   }, "No VOBs match filter."), filtered.map(function (v) {
     var _v$messages;
-    var agent = DEMO_USERS.find(function (u) {
-      return u.id === v.assignedTo;
-    });
-    var tier = TIERS[(agent === null || agent === void 0 ? void 0 : agent.tier) || 1];
+    var agent = findAgent(v.assignedTo);
+    var tier = TIERS[(agent === null || agent === void 0 ? void 0 : agent.tier) || (agent === null || agent === void 0 ? void 0 : agent.trust_tier) || 1];
     var isReview = v.status === 'Ready for Review';
     return /*#__PURE__*/React.createElement("div", {
       key: v.id,
@@ -11488,7 +11537,7 @@ function ManagerQueue(_ref41) {
       })
     }, /*#__PURE__*/React.createElement("option", {
       value: ""
-    }, "Assign agent\u2026"), AGENTS.map(function (a) {
+    }, "Assign agent\u2026"), realAgents.map(function (a) {
       return /*#__PURE__*/React.createElement("option", {
         key: a.id,
         value: a.id
@@ -11674,10 +11723,10 @@ function AgentQueue(_ref44) {
     onOpenWorkspace = _ref44.onOpenWorkspace,
     facilities = _ref44.facilities,
     setToast = _ref44.setToast;
-  var _useState157 = useState(false),
-    _useState158 = _slicedToArray(_useState157, 2),
-    newVOBOpen = _useState158[0],
-    setNewVOBOpen = _useState158[1];
+  var _useState159 = useState(false),
+    _useState160 = _slicedToArray(_useState159, 2),
+    newVOBOpen = _useState160[0],
+    setNewVOBOpen = _useState160[1];
   var myVobs = vobs.filter(function (v) {
     return v.assignedTo === user.id || !v.assignedTo || v.status === 'Pending';
   });
@@ -11899,14 +11948,30 @@ function AgentQueue(_ref44) {
 function TeamView(_ref45) {
   var vobs = _ref45.vobs,
     setToast = _ref45.setToast;
-  var _useState159 = useState(function () {
+  var _useState161 = useState(function () {
       return Object.fromEntries(AGENTS.map(function (a) {
         return [a.id, a.tier || 1];
       }));
     }),
-    _useState160 = _slicedToArray(_useState159, 2),
-    agentTiers = _useState160[0],
-    setAgentTiers = _useState160[1];
+    _useState162 = _slicedToArray(_useState161, 2),
+    agentTiers = _useState162[0],
+    setAgentTiers = _useState162[1];
+  var _useState163 = useState(DEMO_USERS.filter(function (u) {
+      return u.team !== 'admin';
+    })),
+    _useState164 = _slicedToArray(_useState163, 2),
+    teamUsers = _useState164[0],
+    setTeamUsers = _useState164[1];
+  useEffect(function () {
+    sb.get('users', 'team=neq.admin&order=name.asc').then(function (rows) {
+      if (rows && rows.length > 0) {
+        setTeamUsers(rows);
+        setAgentTiers(Object.fromEntries(rows.map(function (u) {
+          return [u.id, u.tier || u.trust_tier || 1];
+        })));
+      }
+    });
+  }, []);
   var setTier = /*#__PURE__*/function () {
     var _setTier = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(agentId, tier) {
       return _regenerator().w(function (_context41) {
@@ -11917,7 +11982,9 @@ function TeamView(_ref45) {
             });
             _context41.n = 1;
             return sb.patch('users', agentId, {
-              trust_tier: tier
+              trust_tier: tier,
+              tier: tier,
+              status: 'active'
             });
           case 1:
             setToast({
@@ -11940,10 +12007,8 @@ function TeamView(_ref45) {
       flexDirection: 'column',
       gap: 8
     }
-  }, DEMO_USERS.filter(function (u) {
-    return u.team !== 'admin';
-  }).map(function (u) {
-    var tier = agentTiers[u.id] || u.tier || 1;
+  }, teamUsers.map(function (u) {
+    var tier = agentTiers[u.id] || u.tier || u.trust_tier || 1;
     var t = TIERS[tier];
     var myVobs = vobs.filter(function (v) {
       return v.assignedTo === u.id;
@@ -12012,6 +12077,11 @@ function TeamView(_ref45) {
       color: C.ink3,
       bg: C.paper2,
       border: C.line2
+    }), u.status === 'pending' && /*#__PURE__*/React.createElement(Badge, {
+      label: "\u23F3 PENDING APPROVAL",
+      color: '#8A6D28',
+      bg: C.sandTint,
+      border: C.sandLine
     })), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 13,
@@ -12044,7 +12114,7 @@ function TeamView(_ref45) {
       style: {
         fontFamily: FM,
         fontSize: 9.5,
-        color: 'rgba(232,240,241,.5)',
+        color: C.ink4,
         letterSpacing: '.06em',
         marginBottom: 2
       }
@@ -12089,69 +12159,66 @@ function TeamView(_ref45) {
 // ─── Main KP App ──────────────────────────────────────────────────
 function KPApp() {
   var _NAV_ITEMS$find;
-  var _useState161 = useState(null),
-    _useState162 = _slicedToArray(_useState161, 2),
-    user = _useState162[0],
-    setUser = _useState162[1];
-  var _useState163 = useState('queue'),
-    _useState164 = _slicedToArray(_useState163, 2),
-    page = _useState164[0],
-    setPage = _useState164[1];
-  var _useState165 = useState(false),
+  var _useState165 = useState(null),
     _useState166 = _slicedToArray(_useState165, 2),
-    navOpen = _useState166[0],
-    setNavOpen = _useState166[1];
-  var _useState167 = useState(SEED_VOBS),
+    user = _useState166[0],
+    setUser = _useState166[1];
+  var _useState167 = useState('queue'),
     _useState168 = _slicedToArray(_useState167, 2),
-    vobs = _useState168[0],
-    setVobs = _useState168[1];
-  var _useState169 = useState([]),
+    page = _useState168[0],
+    setPage = _useState168[1];
+  var _useState169 = useState(false),
     _useState170 = _slicedToArray(_useState169, 2),
-    facilities = _useState170[0],
-    setFacilities = _useState170[1];
-  var _useState171 = useState(null),
+    navOpen = _useState170[0],
+    setNavOpen = _useState170[1];
+  var _useState171 = useState([]),
     _useState172 = _slicedToArray(_useState171, 2),
-    toast = _useState172[0],
-    setToast = _useState172[1];
-  var _useState173 = useState(null),
+    vobs = _useState172[0],
+    setVobs = _useState172[1];
+  var _useState173 = useState([]),
     _useState174 = _slicedToArray(_useState173, 2),
-    activeVOB = _useState174[0],
-    setActiveVOB = _useState174[1]; // workspace open
+    facilities = _useState174[0],
+    setFacilities = _useState174[1];
+  var _useState175 = useState(null),
+    _useState176 = _slicedToArray(_useState175, 2),
+    toast = _useState176[0],
+    setToast = _useState176[1];
+  var _useState177 = useState(null),
+    _useState178 = _slicedToArray(_useState177, 2),
+    activeVOB = _useState178[0],
+    setActiveVOB = _useState178[1]; // workspace open
   var isMobile = useIsMobile();
   useEffect(function () {
     if (!user) return;
-    sb.get('vob_requests', 'status=in.(Pending,In%20Progress,Ready%20for%20Review)&order=submitted_at.desc&limit=50').then(function (rows) {
-      if (rows.length > 0) {
-        setVobs(function (prev) {
-          var ids = new Set(prev.map(function (v) {
-            return v.id;
-          }));
-          var live = rows.filter(function (r) {
-            return !ids.has(r.id);
-          }).map(function (r) {
-            return {
-              id: r.id,
-              facilityName: r.facility_name,
-              patientName: "".concat(r.patient_first || '', " ").concat(r.patient_last || '').trim() || r.id,
-              insurance: r.insurance_name,
-              loc: r.requested_loc,
-              urgency: r.urgency || 'Standard',
-              status: r.status,
-              submittedAt: r.verified_date || new Date(r.submitted_at).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              }),
-              assignedTo: null,
-              tier: null,
-              flagged: false,
-              messages: [],
-              formData: {}
-            };
-          });
-          return [].concat(_toConsumableArray(live), _toConsumableArray(prev));
-        });
-      }
+    Promise.all([sb.get('vob_requests', 'status=in.(Pending,In%20Progress,Ready%20for%20Review)&order=submitted_at.desc&limit=50'), sb.get('users', '')]).then(function (_ref46) {
+      var _ref47 = _slicedToArray(_ref46, 2),
+        rows = _ref47[0],
+        allUsers = _ref47[1];
+      var byName = Object.fromEntries((allUsers || []).map(function (u) {
+        return [u.name, u.id];
+      }));
+      var live = (rows || []).map(function (r) {
+        return {
+          id: r.id,
+          facilityName: r.facility_name,
+          patientName: "".concat(r.patient_first || '', " ").concat(r.patient_last || '').trim() || r.id,
+          insurance: r.insurance_name,
+          loc: r.requested_loc,
+          urgency: r.urgency || 'Standard',
+          status: r.status,
+          submittedAt: r.verified_date || new Date(r.submitted_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          }),
+          assignedTo: byName[r.assigned_agent] || null,
+          tier: null,
+          flagged: false,
+          messages: [],
+          formData: {}
+        };
+      });
+      setVobs(live);
     });
     sb.get('facilities', 'status=eq.Active&order=name.asc').then(function (rows) {
       return setFacilities(rows);
@@ -12225,12 +12292,12 @@ function KPApp() {
               cov_iop: (_form$locAuth26 = form.locAuth) === null || _form$locAuth26 === void 0 || (_form$locAuth26 = _form$locAuth26.iop) === null || _form$locAuth26 === void 0 ? void 0 : _form$locAuth26.covered,
               auth_iop: (_form$locAuth27 = form.locAuth) === null || _form$locAuth27 === void 0 || (_form$locAuth27 = _form$locAuth27.iop) === null || _form$locAuth27 === void 0 ? void 0 : _form$locAuth27.priorAuth,
               accred_iop: (_form$locAuth28 = form.locAuth) === null || _form$locAuth28 === void 0 || (_form$locAuth28 = _form$locAuth28.iop) === null || _form$locAuth28 === void 0 ? void 0 : _form$locAuth28.accreditation,
-              cov_op_nr: (_form$locAuth29 = form.locAuth) === null || _form$locAuth29 === void 0 || (_form$locAuth29 = _form$locAuth29.opFacility) === null || _form$locAuth29 === void 0 ? void 0 : _form$locAuth29.covered,
-              auth_op_nr: (_form$locAuth30 = form.locAuth) === null || _form$locAuth30 === void 0 || (_form$locAuth30 = _form$locAuth30.opFacility) === null || _form$locAuth30 === void 0 ? void 0 : _form$locAuth30.priorAuth,
-              accred_op_nr: (_form$locAuth31 = form.locAuth) === null || _form$locAuth31 === void 0 || (_form$locAuth31 = _form$locAuth31.opFacility) === null || _form$locAuth31 === void 0 ? void 0 : _form$locAuth31.accreditation,
-              cov_op_ro: (_form$locAuth32 = form.locAuth) === null || _form$locAuth32 === void 0 || (_form$locAuth32 = _form$locAuth32.opOffice) === null || _form$locAuth32 === void 0 ? void 0 : _form$locAuth32.covered,
-              auth_op_ro: (_form$locAuth33 = form.locAuth) === null || _form$locAuth33 === void 0 || (_form$locAuth33 = _form$locAuth33.opOffice) === null || _form$locAuth33 === void 0 ? void 0 : _form$locAuth33.priorAuth,
-              accred_op_ro: (_form$locAuth34 = form.locAuth) === null || _form$locAuth34 === void 0 || (_form$locAuth34 = _form$locAuth34.opOffice) === null || _form$locAuth34 === void 0 ? void 0 : _form$locAuth34.accreditation,
+              cov_op_nr: (_form$locAuth29 = form.locAuth) === null || _form$locAuth29 === void 0 || (_form$locAuth29 = _form$locAuth29.op_nr) === null || _form$locAuth29 === void 0 ? void 0 : _form$locAuth29.covered,
+              auth_op_nr: (_form$locAuth30 = form.locAuth) === null || _form$locAuth30 === void 0 || (_form$locAuth30 = _form$locAuth30.op_nr) === null || _form$locAuth30 === void 0 ? void 0 : _form$locAuth30.priorAuth,
+              accred_op_nr: (_form$locAuth31 = form.locAuth) === null || _form$locAuth31 === void 0 || (_form$locAuth31 = _form$locAuth31.op_nr) === null || _form$locAuth31 === void 0 ? void 0 : _form$locAuth31.accreditation,
+              cov_op_ro: (_form$locAuth32 = form.locAuth) === null || _form$locAuth32 === void 0 || (_form$locAuth32 = _form$locAuth32.op_ro) === null || _form$locAuth32 === void 0 ? void 0 : _form$locAuth32.covered,
+              auth_op_ro: (_form$locAuth33 = form.locAuth) === null || _form$locAuth33 === void 0 || (_form$locAuth33 = _form$locAuth33.op_ro) === null || _form$locAuth33 === void 0 ? void 0 : _form$locAuth33.priorAuth,
+              accred_op_ro: (_form$locAuth34 = form.locAuth) === null || _form$locAuth34 === void 0 || (_form$locAuth34 = _form$locAuth34.op_ro) === null || _form$locAuth34 === void 0 ? void 0 : _form$locAuth34.accreditation,
               precert_co: (form.inpatientPaVendor || '') + (form.inpatientPaPhone ? ' · ' + form.inpatientPaPhone : ''),
               inn_med_payer: form.medicalPayerId,
               inn_med_claims: form.medicalClaimsAddress,
@@ -12291,23 +12358,7 @@ function KPApp() {
     user: user,
     facilities: facilities,
     isManagerEdit: isManager(user),
-    onComplete: function onComplete(form, tabId, flagged) {
-      var tier = user.tier || 1;
-      var newStatus = tier === 1 ? 'Ready for Review' : 'Completed';
-      setVobs(function (p) {
-        return p.map(function (v) {
-          return v.id === tabId ? _objectSpread(_objectSpread({}, v), {}, {
-            status: newStatus,
-            flagged: flagged
-          }) : v;
-        });
-      });
-      setToast({
-        msg: tier === 1 ? "".concat(tabId, " submitted for manager review") : tier === 2 ? "".concat(tabId, " delivered \u2014 manager notified") : "".concat(tabId, " delivered"),
-        type: 'success'
-      });
-      setActiveVOB(null);
-    },
+    onComplete: handleComplete,
     onBack: function onBack() {
       return setActiveVOB(null);
     }
@@ -12425,7 +12476,7 @@ function KPApp() {
       width: 28,
       height: 28,
       borderRadius: '50%',
-      background: C.tealDD,
+      background: 'rgba(255,255,255,.15)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -12449,7 +12500,8 @@ function KPApp() {
     }
   }, user.role)))), /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
-      return setUser(null);
+      localStorage.removeItem('kp_token');
+      setUser(null);
     },
     style: {
       display: 'flex',
@@ -12492,7 +12544,7 @@ function KPApp() {
     style: {
       fontFamily: "'Mokoto',sans-serif",
       fontSize: 14,
-      color: '#fff',
+      color: C.ink,
       letterSpacing: '.04em'
     }
   }, "KAREPOINT")), /*#__PURE__*/React.createElement("button", {
@@ -12538,7 +12590,8 @@ function KPApp() {
     }, n.label);
   }), /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
-      return setUser(null);
+      localStorage.removeItem('kp_token');
+      setUser(null);
     },
     style: {
       display: 'flex',
