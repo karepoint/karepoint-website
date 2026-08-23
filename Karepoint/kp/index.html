@@ -11,18 +11,16 @@
 <style>
 @font-face{font-family:"Mokoto";src:url("/assets/fonts/mokoto_regular.ttf") format("truetype");font-display:swap;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{background:#F4F7F8;color:#0F1F23;font-family:"Inter",-apple-system,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html{-webkit-text-size-adjust:100%}
+body{background:#F4F7F8;color:#0F1F23;font-family:"Inter",-apple-system,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
 input,button,select,textarea{font-family:inherit;font-size:inherit}
 a{color:inherit}
 img,svg{display:block;max-width:100%}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(55,121,133,.28);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(55,121,133,.48)}
 input:focus,select:focus,textarea:focus{border-color:#377985!important;box-shadow:0 0 0 3px rgba(55,121,133,.12)!important;outline:none}
 button:focus-visible{outline:2px solid #377985;outline-offset:2px}
-[contenteditable]:focus{outline:none;box-shadow:0 0 0 3px rgba(55,121,133,.15)}
 </style>
 </head>
 <body>
@@ -2917,12 +2915,12 @@ function runEDI271(_x2, _x3, _x4) {
   return _runEDI.apply(this, arguments);
 } // ─── Prelim Panel ─────────────────────────────────────────────────
 function _runEDI() {
-  _runEDI = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(memberId, payerName, dob) {
+  _runEDI = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee41(memberId, payerName, dob) {
     var enrolled, isEnrolled;
-    return _regenerator().w(function (_context39) {
-      while (1) switch (_context39.n) {
+    return _regenerator().w(function (_context42) {
+      while (1) switch (_context42.n) {
         case 0:
-          _context39.n = 1;
+          _context42.n = 1;
           return new Promise(function (r) {
             return setTimeout(r, 1800);
           });
@@ -2934,14 +2932,14 @@ function _runEDI() {
             return payerName.toLowerCase().includes(p);
           });
           if (isEnrolled) {
-            _context39.n = 2;
+            _context42.n = 2;
             break;
           }
-          return _context39.a(2, {
+          return _context42.a(2, {
             enrolled: false
           });
         case 2:
-          return _context39.a(2, {
+          return _context42.a(2, {
             enrolled: true,
             planActive: 'Yes',
             effectiveDate: '01/01/2026',
@@ -2957,7 +2955,7 @@ function _runEDI() {
             coinsurance: ['10', '20', '30'][Math.floor(Math.random() * 3)] + '%'
           });
       }
-    }, _callee38);
+    }, _callee41);
   }));
   return _runEDI.apply(this, arguments);
 }
@@ -9337,66 +9335,292 @@ var FIELD_TYPES = [{
 }];
 
 // ─── Login ────────────────────────────────────────────────────────
+// ─── Microsoft SSO config ─────────────────────────────────────────
+var AZURE_CLIENT_ID = 'a0b2bc72-316f-4254-88f2-82d44dfa22ee';
+var AZURE_TENANT_ID = 'b5040ccc-ba91-40dd-ac91-82a3f166f9cc';
+
+// ─── Login ────────────────────────────────────────────────────────
 function Login(_ref39) {
   var onLogin = _ref39.onLogin;
   var _useState117 = useState(''),
     _useState118 = _slicedToArray(_useState117, 2),
-    email = _useState118[0],
-    setEmail = _useState118[1];
-  var _useState119 = useState(''),
+    err = _useState118[0],
+    setErr = _useState118[1];
+  var _useState119 = useState(false),
     _useState120 = _slicedToArray(_useState119, 2),
-    pw = _useState120[0],
-    setPw = _useState120[1];
-  var _useState121 = useState(''),
+    loading = _useState120[0],
+    setLoading = _useState120[1];
+  var _useState121 = useState(true),
     _useState122 = _slicedToArray(_useState121, 2),
-    err = _useState122[0],
-    setErr = _useState122[1];
+    ssoChecking = _useState122[0],
+    setSsoChecking = _useState122[1];
   var _useState123 = useState(false),
     _useState124 = _slicedToArray(_useState123, 2),
-    loading = _useState124[0],
-    setLoading = _useState124[1];
-  // Demo quick login
+    showDemo = _useState124[0],
+    setShowDemo = _useState124[1];
   var _useState125 = useState(false),
     _useState126 = _slicedToArray(_useState125, 2),
-    showDemo = _useState126[0],
-    setShowDemo = _useState126[1];
-  var handle = /*#__PURE__*/function () {
-    var _handle = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26() {
+    showFallback = _useState126[0],
+    setShowFallback = _useState126[1];
+  var _useState127 = useState(''),
+    _useState128 = _slicedToArray(_useState127, 2),
+    email = _useState128[0],
+    setEmail = _useState128[1];
+  var _useState129 = useState(''),
+    _useState130 = _slicedToArray(_useState129, 2),
+    pw = _useState130[0],
+    setPw = _useState130[1];
+  var _useState131 = useState(false),
+    _useState132 = _slicedToArray(_useState131, 2),
+    pending = _useState132[0],
+    setPending = _useState132[1]; // first-time SSO user not yet in users table
+
+  // ── On mount: check if we're returning from Microsoft OAuth redirect ──
+  useEffect(function () {
+    var checkSession = /*#__PURE__*/function () {
+      var _checkSession = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26() {
+        var res, data, hash, params, accessToken, uRes, _data, _t0;
+        return _regenerator().w(function (_context26) {
+          while (1) switch (_context26.p = _context26.n) {
+            case 0:
+              _context26.p = 0;
+              _context26.n = 1;
+              return fetch("".concat(SB_URL, "/auth/v1/user"), {
+                headers: _objectSpread(_objectSpread({}, SB_H.headers), {}, {
+                  Authorization: "Bearer ".concat(getStoredToken())
+                })
+              });
+            case 1:
+              res = _context26.v;
+              if (!res.ok) {
+                _context26.n = 6;
+                break;
+              }
+              _context26.n = 2;
+              return res.json();
+            case 2:
+              data = _context26.v;
+              if (!(data !== null && data !== void 0 && data.email)) {
+                _context26.n = 4;
+                break;
+              }
+              _context26.n = 3;
+              return resolveUser(data.email, data);
+            case 3:
+              _context26.n = 5;
+              break;
+            case 4:
+              setSsoChecking(false);
+            case 5:
+              _context26.n = 15;
+              break;
+            case 6:
+              // Check URL for access_token from OAuth redirect
+              hash = window.location.hash;
+              params = new URLSearchParams(hash.replace('#', ''));
+              accessToken = params.get('access_token');
+              if (!accessToken) {
+                _context26.n = 14;
+                break;
+              }
+              localStorage.setItem('kp_token', accessToken);
+              // Get user info
+              _context26.n = 7;
+              return fetch("".concat(SB_URL, "/auth/v1/user"), {
+                headers: _objectSpread(_objectSpread({}, SB_H.headers), {}, {
+                  Authorization: "Bearer ".concat(accessToken)
+                })
+              });
+            case 7:
+              uRes = _context26.v;
+              if (!uRes.ok) {
+                _context26.n = 12;
+                break;
+              }
+              _context26.n = 8;
+              return uRes.json();
+            case 8:
+              _data = _context26.v;
+              if (!(_data !== null && _data !== void 0 && _data.email)) {
+                _context26.n = 10;
+                break;
+              }
+              _context26.n = 9;
+              return resolveUser(_data.email, _data);
+            case 9:
+              _context26.n = 11;
+              break;
+            case 10:
+              setSsoChecking(false);
+            case 11:
+              _context26.n = 13;
+              break;
+            case 12:
+              setSsoChecking(false);
+            case 13:
+              // Clean URL
+              window.history.replaceState(null, '', window.location.pathname);
+              _context26.n = 15;
+              break;
+            case 14:
+              setSsoChecking(false);
+            case 15:
+              _context26.n = 17;
+              break;
+            case 16:
+              _context26.p = 16;
+              _t0 = _context26.v;
+              setSsoChecking(false);
+            case 17:
+              return _context26.a(2);
+          }
+        }, _callee26, null, [[0, 16]]);
+      }));
+      function checkSession() {
+        return _checkSession.apply(this, arguments);
+      }
+      return checkSession;
+    }();
+    checkSession();
+  }, []);
+  var getStoredToken = function getStoredToken() {
+    return localStorage.getItem('kp_token') || '';
+  };
+
+  // ── Resolve logged-in email to users table ─────────────────────
+  var resolveUser = /*#__PURE__*/function () {
+    var _resolveUser = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27(email, authData) {
+      var rows, u, _authData$user_metada, newUser;
+      return _regenerator().w(function (_context27) {
+        while (1) switch (_context27.n) {
+          case 0:
+            _context27.n = 1;
+            return sb.get('users', "email=eq.".concat(encodeURIComponent(email), "&limit=1"));
+          case 1:
+            rows = _context27.v;
+            if (!(rows && rows.length > 0)) {
+              _context27.n = 2;
+              break;
+            }
+            u = rows[0];
+            onLogin(_objectSpread(_objectSpread({}, u), {}, {
+              token: getStoredToken(),
+              sso: true
+            }));
+            _context27.n = 4;
+            break;
+          case 2:
+            // First-time SSO user — not yet in users table
+            // Auto-create as pending agent, manager must approve + set tier
+            newUser = {
+              id: "sso_".concat(Date.now()),
+              name: ((_authData$user_metada = authData.user_metadata) === null || _authData$user_metada === void 0 ? void 0 : _authData$user_metada.full_name) || email.split('@')[0],
+              email: email,
+              role: 'vob_agent',
+              team: 'vob',
+              tier: 1,
+              status: 'pending',
+              created_at: new Date().toISOString()
+            };
+            _context27.n = 3;
+            return sb.post('users', newUser);
+          case 3:
+            setPending(true);
+            setSsoChecking(false);
+          case 4:
+            return _context27.a(2);
+        }
+      }, _callee27);
+    }));
+    function resolveUser(_x20, _x21) {
+      return _resolveUser.apply(this, arguments);
+    }
+    return resolveUser;
+  }();
+
+  // ── Microsoft SSO sign in ──────────────────────────────────────
+  var signInWithMicrosoft = /*#__PURE__*/function () {
+    var _signInWithMicrosoft = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28() {
+      var _res$headers, redirectTo, res, url, _redirectTo, _t1;
+      return _regenerator().w(function (_context28) {
+        while (1) switch (_context28.p = _context28.n) {
+          case 0:
+            setLoading(true);
+            setErr('');
+            _context28.p = 1;
+            redirectTo = encodeURIComponent(window.location.origin + window.location.pathname);
+            _context28.n = 2;
+            return fetch("".concat(SB_URL, "/auth/v1/authorize?provider=azure&redirect_to=").concat(redirectTo), {
+              method: 'GET',
+              headers: SB_H.headers,
+              redirect: 'manual'
+            });
+          case 2:
+            res = _context28.v;
+            // Supabase returns the Microsoft login URL — redirect to it
+            url = res.url || ((_res$headers = res.headers) === null || _res$headers === void 0 ? void 0 : _res$headers.get('location'));
+            if (url && url.includes('microsoft') || url !== null && url !== void 0 && url.includes('login.microsoftonline')) {
+              window.location.href = url;
+            } else {
+              // Direct redirect approach (most reliable)
+              window.location.href = "".concat(SB_URL, "/auth/v1/authorize?provider=azure&redirect_to=").concat(redirectTo);
+            }
+            _context28.n = 4;
+            break;
+          case 3:
+            _context28.p = 3;
+            _t1 = _context28.v;
+            // Fallback direct redirect
+            _redirectTo = encodeURIComponent(window.location.origin + window.location.pathname);
+            window.location.href = "".concat(SB_URL, "/auth/v1/authorize?provider=azure&redirect_to=").concat(_redirectTo);
+          case 4:
+            return _context28.a(2);
+        }
+      }, _callee28, null, [[1, 3]]);
+    }));
+    function signInWithMicrosoft() {
+      return _signInWithMicrosoft.apply(this, arguments);
+    }
+    return signInWithMicrosoft;
+  }();
+
+  // ── Password fallback ─────────────────────────────────────────
+  var handlePasswordLogin = /*#__PURE__*/function () {
+    var _handlePasswordLogin = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29() {
       var session, rows, user, demo;
-      return _regenerator().w(function (_context26) {
-        while (1) switch (_context26.n) {
+      return _regenerator().w(function (_context29) {
+        while (1) switch (_context29.n) {
           case 0:
             if (!(!email || !pw)) {
-              _context26.n = 1;
+              _context29.n = 1;
               break;
             }
             setErr('Enter email and password');
-            return _context26.a(2);
+            return _context29.a(2);
           case 1:
             setLoading(true);
             setErr('');
-            _context26.n = 2;
+            _context29.n = 2;
             return sb.auth(email, pw);
           case 2:
-            session = _context26.v;
+            session = _context29.v;
             if (!session) {
-              _context26.n = 4;
+              _context29.n = 4;
               break;
             }
-            _context26.n = 3;
+            _context29.n = 3;
             return sb.get('users', "email=eq.".concat(encodeURIComponent(email), "&limit=1"));
           case 3:
-            rows = _context26.v;
+            rows = _context29.v;
             user = rows[0] || DEMO_USERS.find(function (u) {
               return u.email === email;
             });
             if (user) {
               onLogin(_objectSpread(_objectSpread({}, user), session));
             } else setErr('User not found in team directory.');
-            _context26.n = 5;
+            _context29.n = 5;
             break;
           case 4:
-            // Try demo login
             demo = DEMO_USERS.find(function (u) {
               return u.email === email;
             });
@@ -9408,15 +9632,118 @@ function Login(_ref39) {
           case 5:
             setLoading(false);
           case 6:
-            return _context26.a(2);
+            return _context29.a(2);
         }
-      }, _callee26);
+      }, _callee29);
     }));
-    function handle() {
-      return _handle.apply(this, arguments);
+    function handlePasswordLogin() {
+      return _handlePasswordLogin.apply(this, arguments);
     }
-    return handle;
+    return handlePasswordLogin;
   }();
+
+  // ── Pending approval screen ────────────────────────────────────
+  if (pending) return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: '100vh',
+      background: C.paper,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: F
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '100%',
+      maxWidth: 400,
+      padding: 24,
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "/assets/logo/KAREPOINT-logo-only.svg",
+    width: "40",
+    height: "40",
+    alt: "",
+    style: {
+      margin: '0 auto 16px'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Mokoto',sans-serif",
+      fontSize: 22,
+      color: C.ink,
+      letterSpacing: '.04em',
+      marginBottom: 20
+    }
+  }, "KAREPOINT"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.white,
+      border: "1px solid ".concat(C.line),
+      borderRadius: 8,
+      padding: 28,
+      boxShadow: C.shLg
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 36,
+      marginBottom: 12
+    }
+  }, "\u23F3"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: FD,
+      fontSize: 18,
+      fontWeight: 600,
+      color: C.ink,
+      marginBottom: 8
+    }
+  }, "Account Pending Approval"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      color: C.ink3,
+      lineHeight: 1.7,
+      marginBottom: 20
+    }
+  }, "Your Microsoft account was verified successfully. A manager needs to approve your access and assign your role before you can log in."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.tealL,
+      border: "1px solid ".concat(C.tealLine),
+      borderRadius: 5,
+      padding: '10px 14px',
+      fontSize: 13,
+      color: C.tealD
+    }
+  }, "Contact ", /*#__PURE__*/React.createElement("strong", null, "suvraneelm@mykarepoint.com"), " to get access."))));
+
+  // ── SSO checking spinner ───────────────────────────────────────
+  if (ssoChecking) return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: '100vh',
+      background: C.paper,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: F
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 40,
+      height: 40,
+      border: "3px solid ".concat(C.line),
+      borderTopColor: C.teal,
+      borderRadius: '50%',
+      animation: 'spin 0.8s linear infinite',
+      margin: '0 auto 16px'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 14,
+      color: C.ink3
+    }
+  }, "Checking authentication\u2026")), /*#__PURE__*/React.createElement("style", null, "@keyframes spin{to{transform:rotate(360deg)}}"));
   return /*#__PURE__*/React.createElement("div", {
     style: {
       minHeight: '100vh',
@@ -9492,9 +9819,86 @@ function Login(_ref39) {
     }
   }, "Secure Sign In")), /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: '20px'
+      padding: '24px 20px'
+    }
+  }, !showFallback && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+    onClick: signInWithMicrosoft,
+    disabled: loading,
+    style: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+      padding: '14px',
+      border: "1.5px solid ".concat(C.line2),
+      borderRadius: 7,
+      background: C.white,
+      cursor: loading ? 'default' : 'pointer',
+      fontSize: 15,
+      fontWeight: 600,
+      color: C.ink,
+      fontFamily: F,
+      opacity: loading ? .7 : 1,
+      transition: 'all .15s',
+      boxShadow: '0 1px 4px rgba(0,0,0,.06)'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: "20",
+    height: "20",
+    viewBox: "0 0 21 21",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "1",
+    y: "1",
+    width: "9",
+    height: "9",
+    fill: "#f25022"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "11",
+    y: "1",
+    width: "9",
+    height: "9",
+    fill: "#7fba00"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "1",
+    y: "11",
+    width: "9",
+    height: "9",
+    fill: "#00a4ef"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "11",
+    y: "11",
+    width: "9",
+    height: "9",
+    fill: "#ffb900"
+  })), loading ? 'Redirecting to Microsoft…' : 'Sign in with Microsoft'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      margin: '16px 0',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10
     }
   }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      height: 1,
+      background: C.line
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: FM,
+      fontSize: 10,
+      color: C.ink4
+    }
+  }, "Use your @mykarepoint.com account"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      height: 1,
+      background: C.line
+    }
+  }))), showFallback && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12
     }
@@ -9510,16 +9914,16 @@ function Login(_ref39) {
     placeholder: "you@mykarepoint.com",
     style: inp,
     onKeyDown: function onKeyDown(e) {
-      return e.key === 'Enter' && document.getElementById('kp-pw').focus();
+      return e.key === 'Enter' && document.getElementById('kp-pw-fb').focus();
     }
   })), /*#__PURE__*/React.createElement("div", {
     style: {
-      marginBottom: 6
+      marginBottom: 16
     }
   }, /*#__PURE__*/React.createElement("label", {
     style: lbl
   }, "Password"), /*#__PURE__*/React.createElement("input", {
-    id: "kp-pw",
+    id: "kp-pw-fb",
     type: "password",
     value: pw,
     onChange: function onChange(e) {
@@ -9529,12 +9933,53 @@ function Login(_ref39) {
     placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     style: inp,
     onKeyDown: function onKeyDown(e) {
-      return e.key === 'Enter' && handle();
+      return e.key === 'Enter' && handlePasswordLogin();
     }
-  })), /*#__PURE__*/React.createElement("div", {
+  })), err && /*#__PURE__*/React.createElement("div", {
     style: {
-      textAlign: 'right',
-      marginBottom: 16
+      fontSize: 11,
+      color: C.red,
+      marginBottom: 12,
+      padding: '7px 10px',
+      background: C.redTint,
+      borderRadius: 4,
+      border: "1px solid ".concat(C.redLine)
+    }
+  }, err), /*#__PURE__*/React.createElement("button", {
+    onClick: handlePasswordLogin,
+    disabled: loading,
+    style: {
+      width: '100%',
+      padding: '13px',
+      background: loading ? C.paper2 : C.teal,
+      color: loading ? C.ink4 : '#fff',
+      border: 'none',
+      borderRadius: 7,
+      fontSize: 15,
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontFamily: F,
+      marginBottom: 10
+    }
+  }, loading ? 'Signing in…' : 'Sign In'), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      setShowFallback(false);
+      setErr('');
+    },
+    style: {
+      width: '100%',
+      padding: '10px',
+      background: 'none',
+      color: C.ink3,
+      border: "1px solid ".concat(C.line2),
+      borderRadius: 6,
+      fontSize: 13,
+      cursor: 'pointer',
+      fontFamily: F
+    }
+  }, "\u2190 Back to Microsoft Sign In")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: function onClick() {
@@ -9542,19 +9987,21 @@ function Login(_ref39) {
     },
     style: {
       fontSize: 11,
-      color: C.teal,
+      color: C.ink4,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      fontFamily: F
+      fontFamily: F,
+      width: '100%',
+      textAlign: 'center'
     }
-  }, "Demo login")), showDemo && /*#__PURE__*/React.createElement("div", {
+  }, showDemo ? 'Hide demo' : 'Demo login'), showDemo && /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.tealL,
       border: "1px solid ".concat(C.tealLine),
       borderRadius: 5,
       padding: '10px 12px',
-      marginBottom: 12
+      marginTop: 8
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -9567,10 +10014,10 @@ function Login(_ref39) {
   }, "DEMO \u2014 click to select"), DEMO_USERS.filter(function (u) {
     return u.team !== 'pa_ur';
   }).map(function (u) {
-    var _TIERS, _TIERS2, _TIERS3, _TIERS4;
     return /*#__PURE__*/React.createElement("button", {
       key: u.id,
       onClick: function onClick() {
+        setShowFallback(true);
         setEmail(u.email);
         setPw('demo2026');
         setShowDemo(false);
@@ -9606,61 +10053,43 @@ function Login(_ref39) {
       return n[0];
     }).join('').slice(0, 2)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 13.5,
+        fontSize: 13,
         fontWeight: 600,
         color: C.ink
       }
     }, u.name), /*#__PURE__*/React.createElement("div", {
       style: {
         fontFamily: FM,
-        fontSize: 10.5,
+        fontSize: 10,
         color: C.ink3
       }
-    }, u.role, " \xB7 ", u.team)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginLeft: 'auto'
-      }
-    }, /*#__PURE__*/React.createElement(Badge, {
-      label: ((_TIERS = TIERS[u.tier || 3]) === null || _TIERS === void 0 || (_TIERS = _TIERS.label) === null || _TIERS === void 0 ? void 0 : _TIERS.split(' ')[0]) || 'T3',
-      color: (_TIERS2 = TIERS[u.tier || 3]) === null || _TIERS2 === void 0 ? void 0 : _TIERS2.color,
-      bg: (_TIERS3 = TIERS[u.tier || 3]) === null || _TIERS3 === void 0 ? void 0 : _TIERS3.bg,
-      border: (_TIERS4 = TIERS[u.tier || 3]) === null || _TIERS4 === void 0 ? void 0 : _TIERS4.border
-    })));
+    }, u.role, " \xB7 T", u.tier || 3)));
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: FM,
       fontSize: 10,
       color: C.ink4,
-      marginTop: 6
+      marginTop: 6,
+      textAlign: 'center'
     }
-  }, "Password: demo2026")), err && /*#__PURE__*/React.createElement("div", {
+  }, "Password: demo2026"))), !showFallback && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return setShowFallback(true);
+    },
     style: {
       fontSize: 11,
-      color: C.red,
-      marginBottom: 10,
-      padding: '7px 10px',
-      background: C.redTint,
-      borderRadius: 4,
-      border: "1px solid ".concat(C.redLine)
-    }
-  }, err), /*#__PURE__*/React.createElement("button", {
-    onClick: handle,
-    disabled: loading,
-    style: {
-      width: '100%',
-      padding: '14px',
-      background: loading ? C.paper2 : C.teal,
-      color: loading ? C.ink4 : '#fff',
+      color: C.ink4,
+      background: 'none',
       border: 'none',
-      borderRadius: 7,
-      fontSize: 15,
-      fontWeight: 600,
       cursor: 'pointer',
-      fontFamily: F,
-      opacity: loading ? .7 : 1,
-      letterSpacing: '.01em'
+      fontFamily: F
     }
-  }, loading ? 'Signing in…' : 'Sign In'))), /*#__PURE__*/React.createElement("div", {
+  }, "Sign in with password instead")))), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       marginTop: 12,
@@ -9669,7 +10098,7 @@ function Login(_ref39) {
       color: C.ink4,
       letterSpacing: '.06em'
     }
-  }, "\uD83D\uDD12 For authorized Karepoint team members only")), /*#__PURE__*/React.createElement("style", null, "@font-face{font-family:'Mokoto';src:url('/assets/fonts/mokoto_regular.ttf') format('truetype');}"));
+  }, "\uD83D\uDD12 For authorized Karepoint team members only")), /*#__PURE__*/React.createElement("style", null, "\n        @font-face{font-family:'Mokoto';src:url('/assets/fonts/mokoto_regular.ttf') format('truetype');}\n        @keyframes spin{to{transform:rotate(360deg)}}\n      "));
 }
 
 // ─── New VOB Modal ────────────────────────────────────────────────
@@ -9678,7 +10107,7 @@ function NewVOBModal(_ref40) {
     onSubmit = _ref40.onSubmit,
     _ref40$facilities = _ref40.facilities,
     facilities = _ref40$facilities === void 0 ? [] : _ref40$facilities;
-  var _useState127 = useState({
+  var _useState133 = useState({
       facilityName: '',
       patientFirst: '',
       patientLast: '',
@@ -9688,9 +10117,9 @@ function NewVOBModal(_ref40) {
       urgency: 'Standard',
       notes: ''
     }),
-    _useState128 = _slicedToArray(_useState127, 2),
-    d = _useState128[0],
-    setD = _useState128[1];
+    _useState134 = _slicedToArray(_useState133, 2),
+    d = _useState134[0],
+    setD = _useState134[1];
   var set = function set(k) {
     return function (e) {
       return setD(function (p) {
@@ -9699,17 +10128,17 @@ function NewVOBModal(_ref40) {
     };
   };
   var submit = /*#__PURE__*/function () {
-    var _submit = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27() {
+    var _submit = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30() {
       var id, row;
-      return _regenerator().w(function (_context27) {
-        while (1) switch (_context27.n) {
+      return _regenerator().w(function (_context30) {
+        while (1) switch (_context30.n) {
           case 0:
             if (!(!d.facilityName || !d.patientFirst || !d.patientLast || !d.insurance)) {
-              _context27.n = 1;
+              _context30.n = 1;
               break;
             }
             alert('Fill required fields');
-            return _context27.a(2);
+            return _context30.a(2);
           case 1:
             id = 'V-' + Date.now();
             row = {
@@ -9725,7 +10154,7 @@ function NewVOBModal(_ref40) {
               notes: 'Manual: ' + d.notes,
               submitted_at: new Date().toISOString()
             };
-            _context27.n = 2;
+            _context30.n = 2;
             return sb.post('vob_requests', row);
           case 2:
             onSubmit && onSubmit(_objectSpread(_objectSpread({}, row), {}, {
@@ -9737,9 +10166,9 @@ function NewVOBModal(_ref40) {
             }));
             onClose();
           case 3:
-            return _context27.a(2);
+            return _context30.a(2);
         }
-      }, _callee27);
+      }, _callee30);
     }));
     function submit() {
       return _submit.apply(this, arguments);
@@ -9947,51 +10376,51 @@ function NewVOBModal(_ref40) {
 
 // ─── Payer Directory Page ─────────────────────────────────────────
 function PayerDirectoryPage() {
-  var _useState129 = useState([]),
-    _useState130 = _slicedToArray(_useState129, 2),
-    payers = _useState130[0],
-    setPayers = _useState130[1];
-  var _useState131 = useState(true),
-    _useState132 = _slicedToArray(_useState131, 2),
-    loading = _useState132[0],
-    setLoading = _useState132[1];
-  var _useState133 = useState(''),
-    _useState134 = _slicedToArray(_useState133, 2),
-    search = _useState134[0],
-    setSearch = _useState134[1];
-  var _useState135 = useState(null),
+  var _useState135 = useState([]),
     _useState136 = _slicedToArray(_useState135, 2),
-    editing = _useState136[0],
-    setEditing = _useState136[1];
-  var _useState137 = useState({}),
+    payers = _useState136[0],
+    setPayers = _useState136[1];
+  var _useState137 = useState(true),
     _useState138 = _slicedToArray(_useState137, 2),
-    draft = _useState138[0],
-    setDraft = _useState138[1];
+    loading = _useState138[0],
+    setLoading = _useState138[1];
   var _useState139 = useState(''),
     _useState140 = _slicedToArray(_useState139, 2),
-    toast = _useState140[0],
-    setToast = _useState140[1];
+    search = _useState140[0],
+    setSearch = _useState140[1];
+  var _useState141 = useState(null),
+    _useState142 = _slicedToArray(_useState141, 2),
+    editing = _useState142[0],
+    setEditing = _useState142[1];
+  var _useState143 = useState({}),
+    _useState144 = _slicedToArray(_useState143, 2),
+    draft = _useState144[0],
+    setDraft = _useState144[1];
+  var _useState145 = useState(''),
+    _useState146 = _slicedToArray(_useState145, 2),
+    toast = _useState146[0],
+    setToast = _useState146[1];
   var fileRef = useRef(null);
   var load = /*#__PURE__*/function () {
-    var _load5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28() {
+    var _load5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31() {
       var q,
         rows,
-        _args28 = arguments;
-      return _regenerator().w(function (_context28) {
-        while (1) switch (_context28.n) {
+        _args31 = arguments;
+      return _regenerator().w(function (_context31) {
+        while (1) switch (_context31.n) {
           case 0:
-            q = _args28.length > 0 && _args28[0] !== undefined ? _args28[0] : '';
+            q = _args31.length > 0 && _args31[0] !== undefined ? _args31[0] : '';
             setLoading(true);
-            _context28.n = 1;
+            _context31.n = 1;
             return sb.get('payer_sops', q ? "payer_name=ilike.*".concat(q, "*&order=payer_name.asc") : 'order=payer_name.asc');
           case 1:
-            rows = _context28.v;
+            rows = _context31.v;
             setPayers(rows);
             setLoading(false);
           case 2:
-            return _context28.a(2);
+            return _context31.a(2);
         }
-      }, _callee28);
+      }, _callee31);
     }));
     function load() {
       return _load5.apply(this, arguments);
@@ -10023,18 +10452,18 @@ function PayerDirectoryPage() {
     };
   };
   var save = /*#__PURE__*/function () {
-    var _save2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29() {
-      return _regenerator().w(function (_context29) {
-        while (1) switch (_context29.n) {
+    var _save2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32() {
+      return _regenerator().w(function (_context32) {
+        while (1) switch (_context32.n) {
           case 0:
             if (draft.payer_name) {
-              _context29.n = 1;
+              _context32.n = 1;
               break;
             }
             alert('Payer name required');
-            return _context29.a(2);
+            return _context32.a(2);
           case 1:
-            _context29.n = 2;
+            _context32.n = 2;
             return sb.post('payer_sops', _objectSpread(_objectSpread({}, draft), {}, {
               last_updated: new Date().toISOString()
             }));
@@ -10043,9 +10472,9 @@ function PayerDirectoryPage() {
             load(search);
             showToast(editing === 'new' ? 'Payer added' : 'Updated');
           case 3:
-            return _context29.a(2);
+            return _context32.a(2);
         }
-      }, _callee29);
+      }, _callee32);
     }));
     function save() {
       return _save2.apply(this, arguments);
@@ -10053,27 +10482,27 @@ function PayerDirectoryPage() {
     return save;
   }();
   var del = /*#__PURE__*/function () {
-    var _del = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30(id) {
-      return _regenerator().w(function (_context30) {
-        while (1) switch (_context30.n) {
+    var _del = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33(id) {
+      return _regenerator().w(function (_context33) {
+        while (1) switch (_context33.n) {
           case 0:
             if (confirm('Delete this payer SOP?')) {
-              _context30.n = 1;
+              _context33.n = 1;
               break;
             }
-            return _context30.a(2);
+            return _context33.a(2);
           case 1:
-            _context30.n = 2;
+            _context33.n = 2;
             return sb.del('payer_sops', id);
           case 2:
             load(search);
             showToast('Deleted');
           case 3:
-            return _context30.a(2);
+            return _context33.a(2);
         }
-      }, _callee30);
+      }, _callee33);
     }));
-    function del(_x20) {
+    function del(_x22) {
       return _del.apply(this, arguments);
     }
     return del;
@@ -10099,23 +10528,23 @@ function PayerDirectoryPage() {
     showToast('Exported');
   };
   var importFile = /*#__PURE__*/function () {
-    var _importFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31(e) {
+    var _importFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34(e) {
       var _e$target$files;
       var file, text, lines, headers, imported, _loop, i;
-      return _regenerator().w(function (_context32) {
-        while (1) switch (_context32.n) {
+      return _regenerator().w(function (_context35) {
+        while (1) switch (_context35.n) {
           case 0:
             file = (_e$target$files = e.target.files) === null || _e$target$files === void 0 ? void 0 : _e$target$files[0];
             if (file) {
-              _context32.n = 1;
+              _context35.n = 1;
               break;
             }
-            return _context32.a(2);
+            return _context35.a(2);
           case 1:
-            _context32.n = 2;
+            _context35.n = 2;
             return file.text();
           case 2:
-            text = _context32.v;
+            text = _context35.v;
             lines = text.split('\n').filter(function (l) {
               return l.trim();
             });
@@ -10126,8 +10555,8 @@ function PayerDirectoryPage() {
             _loop = /*#__PURE__*/_regenerator().m(function _loop() {
               var _lines$i$match;
               var vals, row;
-              return _regenerator().w(function (_context31) {
-                while (1) switch (_context31.n) {
+              return _regenerator().w(function (_context34) {
+                while (1) switch (_context34.n) {
                   case 0:
                     vals = ((_lines$i$match = lines[i].match(/("[^"]*"|[^,]*)/g)) === null || _lines$i$match === void 0 ? void 0 : _lines$i$match.filter(function (_, idx) {
                       return idx % 2 === 0;
@@ -10168,41 +10597,41 @@ function PayerDirectoryPage() {
                       }
                     });
                     if (!row.payer_name) {
-                      _context31.n = 2;
+                      _context34.n = 2;
                       break;
                     }
-                    _context31.n = 1;
+                    _context34.n = 1;
                     return sb.post('payer_sops', _objectSpread(_objectSpread({}, row), {}, {
                       last_updated: new Date().toISOString()
                     }));
                   case 1:
                     imported++;
                   case 2:
-                    return _context31.a(2);
+                    return _context34.a(2);
                 }
               }, _loop);
             });
             i = 1;
           case 3:
             if (!(i < lines.length)) {
-              _context32.n = 5;
+              _context35.n = 5;
               break;
             }
-            return _context32.d(_regeneratorValues(_loop()), 4);
+            return _context35.d(_regeneratorValues(_loop()), 4);
           case 4:
             i++;
-            _context32.n = 3;
+            _context35.n = 3;
             break;
           case 5:
             e.target.value = '';
             load(search);
             showToast("Imported ".concat(imported, " payers"));
           case 6:
-            return _context32.a(2);
+            return _context35.a(2);
         }
-      }, _callee31);
+      }, _callee34);
     }));
-    function importFile(_x21) {
+    function importFile(_x23) {
       return _importFile.apply(this, arguments);
     }
     return importFile;
@@ -10650,26 +11079,26 @@ function ManagerQueue(_ref41) {
     onOpenWorkspace = _ref41.onOpenWorkspace,
     facilities = _ref41.facilities,
     setToast = _ref41.setToast;
-  var _useState141 = useState('All'),
-    _useState142 = _slicedToArray(_useState141, 2),
-    filter = _useState142[0],
-    setFilter = _useState142[1];
-  var _useState143 = useState('All'),
-    _useState144 = _slicedToArray(_useState143, 2),
-    agentFilter = _useState144[0],
-    setAgentFilter = _useState144[1];
-  var _useState145 = useState(false),
-    _useState146 = _slicedToArray(_useState145, 2),
-    newVOBOpen = _useState146[0],
-    setNewVOBOpen = _useState146[1];
-  var _useState147 = useState(''),
+  var _useState147 = useState('All'),
     _useState148 = _slicedToArray(_useState147, 2),
-    reviseNote = _useState148[0],
-    setReviseNote = _useState148[1];
-  var _useState149 = useState(null),
+    filter = _useState148[0],
+    setFilter = _useState148[1];
+  var _useState149 = useState('All'),
     _useState150 = _slicedToArray(_useState149, 2),
-    revisingId = _useState150[0],
-    setRevisingId = _useState150[1];
+    agentFilter = _useState150[0],
+    setAgentFilter = _useState150[1];
+  var _useState151 = useState(false),
+    _useState152 = _slicedToArray(_useState151, 2),
+    newVOBOpen = _useState152[0],
+    setNewVOBOpen = _useState152[1];
+  var _useState153 = useState(''),
+    _useState154 = _slicedToArray(_useState153, 2),
+    reviseNote = _useState154[0],
+    setReviseNote = _useState154[1];
+  var _useState155 = useState(null),
+    _useState156 = _slicedToArray(_useState155, 2),
+    revisingId = _useState156[0],
+    setRevisingId = _useState156[1];
   var updV = function updV(id, ch) {
     return setVobs(function (prev) {
       return prev.map(function (v) {
@@ -10678,11 +11107,11 @@ function ManagerQueue(_ref41) {
     });
   };
   var approve = /*#__PURE__*/function () {
-    var _approve = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32(id) {
-      return _regenerator().w(function (_context33) {
-        while (1) switch (_context33.n) {
+    var _approve = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(id) {
+      return _regenerator().w(function (_context36) {
+        while (1) switch (_context36.n) {
           case 0:
-            _context33.n = 1;
+            _context36.n = 1;
             return sb.patch('vob_requests', id, {
               status: 'Completed',
               completed_at: new Date().toISOString(),
@@ -10697,21 +11126,21 @@ function ManagerQueue(_ref41) {
               type: 'success'
             });
           case 2:
-            return _context33.a(2);
+            return _context36.a(2);
         }
-      }, _callee32);
+      }, _callee35);
     }));
-    function approve(_x22) {
+    function approve(_x24) {
       return _approve.apply(this, arguments);
     }
     return approve;
   }();
   var revise = /*#__PURE__*/function () {
-    var _revise = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33(id, note) {
-      return _regenerator().w(function (_context34) {
-        while (1) switch (_context34.n) {
+    var _revise = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(id, note) {
+      return _regenerator().w(function (_context37) {
+        while (1) switch (_context37.n) {
           case 0:
-            _context34.n = 1;
+            _context37.n = 1;
             return sb.patch('vob_requests', id, {
               status: 'In Progress',
               notes: note
@@ -10728,25 +11157,25 @@ function ManagerQueue(_ref41) {
               type: 'warn'
             });
           case 2:
-            return _context34.a(2);
+            return _context37.a(2);
         }
-      }, _callee33);
+      }, _callee36);
     }));
-    function revise(_x23, _x24) {
+    function revise(_x25, _x26) {
       return _revise.apply(this, arguments);
     }
     return revise;
   }();
   var assign = /*#__PURE__*/function () {
-    var _assign = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34(id, agentId) {
+    var _assign = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee37(id, agentId) {
       var agent;
-      return _regenerator().w(function (_context35) {
-        while (1) switch (_context35.n) {
+      return _regenerator().w(function (_context38) {
+        while (1) switch (_context38.n) {
           case 0:
             agent = DEMO_USERS.find(function (u) {
               return u.id === agentId;
             });
-            _context35.n = 1;
+            _context38.n = 1;
             return sb.patch('vob_requests', id, {
               assigned_agent: (agent === null || agent === void 0 ? void 0 : agent.name) || agentId
             });
@@ -10759,11 +11188,11 @@ function ManagerQueue(_ref41) {
               type: 'success'
             });
           case 2:
-            return _context35.a(2);
+            return _context38.a(2);
         }
-      }, _callee34);
+      }, _callee37);
     }));
-    function assign(_x25, _x26) {
+    function assign(_x27, _x28) {
       return _assign.apply(this, arguments);
     }
     return assign;
@@ -11219,19 +11648,19 @@ function AgentQueue(_ref44) {
     onOpenWorkspace = _ref44.onOpenWorkspace,
     facilities = _ref44.facilities,
     setToast = _ref44.setToast;
-  var _useState151 = useState(false),
-    _useState152 = _slicedToArray(_useState151, 2),
-    newVOBOpen = _useState152[0],
-    setNewVOBOpen = _useState152[1];
+  var _useState157 = useState(false),
+    _useState158 = _slicedToArray(_useState157, 2),
+    newVOBOpen = _useState158[0],
+    setNewVOBOpen = _useState158[1];
   var myVobs = vobs.filter(function (v) {
     return v.assignedTo === user.id || !v.assignedTo || v.status === 'Pending';
   });
   var claim = /*#__PURE__*/function () {
-    var _claim = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(id) {
-      return _regenerator().w(function (_context36) {
-        while (1) switch (_context36.n) {
+    var _claim = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(id) {
+      return _regenerator().w(function (_context39) {
+        while (1) switch (_context39.n) {
           case 0:
-            _context36.n = 1;
+            _context39.n = 1;
             return sb.patch('vob_requests', id, {
               assigned_agent: user.name,
               status: 'In Progress'
@@ -11250,11 +11679,11 @@ function AgentQueue(_ref44) {
               type: 'success'
             });
           case 2:
-            return _context36.a(2);
+            return _context39.a(2);
         }
-      }, _callee35);
+      }, _callee38);
     }));
-    function claim(_x27) {
+    function claim(_x29) {
       return _claim.apply(this, arguments);
     }
     return claim;
@@ -11444,23 +11873,23 @@ function AgentQueue(_ref44) {
 function TeamView(_ref45) {
   var vobs = _ref45.vobs,
     setToast = _ref45.setToast;
-  var _useState153 = useState(function () {
+  var _useState159 = useState(function () {
       return Object.fromEntries(AGENTS.map(function (a) {
         return [a.id, a.tier || 1];
       }));
     }),
-    _useState154 = _slicedToArray(_useState153, 2),
-    agentTiers = _useState154[0],
-    setAgentTiers = _useState154[1];
+    _useState160 = _slicedToArray(_useState159, 2),
+    agentTiers = _useState160[0],
+    setAgentTiers = _useState160[1];
   var setTier = /*#__PURE__*/function () {
-    var _setTier = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(agentId, tier) {
-      return _regenerator().w(function (_context37) {
-        while (1) switch (_context37.n) {
+    var _setTier = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee39(agentId, tier) {
+      return _regenerator().w(function (_context40) {
+        while (1) switch (_context40.n) {
           case 0:
             setAgentTiers(function (p) {
               return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, agentId, tier));
             });
-            _context37.n = 1;
+            _context40.n = 1;
             return sb.patch('users', agentId, {
               trust_tier: tier
             });
@@ -11470,11 +11899,11 @@ function TeamView(_ref45) {
               type: 'success'
             });
           case 2:
-            return _context37.a(2);
+            return _context40.a(2);
         }
-      }, _callee36);
+      }, _callee39);
     }));
-    function setTier(_x28, _x29) {
+    function setTier(_x30, _x31) {
       return _setTier.apply(this, arguments);
     }
     return setTier;
@@ -11634,34 +12063,34 @@ function TeamView(_ref45) {
 // ─── Main KP App ──────────────────────────────────────────────────
 function KPApp() {
   var _NAV_ITEMS$find;
-  var _useState155 = useState(null),
-    _useState156 = _slicedToArray(_useState155, 2),
-    user = _useState156[0],
-    setUser = _useState156[1];
-  var _useState157 = useState('queue'),
-    _useState158 = _slicedToArray(_useState157, 2),
-    page = _useState158[0],
-    setPage = _useState158[1];
-  var _useState159 = useState(false),
-    _useState160 = _slicedToArray(_useState159, 2),
-    navOpen = _useState160[0],
-    setNavOpen = _useState160[1];
-  var _useState161 = useState(SEED_VOBS),
+  var _useState161 = useState(null),
     _useState162 = _slicedToArray(_useState161, 2),
-    vobs = _useState162[0],
-    setVobs = _useState162[1];
-  var _useState163 = useState([]),
+    user = _useState162[0],
+    setUser = _useState162[1];
+  var _useState163 = useState('queue'),
     _useState164 = _slicedToArray(_useState163, 2),
-    facilities = _useState164[0],
-    setFacilities = _useState164[1];
-  var _useState165 = useState(null),
+    page = _useState164[0],
+    setPage = _useState164[1];
+  var _useState165 = useState(false),
     _useState166 = _slicedToArray(_useState165, 2),
-    toast = _useState166[0],
-    setToast = _useState166[1];
-  var _useState167 = useState(null),
+    navOpen = _useState166[0],
+    setNavOpen = _useState166[1];
+  var _useState167 = useState(SEED_VOBS),
     _useState168 = _slicedToArray(_useState167, 2),
-    activeVOB = _useState168[0],
-    setActiveVOB = _useState168[1]; // workspace open
+    vobs = _useState168[0],
+    setVobs = _useState168[1];
+  var _useState169 = useState([]),
+    _useState170 = _slicedToArray(_useState169, 2),
+    facilities = _useState170[0],
+    setFacilities = _useState170[1];
+  var _useState171 = useState(null),
+    _useState172 = _slicedToArray(_useState171, 2),
+    toast = _useState172[0],
+    setToast = _useState172[1];
+  var _useState173 = useState(null),
+    _useState174 = _slicedToArray(_useState173, 2),
+    activeVOB = _useState174[0],
+    setActiveVOB = _useState174[1]; // workspace open
   var isMobile = useIsMobile();
   useEffect(function () {
     if (!user) return;
@@ -11729,15 +12158,15 @@ function KPApp() {
     label: 'Form Builder'
   }] : []));
   var handleComplete = /*#__PURE__*/function () {
-    var _handleComplete2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee37(form, vobId, flagged) {
+    var _handleComplete2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(form, vobId, flagged) {
       var _form$locAuth17, _form$locAuth18, _form$locAuth19, _form$locAuth20, _form$locAuth21, _form$locAuth22, _form$locAuth23, _form$locAuth24, _form$locAuth25, _form$locAuth26, _form$locAuth27, _form$locAuth28, _form$locAuth29, _form$locAuth30, _form$locAuth31, _form$locAuth32, _form$locAuth33, _form$locAuth34;
       var tier, newStatus;
-      return _regenerator().w(function (_context38) {
-        while (1) switch (_context38.n) {
+      return _regenerator().w(function (_context41) {
+        while (1) switch (_context41.n) {
           case 0:
             tier = user.tier || 1;
             newStatus = tier === 1 ? 'Ready for Review' : 'Completed';
-            _context38.n = 1;
+            _context41.n = 1;
             return sb.post('vob_requests', {
               id: vobId,
               facility_name: form.facilityName,
@@ -11806,11 +12235,11 @@ function KPApp() {
             });
             setActiveVOB(null);
           case 2:
-            return _context38.a(2);
+            return _context41.a(2);
         }
-      }, _callee37);
+      }, _callee40);
     }));
-    function handleComplete(_x30, _x31, _x32) {
+    function handleComplete(_x32, _x33, _x34) {
       return _handleComplete2.apply(this, arguments);
     }
     return handleComplete;
