@@ -2915,12 +2915,12 @@ function runEDI271(_x2, _x3, _x4) {
   return _runEDI.apply(this, arguments);
 } // ─── Prelim Panel ─────────────────────────────────────────────────
 function _runEDI() {
-  _runEDI = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee42(memberId, payerName, dob) {
+  _runEDI = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee43(memberId, payerName, dob) {
     var enrolled, isEnrolled;
-    return _regenerator().w(function (_context43) {
-      while (1) switch (_context43.n) {
+    return _regenerator().w(function (_context44) {
+      while (1) switch (_context44.n) {
         case 0:
-          _context43.n = 1;
+          _context44.n = 1;
           return new Promise(function (r) {
             return setTimeout(r, 1800);
           });
@@ -2932,14 +2932,14 @@ function _runEDI() {
             return payerName.toLowerCase().includes(p);
           });
           if (isEnrolled) {
-            _context43.n = 2;
+            _context44.n = 2;
             break;
           }
-          return _context43.a(2, {
+          return _context44.a(2, {
             enrolled: false
           });
         case 2:
-          return _context43.a(2, {
+          return _context44.a(2, {
             enrolled: true,
             planActive: 'Yes',
             effectiveDate: '01/01/2026',
@@ -2955,7 +2955,7 @@ function _runEDI() {
             coinsurance: ['10', '20', '30'][Math.floor(Math.random() * 3)] + '%'
           });
       }
-    }, _callee42);
+    }, _callee43);
   }));
   return _runEDI.apply(this, arguments);
 }
@@ -9538,7 +9538,7 @@ function Login(_ref39) {
               break;
             }
             u = rows[0];
-            if (!(u.status === 'pending')) {
+            if (!((u.status || '').toLowerCase() === 'pending')) {
               _context28.n = 2;
               break;
             }
@@ -9546,7 +9546,10 @@ function Login(_ref39) {
             setSsoChecking(false);
             return _context28.a(2);
           case 2:
+            // Normalize real DB columns (full_name/trust_tier) to app-wide shape (name/tier)
             onLogin(_objectSpread(_objectSpread({}, u), {}, {
+              name: u.full_name || u.name || email.split('@')[0],
+              tier: u.trust_tier || u.tier || 1,
               token: token,
               sso: true
             }));
@@ -9556,11 +9559,11 @@ function Login(_ref39) {
             // First-time SSO — create pending user
             newUser = {
               id: "sso_".concat(Date.now()),
-              name: ((_authData$user_metada = authData.user_metadata) === null || _authData$user_metada === void 0 ? void 0 : _authData$user_metada.full_name) || ((_authData$user_metada2 = authData.user_metadata) === null || _authData$user_metada2 === void 0 ? void 0 : _authData$user_metada2.name) || email.split('@')[0],
+              full_name: ((_authData$user_metada = authData.user_metadata) === null || _authData$user_metada === void 0 ? void 0 : _authData$user_metada.full_name) || ((_authData$user_metada2 = authData.user_metadata) === null || _authData$user_metada2 === void 0 ? void 0 : _authData$user_metada2.name) || email.split('@')[0],
               email: email,
               role: 'vob_agent',
               team: 'vob',
-              tier: 1,
+              trust_tier: 1,
               status: 'pending',
               created_at: new Date().toISOString()
             };
@@ -11167,8 +11170,16 @@ function ManagerQueue(_ref41) {
     realAgents = _useState158[0],
     setRealAgents = _useState158[1];
   useEffect(function () {
-    sb.get('users', "role=eq.vob_agent&status=neq.pending&order=name.asc").then(function (rows) {
-      if (rows && rows.length > 0) setRealAgents(rows);
+    sb.get('users', 'role=eq.vob_agent&order=full_name.asc').then(function (rows) {
+      var active = (rows || []).filter(function (u) {
+        return (u.status || '').toLowerCase() !== 'pending';
+      });
+      if (active.length > 0) setRealAgents(active.map(function (u) {
+        return _objectSpread(_objectSpread({}, u), {}, {
+          name: u.full_name || u.name,
+          tier: u.trust_tier || u.tier || 1
+        });
+      }));
     });
   }, []);
   var findAgent = function findAgent(id) {
@@ -11945,6 +11956,22 @@ function AgentQueue(_ref44) {
 }
 
 // ─── Team View (manager only) ─────────────────────────────────────
+var ROLE_OPTIONS = [{
+  v: 'ceo',
+  l: 'CEO'
+}, {
+  v: 'coo',
+  l: 'COO'
+}, {
+  v: 'vob_manager',
+  l: 'VOB Manager'
+}, {
+  v: 'vob_agent',
+  l: 'VOB Agent'
+}, {
+  v: 'pa_agent',
+  l: 'PA Agent'
+}];
 function TeamView(_ref45) {
   var vobs = _ref45.vobs,
     setToast = _ref45.setToast;
@@ -11962,15 +11989,26 @@ function TeamView(_ref45) {
     _useState164 = _slicedToArray(_useState163, 2),
     teamUsers = _useState164[0],
     setTeamUsers = _useState164[1];
-  useEffect(function () {
-    sb.get('users', 'team=neq.admin&order=name.asc').then(function (rows) {
+  var load = function load() {
+    sb.get('users', 'order=full_name.asc').then(function (rows) {
       if (rows && rows.length > 0) {
-        setTeamUsers(rows);
-        setAgentTiers(Object.fromEntries(rows.map(function (u) {
-          return [u.id, u.tier || u.trust_tier || 1];
+        var norm = rows.map(function (u) {
+          return _objectSpread(_objectSpread({}, u), {}, {
+            name: u.full_name || u.name,
+            tier: u.trust_tier || u.tier || 1
+          });
+        }).filter(function (u) {
+          return u.team !== 'admin';
+        });
+        setTeamUsers(norm);
+        setAgentTiers(Object.fromEntries(norm.map(function (u) {
+          return [u.id, u.tier];
         })));
       }
     });
+  };
+  useEffect(function () {
+    load();
   }, []);
   var setTier = /*#__PURE__*/function () {
     var _setTier = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(agentId, tier) {
@@ -11980,10 +12018,17 @@ function TeamView(_ref45) {
             setAgentTiers(function (p) {
               return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, agentId, tier));
             });
+            setTeamUsers(function (p) {
+              return p.map(function (u) {
+                return u.id === agentId ? _objectSpread(_objectSpread({}, u), {}, {
+                  tier: tier,
+                  status: 'active'
+                }) : u;
+              });
+            });
             _context41.n = 1;
             return sb.patch('users', agentId, {
               trust_tier: tier,
-              tier: tier,
               status: 'active'
             });
           case 1:
@@ -12000,6 +12045,38 @@ function TeamView(_ref45) {
       return _setTier.apply(this, arguments);
     }
     return setTier;
+  }();
+  var setRole = /*#__PURE__*/function () {
+    var _setRole = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee41(agentId, role) {
+      return _regenerator().w(function (_context42) {
+        while (1) switch (_context42.n) {
+          case 0:
+            setTeamUsers(function (p) {
+              return p.map(function (u) {
+                return u.id === agentId ? _objectSpread(_objectSpread({}, u), {}, {
+                  role: role
+                }) : u;
+              });
+            });
+            _context42.n = 1;
+            return sb.patch('users', agentId, {
+              role: role,
+              team: ['ceo', 'coo'].includes(role) ? 'admin' : role === 'pa_agent' ? 'pa_ur' : 'vob'
+            });
+          case 1:
+            setToast({
+              msg: "Role updated",
+              type: 'success'
+            });
+          case 2:
+            return _context42.a(2);
+        }
+      }, _callee41);
+    }));
+    function setRole(_x33, _x34) {
+      return _setRole.apply(this, arguments);
+    }
+    return setRole;
   }();
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -12067,17 +12144,33 @@ function TeamView(_ref45) {
         fontWeight: 600,
         color: C.ink
       }
-    }, u.name), /*#__PURE__*/React.createElement(Badge, {
-      label: u.role,
-      color: C.teal,
-      bg: C.tealL,
-      border: C.tealLine
-    }), /*#__PURE__*/React.createElement(Badge, {
+    }, u.name), /*#__PURE__*/React.createElement("select", {
+      value: u.role,
+      onChange: function onChange(e) {
+        return setRole(u.id, e.target.value);
+      },
+      style: {
+        fontFamily: FM,
+        fontSize: 9.5,
+        fontWeight: 600,
+        padding: '3px 7px',
+        borderRadius: 4,
+        background: C.tealL,
+        color: C.teal,
+        border: "1.5px solid ".concat(C.tealLine),
+        cursor: 'pointer'
+      }
+    }, ROLE_OPTIONS.map(function (r) {
+      return /*#__PURE__*/React.createElement("option", {
+        key: r.v,
+        value: r.v
+      }, r.l);
+    })), /*#__PURE__*/React.createElement(Badge, {
       label: u.team,
       color: C.ink3,
       bg: C.paper2,
       border: C.line2
-    }), u.status === 'pending' && /*#__PURE__*/React.createElement(Badge, {
+    }), (u.status || '').toLowerCase() === 'pending' && /*#__PURE__*/React.createElement(Badge, {
       label: "\u23F3 PENDING APPROVAL",
       color: '#8A6D28',
       bg: C.sandTint,
@@ -12195,7 +12288,7 @@ function KPApp() {
         rows = _ref47[0],
         allUsers = _ref47[1];
       var byName = Object.fromEntries((allUsers || []).map(function (u) {
-        return [u.name, u.id];
+        return [u.full_name || u.name, u.id];
       }));
       var live = (rows || []).map(function (r) {
         return {
@@ -12251,15 +12344,15 @@ function KPApp() {
     label: 'Form Builder'
   }] : []));
   var handleComplete = /*#__PURE__*/function () {
-    var _handleComplete2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee41(form, vobId, flagged) {
+    var _handleComplete2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee42(form, vobId, flagged) {
       var _form$locAuth17, _form$locAuth18, _form$locAuth19, _form$locAuth20, _form$locAuth21, _form$locAuth22, _form$locAuth23, _form$locAuth24, _form$locAuth25, _form$locAuth26, _form$locAuth27, _form$locAuth28, _form$locAuth29, _form$locAuth30, _form$locAuth31, _form$locAuth32, _form$locAuth33, _form$locAuth34;
       var tier, newStatus;
-      return _regenerator().w(function (_context42) {
-        while (1) switch (_context42.n) {
+      return _regenerator().w(function (_context43) {
+        while (1) switch (_context43.n) {
           case 0:
             tier = user.tier || 1;
             newStatus = tier === 1 ? 'Ready for Review' : 'Completed';
-            _context42.n = 1;
+            _context43.n = 1;
             return sb.post('vob_requests', {
               id: vobId,
               facility_name: form.facilityName,
@@ -12328,11 +12421,11 @@ function KPApp() {
             });
             setActiveVOB(null);
           case 2:
-            return _context42.a(2);
+            return _context43.a(2);
         }
-      }, _callee41);
+      }, _callee42);
     }));
-    function handleComplete(_x33, _x34, _x35) {
+    function handleComplete(_x35, _x36, _x37) {
       return _handleComplete2.apply(this, arguments);
     }
     return handleComplete;
