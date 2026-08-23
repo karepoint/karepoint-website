@@ -6398,8 +6398,9 @@ function FormBuilderPage() {
 // ═══════════════════════════════════════════════════════════════════
 // SCHEMA-DRIVEN AGENT VOB FORM
 // ═══════════════════════════════════════════════════════════════════
-function VOBForm(_ref28) {
-  var tabId = _ref28.tabId,
+function VOBForm() {
+  var _ref28 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+    tabId = _ref28.tabId,
     form = _ref28.form,
     setForm = _ref28.setForm,
     prelim = _ref28.prelim,
@@ -6408,7 +6409,9 @@ function VOBForm(_ref28) {
     onComplete = _ref28.onComplete,
     onSave = _ref28.onSave,
     _ref28$facilities = _ref28.facilities,
-    facilities = _ref28$facilities === void 0 ? [] : _ref28$facilities;
+    facilities = _ref28$facilities === void 0 ? [] : _ref28$facilities,
+    _ref28$currentStatus = _ref28.currentStatus,
+    currentStatus = _ref28$currentStatus === void 0 ? 'Pending' : _ref28$currentStatus;
   var _useFormSchema2 = useFormSchema(),
     schema = _useFormSchema2.schema,
     locRows = _useFormSchema2.locRows,
@@ -6486,7 +6489,7 @@ function VOBForm(_ref28) {
     return a.section_order - b.section_order;
   });
 
-  // Auto-save every 30s
+  // Auto-save every 30s — preserves current status (never reverts Completed/Ready for Review)
   useEffect(function () {
     saveTimerRef.current = setInterval(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee19() {
       return _regenerator().w(function (_context19) {
@@ -6502,7 +6505,7 @@ function VOBForm(_ref28) {
               form_draft: JSON.stringify(form),
               custom_fields: customFields,
               updated_at: new Date().toISOString(),
-              status: 'In Progress'
+              status: currentStatus
             });
           case 1:
             return _context19.a(2);
@@ -6512,7 +6515,7 @@ function VOBForm(_ref28) {
     return function () {
       return clearInterval(saveTimerRef.current);
     };
-  }, [tabId, form, customFields]);
+  }, [tabId, form, customFields, currentStatus]);
 
   // 10pm EST reset
   useEffect(function () {
@@ -6563,7 +6566,7 @@ function VOBForm(_ref28) {
           case 0:
             setSaving(true);
             _context20.n = 1;
-            return sb.post('vob_requests', buildRow(tabId, form, flagged));
+            return sb.post('vob_requests', buildRow(tabId, form, flagged, currentStatus));
           case 1:
             setSaving(false);
             setSaved(true);
@@ -7433,10 +7436,11 @@ function TabBar(_ref35) {
 // ─── Helper to build Supabase row from form ───────────────────────
 function buildRow(id, form, flagged) {
   var _form$locAuth, _form$locAuth2, _form$locAuth3, _form$locAuth4, _form$locAuth5, _form$locAuth6, _form$locAuth7, _form$locAuth8, _form$locAuth9, _form$locAuth0, _form$locAuth1, _form$locAuth10, _form$locAuth11, _form$locAuth12, _form$locAuth13, _form$locAuth14, _form$locAuth15, _form$locAuth16;
+  var status = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'In Progress';
   return {
     id: id,
     facility_name: form.facilityName,
-    status: 'In Progress',
+    status: status,
     patient_first: form.patientFirst,
     patient_last: form.patientLast,
     patient_dob: form.patientDob,
@@ -7882,7 +7886,8 @@ function VOBWorkspace(_ref36) {
       user: user,
       onComplete: handleComplete,
       onSave: function onSave() {},
-      facilities: facilities
+      facilities: facilities,
+      currentStatus: tab.status || 'Pending'
     }));
   }), (activeTabData === null || activeTabData === void 0 ? void 0 : activeTabData.closed) && /*#__PURE__*/React.createElement("div", {
     style: {
