@@ -2915,12 +2915,12 @@ function runEDI271(_x2, _x3, _x4) {
   return _runEDI.apply(this, arguments);
 } // ─── Prelim Panel ─────────────────────────────────────────────────
 function _runEDI() {
-  _runEDI = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee41(memberId, payerName, dob) {
+  _runEDI = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee42(memberId, payerName, dob) {
     var enrolled, isEnrolled;
-    return _regenerator().w(function (_context42) {
-      while (1) switch (_context42.n) {
+    return _regenerator().w(function (_context43) {
+      while (1) switch (_context43.n) {
         case 0:
-          _context42.n = 1;
+          _context43.n = 1;
           return new Promise(function (r) {
             return setTimeout(r, 1800);
           });
@@ -2932,14 +2932,14 @@ function _runEDI() {
             return payerName.toLowerCase().includes(p);
           });
           if (isEnrolled) {
-            _context42.n = 2;
+            _context43.n = 2;
             break;
           }
-          return _context42.a(2, {
+          return _context43.a(2, {
             enrolled: false
           });
         case 2:
-          return _context42.a(2, {
+          return _context43.a(2, {
             enrolled: true,
             planActive: 'Yes',
             effectiveDate: '01/01/2026',
@@ -2955,7 +2955,7 @@ function _runEDI() {
             coinsurance: ['10', '20', '30'][Math.floor(Math.random() * 3)] + '%'
           });
       }
-    }, _callee41);
+    }, _callee42);
   }));
   return _runEDI.apply(this, arguments);
 }
@@ -9379,102 +9379,86 @@ function Login(_ref39) {
   useEffect(function () {
     var checkSession = /*#__PURE__*/function () {
       var _checkSession = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26() {
-        var res, data, hash, params, accessToken, uRes, _data, _t0;
+        var hash, params, hashToken, searchParams, code, r, data, stored, _t0;
         return _regenerator().w(function (_context26) {
           while (1) switch (_context26.p = _context26.n) {
             case 0:
               _context26.p = 0;
+              // 1. Check URL hash for access_token (implicit flow)
+              hash = window.location.hash;
+              params = new URLSearchParams(hash.replace(/^#/, ''));
+              hashToken = params.get('access_token'); // 2. Check URL query string for code (PKCE/auth code flow)
+              searchParams = new URLSearchParams(window.location.search);
+              code = searchParams.get('code');
+              if (!hashToken) {
+                _context26.n = 2;
+                break;
+              }
+              // Token in hash — store and resolve
+              localStorage.setItem('kp_token', hashToken);
+              window.history.replaceState(null, '', window.location.pathname);
               _context26.n = 1;
-              return fetch("".concat(SB_URL, "/auth/v1/user"), {
-                headers: _objectSpread(_objectSpread({}, SB_H.headers), {}, {
-                  Authorization: "Bearer ".concat(getStoredToken())
-                })
-              });
+              return resolveWithToken(hashToken);
             case 1:
-              res = _context26.v;
-              if (!res.ok) {
+              return _context26.a(2);
+            case 2:
+              if (!code) {
                 _context26.n = 6;
                 break;
               }
-              _context26.n = 2;
-              return res.json();
-            case 2:
-              data = _context26.v;
-              if (!(data !== null && data !== void 0 && data.email)) {
-                _context26.n = 4;
-                break;
-              }
               _context26.n = 3;
-              return resolveUser(data.email, data);
-            case 3:
-              _context26.n = 5;
-              break;
-            case 4:
-              setSsoChecking(false);
-            case 5:
-              _context26.n = 15;
-              break;
-            case 6:
-              // Check URL for access_token from OAuth redirect
-              hash = window.location.hash;
-              params = new URLSearchParams(hash.replace('#', ''));
-              accessToken = params.get('access_token');
-              if (!accessToken) {
-                _context26.n = 14;
-                break;
-              }
-              localStorage.setItem('kp_token', accessToken);
-              // Get user info
-              _context26.n = 7;
-              return fetch("".concat(SB_URL, "/auth/v1/user"), {
-                headers: _objectSpread(_objectSpread({}, SB_H.headers), {}, {
-                  Authorization: "Bearer ".concat(accessToken)
+              return fetch("".concat(SB_URL, "/auth/v1/token?grant_type=authorization_code"), {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  apikey: SB_KEY
+                },
+                body: JSON.stringify({
+                  code: code,
+                  redirect_uri: "".concat(SB_URL, "/auth/v1/callback")
                 })
               });
-            case 7:
-              uRes = _context26.v;
-              if (!uRes.ok) {
-                _context26.n = 12;
+            case 3:
+              r = _context26.v;
+              _context26.n = 4;
+              return r.json();
+            case 4:
+              data = _context26.v;
+              if (!(data !== null && data !== void 0 && data.access_token)) {
+                _context26.n = 6;
                 break;
               }
-              _context26.n = 8;
-              return uRes.json();
-            case 8:
-              _data = _context26.v;
-              if (!(_data !== null && _data !== void 0 && _data.email)) {
-                _context26.n = 10;
-                break;
-              }
-              _context26.n = 9;
-              return resolveUser(_data.email, _data);
-            case 9:
-              _context26.n = 11;
-              break;
-            case 10:
-              setSsoChecking(false);
-            case 11:
-              _context26.n = 13;
-              break;
-            case 12:
-              setSsoChecking(false);
-            case 13:
-              // Clean URL
+              localStorage.setItem('kp_token', data.access_token);
               window.history.replaceState(null, '', window.location.pathname);
-              _context26.n = 15;
-              break;
-            case 14:
+              _context26.n = 5;
+              return resolveWithToken(data.access_token);
+            case 5:
+              return _context26.a(2);
+            case 6:
+              // 3. Check localStorage for existing token
+              stored = localStorage.getItem('kp_token');
+              if (!stored) {
+                _context26.n = 8;
+                break;
+              }
+              _context26.n = 7;
+              return resolveWithToken(stored);
+            case 7:
+              return _context26.a(2);
+            case 8:
+              // 4. No token found — show login screen
               setSsoChecking(false);
-            case 15:
-              _context26.n = 17;
+              _context26.n = 10;
               break;
-            case 16:
-              _context26.p = 16;
+            case 9:
+              _context26.p = 9;
               _t0 = _context26.v;
+              console.warn('SSO check error:', _t0);
               setSsoChecking(false);
-            case 17:
+            case 10:
               return _context26.a(2);
           }
-        }, _callee26, null, [[0, 16]]);
+        }, _callee26, null, [[0, 9]]);
       }));
       function checkSession() {
         return _checkSession.apply(this, arguments);
@@ -9483,38 +9467,99 @@ function Login(_ref39) {
     }();
     checkSession();
   }, []);
+  var resolveWithToken = /*#__PURE__*/function () {
+    var _resolveWithToken = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27(token) {
+      var res, data, _t1;
+      return _regenerator().w(function (_context27) {
+        while (1) switch (_context27.p = _context27.n) {
+          case 0:
+            _context27.p = 0;
+            _context27.n = 1;
+            return fetch("".concat(SB_URL, "/auth/v1/user"), {
+              headers: {
+                apikey: SB_KEY,
+                Authorization: "Bearer ".concat(token)
+              }
+            });
+          case 1:
+            res = _context27.v;
+            if (!res.ok) {
+              _context27.n = 4;
+              break;
+            }
+            _context27.n = 2;
+            return res.json();
+          case 2:
+            data = _context27.v;
+            if (!(data !== null && data !== void 0 && data.email)) {
+              _context27.n = 4;
+              break;
+            }
+            _context27.n = 3;
+            return resolveUser(data.email, data);
+          case 3:
+            return _context27.a(2);
+          case 4:
+            // Token invalid/expired
+            localStorage.removeItem('kp_token');
+            setSsoChecking(false);
+            _context27.n = 6;
+            break;
+          case 5:
+            _context27.p = 5;
+            _t1 = _context27.v;
+            localStorage.removeItem('kp_token');
+            setSsoChecking(false);
+          case 6:
+            return _context27.a(2);
+        }
+      }, _callee27, null, [[0, 5]]);
+    }));
+    function resolveWithToken(_x20) {
+      return _resolveWithToken.apply(this, arguments);
+    }
+    return resolveWithToken;
+  }();
   var getStoredToken = function getStoredToken() {
     return localStorage.getItem('kp_token') || '';
   };
 
   // ── Resolve logged-in email to users table ─────────────────────
   var resolveUser = /*#__PURE__*/function () {
-    var _resolveUser = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27(email, authData) {
-      var rows, u, _authData$user_metada, newUser;
-      return _regenerator().w(function (_context27) {
-        while (1) switch (_context27.n) {
+    var _resolveUser = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28(email, authData) {
+      var rows, token, u, _authData$user_metada, _authData$user_metada2, newUser;
+      return _regenerator().w(function (_context28) {
+        while (1) switch (_context28.n) {
           case 0:
-            _context27.n = 1;
+            _context28.n = 1;
             return sb.get('users', "email=eq.".concat(encodeURIComponent(email), "&limit=1"));
           case 1:
-            rows = _context27.v;
+            rows = _context28.v;
+            token = localStorage.getItem('kp_token') || '';
             if (!(rows && rows.length > 0)) {
-              _context27.n = 2;
+              _context28.n = 3;
               break;
             }
             u = rows[0];
+            if (!(u.status === 'pending')) {
+              _context28.n = 2;
+              break;
+            }
+            setPending(true);
+            setSsoChecking(false);
+            return _context28.a(2);
+          case 2:
             onLogin(_objectSpread(_objectSpread({}, u), {}, {
-              token: getStoredToken(),
+              token: token,
               sso: true
             }));
-            _context27.n = 4;
+            _context28.n = 5;
             break;
-          case 2:
-            // First-time SSO user — not yet in users table
-            // Auto-create as pending agent, manager must approve + set tier
+          case 3:
+            // First-time SSO — create pending user
             newUser = {
               id: "sso_".concat(Date.now()),
-              name: ((_authData$user_metada = authData.user_metadata) === null || _authData$user_metada === void 0 ? void 0 : _authData$user_metada.full_name) || email.split('@')[0],
+              name: ((_authData$user_metada = authData.user_metadata) === null || _authData$user_metada === void 0 ? void 0 : _authData$user_metada.full_name) || ((_authData$user_metada2 = authData.user_metadata) === null || _authData$user_metada2 === void 0 ? void 0 : _authData$user_metada2.name) || email.split('@')[0],
               email: email,
               role: 'vob_agent',
               team: 'vob',
@@ -9522,17 +9567,17 @@ function Login(_ref39) {
               status: 'pending',
               created_at: new Date().toISOString()
             };
-            _context27.n = 3;
+            _context28.n = 4;
             return sb.post('users', newUser);
-          case 3:
+          case 4:
             setPending(true);
             setSsoChecking(false);
-          case 4:
-            return _context27.a(2);
+          case 5:
+            return _context28.a(2);
         }
-      }, _callee27);
+      }, _callee28);
     }));
-    function resolveUser(_x20, _x21) {
+    function resolveUser(_x21, _x22) {
       return _resolveUser.apply(this, arguments);
     }
     return resolveUser;
@@ -9540,10 +9585,10 @@ function Login(_ref39) {
 
   // ── Microsoft SSO sign in ──────────────────────────────────────
   var signInWithMicrosoft = /*#__PURE__*/function () {
-    var _signInWithMicrosoft = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28() {
+    var _signInWithMicrosoft = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29() {
       var redirectTo;
-      return _regenerator().w(function (_context28) {
-        while (1) switch (_context28.n) {
+      return _regenerator().w(function (_context29) {
+        while (1) switch (_context29.n) {
           case 0:
             setLoading(true);
             setErr('');
@@ -9555,9 +9600,9 @@ function Login(_ref39) {
               setLoading(false);
             }
           case 1:
-            return _context28.a(2);
+            return _context29.a(2);
         }
-      }, _callee28);
+      }, _callee29);
     }));
     function signInWithMicrosoft() {
       return _signInWithMicrosoft.apply(this, arguments);
@@ -9567,39 +9612,39 @@ function Login(_ref39) {
 
   // ── Password fallback ─────────────────────────────────────────
   var handlePasswordLogin = /*#__PURE__*/function () {
-    var _handlePasswordLogin = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29() {
+    var _handlePasswordLogin = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30() {
       var session, rows, user, demo;
-      return _regenerator().w(function (_context29) {
-        while (1) switch (_context29.n) {
+      return _regenerator().w(function (_context30) {
+        while (1) switch (_context30.n) {
           case 0:
             if (!(!email || !pw)) {
-              _context29.n = 1;
+              _context30.n = 1;
               break;
             }
             setErr('Enter email and password');
-            return _context29.a(2);
+            return _context30.a(2);
           case 1:
             setLoading(true);
             setErr('');
-            _context29.n = 2;
+            _context30.n = 2;
             return sb.auth(email, pw);
           case 2:
-            session = _context29.v;
+            session = _context30.v;
             if (!session) {
-              _context29.n = 4;
+              _context30.n = 4;
               break;
             }
-            _context29.n = 3;
+            _context30.n = 3;
             return sb.get('users', "email=eq.".concat(encodeURIComponent(email), "&limit=1"));
           case 3:
-            rows = _context29.v;
+            rows = _context30.v;
             user = rows[0] || DEMO_USERS.find(function (u) {
               return u.email === email;
             });
             if (user) {
               onLogin(_objectSpread(_objectSpread({}, user), session));
             } else setErr('User not found in team directory.');
-            _context29.n = 5;
+            _context30.n = 5;
             break;
           case 4:
             demo = DEMO_USERS.find(function (u) {
@@ -9613,9 +9658,9 @@ function Login(_ref39) {
           case 5:
             setLoading(false);
           case 6:
-            return _context29.a(2);
+            return _context30.a(2);
         }
-      }, _callee29);
+      }, _callee30);
     }));
     function handlePasswordLogin() {
       return _handlePasswordLogin.apply(this, arguments);
@@ -10109,17 +10154,17 @@ function NewVOBModal(_ref40) {
     };
   };
   var submit = /*#__PURE__*/function () {
-    var _submit = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30() {
+    var _submit = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31() {
       var id, row;
-      return _regenerator().w(function (_context30) {
-        while (1) switch (_context30.n) {
+      return _regenerator().w(function (_context31) {
+        while (1) switch (_context31.n) {
           case 0:
             if (!(!d.facilityName || !d.patientFirst || !d.patientLast || !d.insurance)) {
-              _context30.n = 1;
+              _context31.n = 1;
               break;
             }
             alert('Fill required fields');
-            return _context30.a(2);
+            return _context31.a(2);
           case 1:
             id = 'V-' + Date.now();
             row = {
@@ -10135,7 +10180,7 @@ function NewVOBModal(_ref40) {
               notes: 'Manual: ' + d.notes,
               submitted_at: new Date().toISOString()
             };
-            _context30.n = 2;
+            _context31.n = 2;
             return sb.post('vob_requests', row);
           case 2:
             onSubmit && onSubmit(_objectSpread(_objectSpread({}, row), {}, {
@@ -10147,9 +10192,9 @@ function NewVOBModal(_ref40) {
             }));
             onClose();
           case 3:
-            return _context30.a(2);
+            return _context31.a(2);
         }
-      }, _callee30);
+      }, _callee31);
     }));
     function submit() {
       return _submit.apply(this, arguments);
@@ -10383,25 +10428,25 @@ function PayerDirectoryPage() {
     setToast = _useState146[1];
   var fileRef = useRef(null);
   var load = /*#__PURE__*/function () {
-    var _load5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee31() {
+    var _load5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32() {
       var q,
         rows,
-        _args31 = arguments;
-      return _regenerator().w(function (_context31) {
-        while (1) switch (_context31.n) {
+        _args32 = arguments;
+      return _regenerator().w(function (_context32) {
+        while (1) switch (_context32.n) {
           case 0:
-            q = _args31.length > 0 && _args31[0] !== undefined ? _args31[0] : '';
+            q = _args32.length > 0 && _args32[0] !== undefined ? _args32[0] : '';
             setLoading(true);
-            _context31.n = 1;
+            _context32.n = 1;
             return sb.get('payer_sops', q ? "payer_name=ilike.*".concat(q, "*&order=payer_name.asc") : 'order=payer_name.asc');
           case 1:
-            rows = _context31.v;
+            rows = _context32.v;
             setPayers(rows);
             setLoading(false);
           case 2:
-            return _context31.a(2);
+            return _context32.a(2);
         }
-      }, _callee31);
+      }, _callee32);
     }));
     function load() {
       return _load5.apply(this, arguments);
@@ -10433,18 +10478,18 @@ function PayerDirectoryPage() {
     };
   };
   var save = /*#__PURE__*/function () {
-    var _save2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32() {
-      return _regenerator().w(function (_context32) {
-        while (1) switch (_context32.n) {
+    var _save2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33() {
+      return _regenerator().w(function (_context33) {
+        while (1) switch (_context33.n) {
           case 0:
             if (draft.payer_name) {
-              _context32.n = 1;
+              _context33.n = 1;
               break;
             }
             alert('Payer name required');
-            return _context32.a(2);
+            return _context33.a(2);
           case 1:
-            _context32.n = 2;
+            _context33.n = 2;
             return sb.post('payer_sops', _objectSpread(_objectSpread({}, draft), {}, {
               last_updated: new Date().toISOString()
             }));
@@ -10453,9 +10498,9 @@ function PayerDirectoryPage() {
             load(search);
             showToast(editing === 'new' ? 'Payer added' : 'Updated');
           case 3:
-            return _context32.a(2);
+            return _context33.a(2);
         }
-      }, _callee32);
+      }, _callee33);
     }));
     function save() {
       return _save2.apply(this, arguments);
@@ -10463,27 +10508,27 @@ function PayerDirectoryPage() {
     return save;
   }();
   var del = /*#__PURE__*/function () {
-    var _del = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee33(id) {
-      return _regenerator().w(function (_context33) {
-        while (1) switch (_context33.n) {
+    var _del = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34(id) {
+      return _regenerator().w(function (_context34) {
+        while (1) switch (_context34.n) {
           case 0:
             if (confirm('Delete this payer SOP?')) {
-              _context33.n = 1;
+              _context34.n = 1;
               break;
             }
-            return _context33.a(2);
+            return _context34.a(2);
           case 1:
-            _context33.n = 2;
+            _context34.n = 2;
             return sb.del('payer_sops', id);
           case 2:
             load(search);
             showToast('Deleted');
           case 3:
-            return _context33.a(2);
+            return _context34.a(2);
         }
-      }, _callee33);
+      }, _callee34);
     }));
-    function del(_x22) {
+    function del(_x23) {
       return _del.apply(this, arguments);
     }
     return del;
@@ -10509,23 +10554,23 @@ function PayerDirectoryPage() {
     showToast('Exported');
   };
   var importFile = /*#__PURE__*/function () {
-    var _importFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee34(e) {
+    var _importFile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(e) {
       var _e$target$files;
       var file, text, lines, headers, imported, _loop, i;
-      return _regenerator().w(function (_context35) {
-        while (1) switch (_context35.n) {
+      return _regenerator().w(function (_context36) {
+        while (1) switch (_context36.n) {
           case 0:
             file = (_e$target$files = e.target.files) === null || _e$target$files === void 0 ? void 0 : _e$target$files[0];
             if (file) {
-              _context35.n = 1;
+              _context36.n = 1;
               break;
             }
-            return _context35.a(2);
+            return _context36.a(2);
           case 1:
-            _context35.n = 2;
+            _context36.n = 2;
             return file.text();
           case 2:
-            text = _context35.v;
+            text = _context36.v;
             lines = text.split('\n').filter(function (l) {
               return l.trim();
             });
@@ -10536,8 +10581,8 @@ function PayerDirectoryPage() {
             _loop = /*#__PURE__*/_regenerator().m(function _loop() {
               var _lines$i$match;
               var vals, row;
-              return _regenerator().w(function (_context34) {
-                while (1) switch (_context34.n) {
+              return _regenerator().w(function (_context35) {
+                while (1) switch (_context35.n) {
                   case 0:
                     vals = ((_lines$i$match = lines[i].match(/("[^"]*"|[^,]*)/g)) === null || _lines$i$match === void 0 ? void 0 : _lines$i$match.filter(function (_, idx) {
                       return idx % 2 === 0;
@@ -10578,41 +10623,41 @@ function PayerDirectoryPage() {
                       }
                     });
                     if (!row.payer_name) {
-                      _context34.n = 2;
+                      _context35.n = 2;
                       break;
                     }
-                    _context34.n = 1;
+                    _context35.n = 1;
                     return sb.post('payer_sops', _objectSpread(_objectSpread({}, row), {}, {
                       last_updated: new Date().toISOString()
                     }));
                   case 1:
                     imported++;
                   case 2:
-                    return _context34.a(2);
+                    return _context35.a(2);
                 }
               }, _loop);
             });
             i = 1;
           case 3:
             if (!(i < lines.length)) {
-              _context35.n = 5;
+              _context36.n = 5;
               break;
             }
-            return _context35.d(_regeneratorValues(_loop()), 4);
+            return _context36.d(_regeneratorValues(_loop()), 4);
           case 4:
             i++;
-            _context35.n = 3;
+            _context36.n = 3;
             break;
           case 5:
             e.target.value = '';
             load(search);
             showToast("Imported ".concat(imported, " payers"));
           case 6:
-            return _context35.a(2);
+            return _context36.a(2);
         }
-      }, _callee34);
+      }, _callee35);
     }));
-    function importFile(_x23) {
+    function importFile(_x24) {
       return _importFile.apply(this, arguments);
     }
     return importFile;
@@ -11088,11 +11133,11 @@ function ManagerQueue(_ref41) {
     });
   };
   var approve = /*#__PURE__*/function () {
-    var _approve = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee35(id) {
-      return _regenerator().w(function (_context36) {
-        while (1) switch (_context36.n) {
+    var _approve = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(id) {
+      return _regenerator().w(function (_context37) {
+        while (1) switch (_context37.n) {
           case 0:
-            _context36.n = 1;
+            _context37.n = 1;
             return sb.patch('vob_requests', id, {
               status: 'Completed',
               completed_at: new Date().toISOString(),
@@ -11107,21 +11152,21 @@ function ManagerQueue(_ref41) {
               type: 'success'
             });
           case 2:
-            return _context36.a(2);
+            return _context37.a(2);
         }
-      }, _callee35);
+      }, _callee36);
     }));
-    function approve(_x24) {
+    function approve(_x25) {
       return _approve.apply(this, arguments);
     }
     return approve;
   }();
   var revise = /*#__PURE__*/function () {
-    var _revise = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee36(id, note) {
-      return _regenerator().w(function (_context37) {
-        while (1) switch (_context37.n) {
+    var _revise = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee37(id, note) {
+      return _regenerator().w(function (_context38) {
+        while (1) switch (_context38.n) {
           case 0:
-            _context37.n = 1;
+            _context38.n = 1;
             return sb.patch('vob_requests', id, {
               status: 'In Progress',
               notes: note
@@ -11138,25 +11183,25 @@ function ManagerQueue(_ref41) {
               type: 'warn'
             });
           case 2:
-            return _context37.a(2);
+            return _context38.a(2);
         }
-      }, _callee36);
+      }, _callee37);
     }));
-    function revise(_x25, _x26) {
+    function revise(_x26, _x27) {
       return _revise.apply(this, arguments);
     }
     return revise;
   }();
   var assign = /*#__PURE__*/function () {
-    var _assign = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee37(id, agentId) {
+    var _assign = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(id, agentId) {
       var agent;
-      return _regenerator().w(function (_context38) {
-        while (1) switch (_context38.n) {
+      return _regenerator().w(function (_context39) {
+        while (1) switch (_context39.n) {
           case 0:
             agent = DEMO_USERS.find(function (u) {
               return u.id === agentId;
             });
-            _context38.n = 1;
+            _context39.n = 1;
             return sb.patch('vob_requests', id, {
               assigned_agent: (agent === null || agent === void 0 ? void 0 : agent.name) || agentId
             });
@@ -11169,11 +11214,11 @@ function ManagerQueue(_ref41) {
               type: 'success'
             });
           case 2:
-            return _context38.a(2);
+            return _context39.a(2);
         }
-      }, _callee37);
+      }, _callee38);
     }));
-    function assign(_x27, _x28) {
+    function assign(_x28, _x29) {
       return _assign.apply(this, arguments);
     }
     return assign;
@@ -11637,11 +11682,11 @@ function AgentQueue(_ref44) {
     return v.assignedTo === user.id || !v.assignedTo || v.status === 'Pending';
   });
   var claim = /*#__PURE__*/function () {
-    var _claim = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee38(id) {
-      return _regenerator().w(function (_context39) {
-        while (1) switch (_context39.n) {
+    var _claim = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee39(id) {
+      return _regenerator().w(function (_context40) {
+        while (1) switch (_context40.n) {
           case 0:
-            _context39.n = 1;
+            _context40.n = 1;
             return sb.patch('vob_requests', id, {
               assigned_agent: user.name,
               status: 'In Progress'
@@ -11660,11 +11705,11 @@ function AgentQueue(_ref44) {
               type: 'success'
             });
           case 2:
-            return _context39.a(2);
+            return _context40.a(2);
         }
-      }, _callee38);
+      }, _callee39);
     }));
-    function claim(_x29) {
+    function claim(_x30) {
       return _claim.apply(this, arguments);
     }
     return claim;
@@ -11863,14 +11908,14 @@ function TeamView(_ref45) {
     agentTiers = _useState160[0],
     setAgentTiers = _useState160[1];
   var setTier = /*#__PURE__*/function () {
-    var _setTier = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee39(agentId, tier) {
-      return _regenerator().w(function (_context40) {
-        while (1) switch (_context40.n) {
+    var _setTier = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(agentId, tier) {
+      return _regenerator().w(function (_context41) {
+        while (1) switch (_context41.n) {
           case 0:
             setAgentTiers(function (p) {
               return _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, agentId, tier));
             });
-            _context40.n = 1;
+            _context41.n = 1;
             return sb.patch('users', agentId, {
               trust_tier: tier
             });
@@ -11880,11 +11925,11 @@ function TeamView(_ref45) {
               type: 'success'
             });
           case 2:
-            return _context40.a(2);
+            return _context41.a(2);
         }
-      }, _callee39);
+      }, _callee40);
     }));
-    function setTier(_x30, _x31) {
+    function setTier(_x31, _x32) {
       return _setTier.apply(this, arguments);
     }
     return setTier;
@@ -12139,15 +12184,15 @@ function KPApp() {
     label: 'Form Builder'
   }] : []));
   var handleComplete = /*#__PURE__*/function () {
-    var _handleComplete2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(form, vobId, flagged) {
+    var _handleComplete2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee41(form, vobId, flagged) {
       var _form$locAuth17, _form$locAuth18, _form$locAuth19, _form$locAuth20, _form$locAuth21, _form$locAuth22, _form$locAuth23, _form$locAuth24, _form$locAuth25, _form$locAuth26, _form$locAuth27, _form$locAuth28, _form$locAuth29, _form$locAuth30, _form$locAuth31, _form$locAuth32, _form$locAuth33, _form$locAuth34;
       var tier, newStatus;
-      return _regenerator().w(function (_context41) {
-        while (1) switch (_context41.n) {
+      return _regenerator().w(function (_context42) {
+        while (1) switch (_context42.n) {
           case 0:
             tier = user.tier || 1;
             newStatus = tier === 1 ? 'Ready for Review' : 'Completed';
-            _context41.n = 1;
+            _context42.n = 1;
             return sb.post('vob_requests', {
               id: vobId,
               facility_name: form.facilityName,
@@ -12216,11 +12261,11 @@ function KPApp() {
             });
             setActiveVOB(null);
           case 2:
-            return _context41.a(2);
+            return _context42.a(2);
         }
-      }, _callee40);
+      }, _callee41);
     }));
-    function handleComplete(_x32, _x33, _x34) {
+    function handleComplete(_x33, _x34, _x35) {
       return _handleComplete2.apply(this, arguments);
     }
     return handleComplete;
