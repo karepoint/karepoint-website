@@ -9376,6 +9376,10 @@ function Login(_ref39) {
     _useState132 = _slicedToArray(_useState131, 2),
     pending = _useState132[0],
     setPending = _useState132[1]; // first-time SSO user not yet in users table
+  var _useState133 = useState(''),
+    _useState134 = _slicedToArray(_useState133, 2),
+    pendingEmail = _useState134[0],
+    setPendingEmail = _useState134[1];
 
   // ── On mount: check if we're returning from Microsoft OAuth redirect ──
   useEffect(function () {
@@ -9529,12 +9533,13 @@ function Login(_ref39) {
   // ── Resolve logged-in email to users table ─────────────────────
   var resolveUser = /*#__PURE__*/function () {
     var _resolveUser = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28(email, authData) {
-      var rows, token, u, _authData$user_metada, _authData$user_metada2, newUser;
+      var emailNorm, rows, token, u, _authData$user_metada, _authData$user_metada2, newUser, ok;
       return _regenerator().w(function (_context28) {
         while (1) switch (_context28.n) {
           case 0:
+            emailNorm = (email || '').trim().toLowerCase(); // Case-insensitive lookup — Microsoft can return mixed-case emails
             _context28.n = 1;
-            return sb.get('users', "email=eq.".concat(encodeURIComponent(email), "&limit=1"));
+            return sb.get('users', "email=ilike.".concat(encodeURIComponent(emailNorm), "&limit=1"));
           case 1:
             rows = _context28.v;
             token = localStorage.getItem('kp_token') || '';
@@ -9548,24 +9553,28 @@ function Login(_ref39) {
               break;
             }
             setPending(true);
+            setPendingEmail(emailNorm);
             setSsoChecking(false);
             return _context28.a(2);
           case 2:
             // Normalize real DB columns (full_name/trust_tier) to app-wide shape (name/tier)
             onLogin(_objectSpread(_objectSpread({}, u), {}, {
-              name: u.full_name || u.name || email.split('@')[0],
+              name: u.full_name || u.name || emailNorm.split('@')[0],
               tier: u.trust_tier || u.tier || 1,
               token: token,
               sso: true
             }));
-            _context28.n = 5;
+            _context28.n = 6;
             break;
           case 3:
-            // First-time SSO — create pending user
+            // First-time SSO — create pending user.
+            // IMPORTANT: id must be the real Supabase Auth UUID (authData.id) —
+            // the users table has a foreign key requiring id to exist in auth.users.
+            // A made-up id here gets silently rejected by Postgres.
             newUser = {
-              id: "sso_".concat(Date.now()),
-              full_name: ((_authData$user_metada = authData.user_metadata) === null || _authData$user_metada === void 0 ? void 0 : _authData$user_metada.full_name) || ((_authData$user_metada2 = authData.user_metadata) === null || _authData$user_metada2 === void 0 ? void 0 : _authData$user_metada2.name) || email.split('@')[0],
-              email: email,
+              id: authData.id,
+              full_name: ((_authData$user_metada = authData.user_metadata) === null || _authData$user_metada === void 0 ? void 0 : _authData$user_metada.full_name) || ((_authData$user_metada2 = authData.user_metadata) === null || _authData$user_metada2 === void 0 ? void 0 : _authData$user_metada2.name) || emailNorm.split('@')[0],
+              email: emailNorm,
               role: 'vob_agent',
               team: 'vob',
               trust_tier: 1,
@@ -9575,9 +9584,19 @@ function Login(_ref39) {
             _context28.n = 4;
             return sb.post('users', newUser);
           case 4:
-            setPending(true);
+            ok = _context28.v;
+            if (ok) {
+              _context28.n = 5;
+              break;
+            }
+            setErr('Could not create your account record. Please contact suvraneelm@mykarepoint.com.');
             setSsoChecking(false);
+            return _context28.a(2);
           case 5:
+            setPending(true);
+            setPendingEmail(emailNorm);
+            setSsoChecking(false);
+          case 6:
             return _context28.a(2);
         }
       }, _callee28);
@@ -9732,9 +9751,24 @@ function Login(_ref39) {
       fontSize: 13.5,
       color: C.ink3,
       lineHeight: 1.7,
-      marginBottom: 20
+      marginBottom: 14
     }
-  }, "Your Microsoft account was verified successfully. A manager needs to approve your access and assign your role before you can log in."), /*#__PURE__*/React.createElement("div", {
+  }, "Your Microsoft account was verified successfully. A manager needs to approve your access and assign your role before you can log in."), pendingEmail && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: FM,
+      fontSize: 11,
+      color: C.ink4,
+      marginBottom: 16,
+      padding: '6px 10px',
+      background: C.paper,
+      borderRadius: 4,
+      userSelect: 'text'
+    }
+  }, "Detected account: ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.ink3
+    }
+  }, pendingEmail)), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.tealL,
       border: "1px solid ".concat(C.tealLine),
@@ -10178,7 +10212,7 @@ function NewVOBModal(_ref40) {
     onSubmit = _ref40.onSubmit,
     _ref40$facilities = _ref40.facilities,
     facilities = _ref40$facilities === void 0 ? [] : _ref40$facilities;
-  var _useState133 = useState({
+  var _useState135 = useState({
       facilityName: '',
       patientFirst: '',
       patientLast: '',
@@ -10188,9 +10222,9 @@ function NewVOBModal(_ref40) {
       urgency: 'Standard',
       notes: ''
     }),
-    _useState134 = _slicedToArray(_useState133, 2),
-    d = _useState134[0],
-    setD = _useState134[1];
+    _useState136 = _slicedToArray(_useState135, 2),
+    d = _useState136[0],
+    setD = _useState136[1];
   var set = function set(k) {
     return function (e) {
       return setD(function (p) {
@@ -10447,30 +10481,30 @@ function NewVOBModal(_ref40) {
 
 // ─── Payer Directory Page ─────────────────────────────────────────
 function PayerDirectoryPage() {
-  var _useState135 = useState([]),
-    _useState136 = _slicedToArray(_useState135, 2),
-    payers = _useState136[0],
-    setPayers = _useState136[1];
-  var _useState137 = useState(true),
+  var _useState137 = useState([]),
     _useState138 = _slicedToArray(_useState137, 2),
-    loading = _useState138[0],
-    setLoading = _useState138[1];
-  var _useState139 = useState(''),
+    payers = _useState138[0],
+    setPayers = _useState138[1];
+  var _useState139 = useState(true),
     _useState140 = _slicedToArray(_useState139, 2),
-    search = _useState140[0],
-    setSearch = _useState140[1];
-  var _useState141 = useState(null),
+    loading = _useState140[0],
+    setLoading = _useState140[1];
+  var _useState141 = useState(''),
     _useState142 = _slicedToArray(_useState141, 2),
-    editing = _useState142[0],
-    setEditing = _useState142[1];
-  var _useState143 = useState({}),
+    search = _useState142[0],
+    setSearch = _useState142[1];
+  var _useState143 = useState(null),
     _useState144 = _slicedToArray(_useState143, 2),
-    draft = _useState144[0],
-    setDraft = _useState144[1];
-  var _useState145 = useState(''),
+    editing = _useState144[0],
+    setEditing = _useState144[1];
+  var _useState145 = useState({}),
     _useState146 = _slicedToArray(_useState145, 2),
-    toast = _useState146[0],
-    setToast = _useState146[1];
+    draft = _useState146[0],
+    setDraft = _useState146[1];
+  var _useState147 = useState(''),
+    _useState148 = _slicedToArray(_useState147, 2),
+    toast = _useState148[0],
+    setToast = _useState148[1];
   var fileRef = useRef(null);
   var load = /*#__PURE__*/function () {
     var _load5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee32() {
@@ -11150,30 +11184,30 @@ function ManagerQueue(_ref41) {
     onOpenWorkspace = _ref41.onOpenWorkspace,
     facilities = _ref41.facilities,
     setToast = _ref41.setToast;
-  var _useState147 = useState('All'),
-    _useState148 = _slicedToArray(_useState147, 2),
-    filter = _useState148[0],
-    setFilter = _useState148[1];
   var _useState149 = useState('All'),
     _useState150 = _slicedToArray(_useState149, 2),
-    agentFilter = _useState150[0],
-    setAgentFilter = _useState150[1];
-  var _useState151 = useState(false),
+    filter = _useState150[0],
+    setFilter = _useState150[1];
+  var _useState151 = useState('All'),
     _useState152 = _slicedToArray(_useState151, 2),
-    newVOBOpen = _useState152[0],
-    setNewVOBOpen = _useState152[1];
-  var _useState153 = useState(''),
+    agentFilter = _useState152[0],
+    setAgentFilter = _useState152[1];
+  var _useState153 = useState(false),
     _useState154 = _slicedToArray(_useState153, 2),
-    reviseNote = _useState154[0],
-    setReviseNote = _useState154[1];
-  var _useState155 = useState(null),
+    newVOBOpen = _useState154[0],
+    setNewVOBOpen = _useState154[1];
+  var _useState155 = useState(''),
     _useState156 = _slicedToArray(_useState155, 2),
-    revisingId = _useState156[0],
-    setRevisingId = _useState156[1];
-  var _useState157 = useState(AGENTS),
+    reviseNote = _useState156[0],
+    setReviseNote = _useState156[1];
+  var _useState157 = useState(null),
     _useState158 = _slicedToArray(_useState157, 2),
-    realAgents = _useState158[0],
-    setRealAgents = _useState158[1];
+    revisingId = _useState158[0],
+    setRevisingId = _useState158[1];
+  var _useState159 = useState(AGENTS),
+    _useState160 = _slicedToArray(_useState159, 2),
+    realAgents = _useState160[0],
+    setRealAgents = _useState160[1];
   useEffect(function () {
     sb.get('users', 'role=eq.vob_agent&order=full_name.asc').then(function (rows) {
       var active = (rows || []).filter(function (u) {
@@ -11739,10 +11773,10 @@ function AgentQueue(_ref44) {
     onOpenWorkspace = _ref44.onOpenWorkspace,
     facilities = _ref44.facilities,
     setToast = _ref44.setToast;
-  var _useState159 = useState(false),
-    _useState160 = _slicedToArray(_useState159, 2),
-    newVOBOpen = _useState160[0],
-    setNewVOBOpen = _useState160[1];
+  var _useState161 = useState(false),
+    _useState162 = _slicedToArray(_useState161, 2),
+    newVOBOpen = _useState162[0],
+    setNewVOBOpen = _useState162[1];
   var myVobs = vobs.filter(function (v) {
     return v.assignedTo === user.id || !v.assignedTo || v.status === 'Pending';
   });
@@ -11980,20 +12014,20 @@ var ROLE_OPTIONS = [{
 function TeamView(_ref45) {
   var vobs = _ref45.vobs,
     setToast = _ref45.setToast;
-  var _useState161 = useState(function () {
+  var _useState163 = useState(function () {
       return Object.fromEntries(AGENTS.map(function (a) {
         return [a.id, a.tier || 1];
       }));
     }),
-    _useState162 = _slicedToArray(_useState161, 2),
-    agentTiers = _useState162[0],
-    setAgentTiers = _useState162[1];
-  var _useState163 = useState(DEMO_USERS.filter(function (u) {
+    _useState164 = _slicedToArray(_useState163, 2),
+    agentTiers = _useState164[0],
+    setAgentTiers = _useState164[1];
+  var _useState165 = useState(DEMO_USERS.filter(function (u) {
       return u.team !== 'admin';
     })),
-    _useState164 = _slicedToArray(_useState163, 2),
-    teamUsers = _useState164[0],
-    setTeamUsers = _useState164[1];
+    _useState166 = _slicedToArray(_useState165, 2),
+    teamUsers = _useState166[0],
+    setTeamUsers = _useState166[1];
   var load = function load() {
     sb.get('users', 'order=full_name.asc').then(function (rows) {
       if (rows && rows.length > 0) {
@@ -12257,34 +12291,34 @@ function TeamView(_ref45) {
 // ─── Main KP App ──────────────────────────────────────────────────
 function KPApp() {
   var _NAV_ITEMS$find;
-  var _useState165 = useState(null),
-    _useState166 = _slicedToArray(_useState165, 2),
-    user = _useState166[0],
-    setUser = _useState166[1];
-  var _useState167 = useState('queue'),
+  var _useState167 = useState(null),
     _useState168 = _slicedToArray(_useState167, 2),
-    page = _useState168[0],
-    setPage = _useState168[1];
-  var _useState169 = useState(false),
+    user = _useState168[0],
+    setUser = _useState168[1];
+  var _useState169 = useState('queue'),
     _useState170 = _slicedToArray(_useState169, 2),
-    navOpen = _useState170[0],
-    setNavOpen = _useState170[1];
-  var _useState171 = useState([]),
+    page = _useState170[0],
+    setPage = _useState170[1];
+  var _useState171 = useState(false),
     _useState172 = _slicedToArray(_useState171, 2),
-    vobs = _useState172[0],
-    setVobs = _useState172[1];
+    navOpen = _useState172[0],
+    setNavOpen = _useState172[1];
   var _useState173 = useState([]),
     _useState174 = _slicedToArray(_useState173, 2),
-    facilities = _useState174[0],
-    setFacilities = _useState174[1];
-  var _useState175 = useState(null),
+    vobs = _useState174[0],
+    setVobs = _useState174[1];
+  var _useState175 = useState([]),
     _useState176 = _slicedToArray(_useState175, 2),
-    toast = _useState176[0],
-    setToast = _useState176[1];
+    facilities = _useState176[0],
+    setFacilities = _useState176[1];
   var _useState177 = useState(null),
     _useState178 = _slicedToArray(_useState177, 2),
-    activeVOB = _useState178[0],
-    setActiveVOB = _useState178[1]; // workspace open
+    toast = _useState178[0],
+    setToast = _useState178[1];
+  var _useState179 = useState(null),
+    _useState180 = _slicedToArray(_useState179, 2),
+    activeVOB = _useState180[0],
+    setActiveVOB = _useState180[1]; // workspace open
   var isMobile = useIsMobile();
   useEffect(function () {
     if (!user) return;
