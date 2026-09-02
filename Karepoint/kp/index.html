@@ -326,6 +326,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 })();
 </script>
 <script>
+
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
@@ -9344,866 +9345,314 @@ var AZURE_TENANT_ID = 'b5040ccc-ba91-40dd-ac91-82a3f166f9cc';
 // ─── Login ────────────────────────────────────────────────────────
 function Login(_ref39) {
   var onLogin = _ref39.onLogin;
-  var _useState117 = useState(''),
-    _useState118 = _slicedToArray(_useState117, 2),
-    err = _useState118[0],
-    setErr = _useState118[1];
-  var _useState119 = useState(false),
-    _useState120 = _slicedToArray(_useState119, 2),
-    loading = _useState120[0],
-    setLoading = _useState120[1];
-  var _useState121 = useState(true),
-    _useState122 = _slicedToArray(_useState121, 2),
-    ssoChecking = _useState122[0],
-    setSsoChecking = _useState122[1];
-  var _useState123 = useState(false),
-    _useState124 = _slicedToArray(_useState123, 2),
-    showDemo = _useState124[0],
-    setShowDemo = _useState124[1];
-  var _useState125 = useState(false),
-    _useState126 = _slicedToArray(_useState125, 2),
-    showFallback = _useState126[0],
-    setShowFallback = _useState126[1];
-  var _useState127 = useState(''),
-    _useState128 = _slicedToArray(_useState127, 2),
-    email = _useState128[0],
-    setEmail = _useState128[1];
-  var _useState129 = useState(''),
-    _useState130 = _slicedToArray(_useState129, 2),
-    pw = _useState130[0],
-    setPw = _useState130[1];
-  var _useState131 = useState(false),
-    _useState132 = _slicedToArray(_useState131, 2),
-    pending = _useState132[0],
-    setPending = _useState132[1]; // first-time SSO user not yet in users table
-  var _useState133 = useState(''),
-    _useState134 = _slicedToArray(_useState133, 2),
-    pendingEmail = _useState134[0],
-    setPendingEmail = _useState134[1];
 
-  // ── On mount: check if we're returning from Microsoft OAuth redirect ──
-  useEffect(function () {
-    var checkSession = /*#__PURE__*/function () {
-      var _checkSession = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee26() {
-        var hash, params, hashToken, searchParams, code, r, data, stored, _t0;
-        return _regenerator().w(function (_context26) {
-          while (1) switch (_context26.p = _context26.n) {
-            case 0:
-              _context26.p = 0;
-              // 1. Check URL hash for access_token (implicit flow)
-              hash = window.location.hash;
-              params = new URLSearchParams(hash.replace(/^#/, ''));
-              hashToken = params.get('access_token'); // 2. Check URL query string for code (PKCE/auth code flow)
-              searchParams = new URLSearchParams(window.location.search);
-              code = searchParams.get('code');
-              if (!hashToken) {
-                _context26.n = 2;
-                break;
-              }
-              // Token in hash — store and resolve
-              localStorage.setItem('kp_token', hashToken);
-              window.history.replaceState(null, '', window.location.pathname);
-              _context26.n = 1;
-              return resolveWithToken(hashToken);
-            case 1:
-              return _context26.a(2);
-            case 2:
-              if (!code) {
-                _context26.n = 6;
-                break;
-              }
-              _context26.n = 3;
-              return fetch("".concat(SB_URL, "/auth/v1/token?grant_type=authorization_code"), {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  apikey: SB_KEY
-                },
-                body: JSON.stringify({
-                  code: code,
-                  redirect_uri: "".concat(SB_URL, "/auth/v1/callback")
-                })
-              });
-            case 3:
-              r = _context26.v;
-              _context26.n = 4;
-              return r.json();
-            case 4:
-              data = _context26.v;
-              if (!(data !== null && data !== void 0 && data.access_token)) {
-                _context26.n = 6;
-                break;
-              }
-              localStorage.setItem('kp_token', data.access_token);
-              window.history.replaceState(null, '', window.location.pathname);
-              _context26.n = 5;
-              return resolveWithToken(data.access_token);
-            case 5:
-              return _context26.a(2);
-            case 6:
-              // 3. Check localStorage for existing token
-              stored = localStorage.getItem('kp_token');
-              if (!stored) {
-                _context26.n = 8;
-                break;
-              }
-              _context26.n = 7;
-              return resolveWithToken(stored);
-            case 7:
-              return _context26.a(2);
-            case 8:
-              // 4. No token found — show login screen
-              setSsoChecking(false);
-              _context26.n = 10;
-              break;
-            case 9:
-              _context26.p = 9;
-              _t0 = _context26.v;
-              console.warn('SSO check error:', _t0);
-              setSsoChecking(false);
-            case 10:
-              return _context26.a(2);
-          }
-        }, _callee26, null, [[0, 9]]);
-      }));
-      function checkSession() {
-        return _checkSession.apply(this, arguments);
-      }
-      return checkSession;
-    }();
-    checkSession();
-  }, []);
-  var resolveWithToken = /*#__PURE__*/function () {
-    var _resolveWithToken = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee27(token) {
-      var res, data, _t1;
-      return _regenerator().w(function (_context27) {
-        while (1) switch (_context27.p = _context27.n) {
-          case 0:
-            _context27.p = 0;
-            _context27.n = 1;
-            return fetch("".concat(SB_URL, "/auth/v1/user"), {
-              headers: {
-                apikey: SB_KEY,
-                Authorization: "Bearer ".concat(token)
-              }
-            });
-          case 1:
-            res = _context27.v;
-            if (!res.ok) {
-              _context27.n = 4;
-              break;
-            }
-            _context27.n = 2;
-            return res.json();
-          case 2:
-            data = _context27.v;
-            if (!(data !== null && data !== void 0 && data.email)) {
-              _context27.n = 4;
-              break;
-            }
-            _context27.n = 3;
-            return resolveUser(data.email, data);
-          case 3:
-            return _context27.a(2);
-          case 4:
-            // Token invalid/expired
-            localStorage.removeItem('kp_token');
-            setSsoChecking(false);
-            _context27.n = 6;
-            break;
-          case 5:
-            _context27.p = 5;
-            _t1 = _context27.v;
-            localStorage.removeItem('kp_token');
-            setSsoChecking(false);
-          case 6:
-            return _context27.a(2);
-        }
-      }, _callee27, null, [[0, 5]]);
-    }));
-    function resolveWithToken(_x20) {
-      return _resolveWithToken.apply(this, arguments);
+  var _useState_tab = React.useState('signin'),
+      activeTab = _useState_tab[0], setActiveTab = _useState_tab[1];
+
+  // Sign in state
+  var _useState_email = React.useState(''),
+      email = _useState_email[0], setEmail = _useState_email[1];
+  var _useState_pw = React.useState(''),
+      pw = _useState_pw[0], setPw = _useState_pw[1];
+
+  // Sign up state
+  var _useState_suName = React.useState(''),
+      suName = _useState_suName[0], setSuName = _useState_suName[1];
+  var _useState_suEmail = React.useState(''),
+      suEmail = _useState_suEmail[0], setSuEmail = _useState_suEmail[1];
+  var _useState_suPw = React.useState(''),
+      suPw = _useState_suPw[0], setSuPw = _useState_suPw[1];
+  var _useState_suPw2 = React.useState(''),
+      suPw2 = _useState_suPw2[0], setSuPw2 = _useState_suPw2[1];
+
+  var _useState_err = React.useState(''),
+      err = _useState_err[0], setErr = _useState_err[1];
+  var _useState_msg = React.useState(''),
+      msg = _useState_msg[0], setMsg = _useState_msg[1];
+  var _useState_loading = React.useState(false),
+      loading = _useState_loading[0], setLoading = _useState_loading[1];
+  var _useState_showDemo = React.useState(false),
+      showDemo = _useState_showDemo[0], setShowDemo = _useState_showDemo[1];
+
+  var SB_URL = 'https://qjtudgtbiizoicuqexml.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0';
+
+  var signIn = async function() {
+    setErr(''); setMsg('');
+    if (!email || !pw) { setErr('Enter your email and password.'); return; }
+    if (!email.toLowerCase().endsWith('@mykarepoint.com')) {
+      setErr('Only @mykarepoint.com email addresses are allowed.');
+      return;
     }
-    return resolveWithToken;
-  }();
-  var getStoredToken = function getStoredToken() {
-    return localStorage.getItem('kp_token') || '';
+    setLoading(true);
+    try {
+      // Supabase Auth sign in
+      var authRes = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password: pw })
+      });
+      var authData = await authRes.json();
+      if (!authData.access_token) {
+        setErr(authData.error_description || 'Invalid email or password.');
+        setLoading(false); return;
+      }
+      // Look up user record
+      var token = authData.access_token;
+      var userRes = await fetch(SB_URL + '/rest/v1/users?email=ilike.' + encodeURIComponent(email.trim().toLowerCase()) + '&limit=1', {
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + token }
+      });
+      var rows = await userRes.json();
+      if (rows && rows.length > 0) {
+        var u = rows[0];
+        if ((u.status || '').toLowerCase() === 'pending') {
+          setErr('Your account is pending approval. Contact suvraneelm@mykarepoint.com.');
+          setLoading(false); return;
+        }
+        onLogin({ ...u, name: u.full_name || u.name, tier: u.trust_tier || 1, token, sso: false });
+      } else {
+        // Auth account exists but no users row yet — create pending
+        var newUser = {
+          id: authData.user.id,
+          full_name: authData.user.user_metadata?.full_name || email.split('@')[0],
+          email: email.trim().toLowerCase(),
+          role: 'vob_agent', team: 'vob', trust_tier: 1, status: 'pending'
+        };
+        await fetch(SB_URL + '/rest/v1/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + token, Prefer: 'return=minimal' },
+          body: JSON.stringify(newUser)
+        });
+        setErr('Your account is pending approval. Contact suvraneelm@mykarepoint.com.');
+      }
+    } catch(e) {
+      setErr('Connection error. Check your internet and try again.');
+    }
+    setLoading(false);
   };
 
-  // ── Resolve logged-in email to users table ─────────────────────
-  var resolveUser = /*#__PURE__*/function () {
-    var _resolveUser = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee28(email, authData) {
-      var emailNorm, rows, token, u, _authData$user_metada, _authData$user_metada2, newUser, ok;
-      return _regenerator().w(function (_context28) {
-        while (1) switch (_context28.n) {
-          case 0:
-            emailNorm = (email || '').trim().toLowerCase(); // Case-insensitive lookup — Microsoft can return mixed-case emails
-            _context28.n = 1;
-            return sb.get('users', "email=ilike.".concat(encodeURIComponent(emailNorm), "&limit=1"));
-          case 1:
-            rows = _context28.v;
-            token = localStorage.getItem('kp_token') || '';
-            if (!(rows && rows.length > 0)) {
-              _context28.n = 3;
-              break;
-            }
-            u = rows[0];
-            if (!((u.status || '').toLowerCase() === 'pending')) {
-              _context28.n = 2;
-              break;
-            }
-            setPending(true);
-            setPendingEmail(emailNorm);
-            setSsoChecking(false);
-            return _context28.a(2);
-          case 2:
-            // Normalize real DB columns (full_name/trust_tier) to app-wide shape (name/tier)
-            onLogin(_objectSpread(_objectSpread({}, u), {}, {
-              name: u.full_name || u.name || emailNorm.split('@')[0],
-              tier: u.trust_tier || u.tier || 1,
-              token: token,
-              sso: true
-            }));
-            _context28.n = 6;
-            break;
-          case 3:
-            // First-time SSO — create pending user.
-            // IMPORTANT: id must be the real Supabase Auth UUID (authData.id) —
-            // the users table has a foreign key requiring id to exist in auth.users.
-            // A made-up id here gets silently rejected by Postgres.
-            newUser = {
-              id: authData.id,
-              full_name: ((_authData$user_metada = authData.user_metadata) === null || _authData$user_metada === void 0 ? void 0 : _authData$user_metada.full_name) || ((_authData$user_metada2 = authData.user_metadata) === null || _authData$user_metada2 === void 0 ? void 0 : _authData$user_metada2.name) || emailNorm.split('@')[0],
-              email: emailNorm,
-              role: 'vob_agent',
-              team: 'vob',
-              trust_tier: 1,
-              status: 'pending',
-              created_at: new Date().toISOString()
-            };
-            _context28.n = 4;
-            return sb.post('users', newUser);
-          case 4:
-            ok = _context28.v;
-            if (ok) {
-              _context28.n = 5;
-              break;
-            }
-            setErr('Could not create your account record. Please contact suvraneelm@mykarepoint.com.');
-            setSsoChecking(false);
-            return _context28.a(2);
-          case 5:
-            setPending(true);
-            setPendingEmail(emailNorm);
-            setSsoChecking(false);
-          case 6:
-            return _context28.a(2);
-        }
-      }, _callee28);
-    }));
-    function resolveUser(_x21, _x22) {
-      return _resolveUser.apply(this, arguments);
+  var signUp = async function() {
+    setErr(''); setMsg('');
+    if (!suName.trim()) { setErr('Enter your full name.'); return; }
+    if (!suEmail.toLowerCase().endsWith('@mykarepoint.com')) {
+      setErr('Only @mykarepoint.com email addresses can sign up.');
+      return;
     }
-    return resolveUser;
-  }();
-
-  // ── Microsoft SSO sign in ──────────────────────────────────────
-  var signInWithMicrosoft = /*#__PURE__*/function () {
-    var _signInWithMicrosoft = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee29() {
-      var redirectTo;
-      return _regenerator().w(function (_context29) {
-        while (1) switch (_context29.n) {
-          case 0:
-            setLoading(true);
-            setErr('');
-            try {
-              redirectTo = encodeURIComponent('https://mykarepoint.com/kp');
-              window.location.href = "".concat(SB_URL, "/auth/v1/authorize?provider=azure&redirect_to=").concat(redirectTo);
-            } catch (e) {
-              setErr('Could not connect to Microsoft. Try again.');
-              setLoading(false);
-            }
-          case 1:
-            return _context29.a(2);
-        }
-      }, _callee29);
-    }));
-    function signInWithMicrosoft() {
-      return _signInWithMicrosoft.apply(this, arguments);
-    }
-    return signInWithMicrosoft;
-  }();
-
-  // ── Password fallback ─────────────────────────────────────────
-  var handlePasswordLogin = /*#__PURE__*/function () {
-    var _handlePasswordLogin = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee30() {
-      var session, rows, user, demo;
-      return _regenerator().w(function (_context30) {
-        while (1) switch (_context30.n) {
-          case 0:
-            if (!(!email || !pw)) {
-              _context30.n = 1;
-              break;
-            }
-            setErr('Enter email and password');
-            return _context30.a(2);
-          case 1:
-            setLoading(true);
-            setErr('');
-            _context30.n = 2;
-            return sb.auth(email, pw);
-          case 2:
-            session = _context30.v;
-            if (!session) {
-              _context30.n = 4;
-              break;
-            }
-            _context30.n = 3;
-            return sb.get('users', "email=eq.".concat(encodeURIComponent(email), "&limit=1"));
-          case 3:
-            rows = _context30.v;
-            user = rows[0] || DEMO_USERS.find(function (u) {
-              return u.email === email;
-            });
-            if (user) {
-              onLogin(_objectSpread(_objectSpread({}, user), session));
-            } else setErr('User not found in team directory.');
-            _context30.n = 5;
-            break;
-          case 4:
-            demo = DEMO_USERS.find(function (u) {
-              return u.email === email;
-            });
-            if (demo && pw === 'demo2026') {
-              onLogin(_objectSpread(_objectSpread({}, demo), {}, {
-                token: 'demo'
-              }));
-            } else setErr('Invalid credentials.');
-          case 5:
-            setLoading(false);
-          case 6:
-            return _context30.a(2);
-        }
-      }, _callee30);
-    }));
-    function handlePasswordLogin() {
-      return _handlePasswordLogin.apply(this, arguments);
-    }
-    return handlePasswordLogin;
-  }();
-
-  // ── Pending approval screen ────────────────────────────────────
-  if (pending) return /*#__PURE__*/React.createElement("div", {
-    style: {
-      minHeight: '100vh',
-      background: C.paper,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: F
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: '100%',
-      maxWidth: 400,
-      padding: 24,
-      textAlign: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "/assets/logo/KAREPOINT-logo-only.svg",
-    width: "40",
-    height: "40",
-    alt: "",
-    style: {
-      margin: '0 auto 16px'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: "'Mokoto',sans-serif",
-      fontSize: 22,
-      color: C.ink,
-      letterSpacing: '.04em',
-      marginBottom: 20
-    }
-  }, "KAREPOINT"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.white,
-      border: "1px solid ".concat(C.line),
-      borderRadius: 8,
-      padding: 28,
-      boxShadow: C.shLg
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 36,
-      marginBottom: 12
-    }
-  }, "\u23F3"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: FD,
-      fontSize: 18,
-      fontWeight: 600,
-      color: C.ink,
-      marginBottom: 8
-    }
-  }, "Account Pending Approval"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13.5,
-      color: C.ink3,
-      lineHeight: 1.7,
-      marginBottom: 14
-    }
-  }, "Your Microsoft account was verified successfully. A manager needs to approve your access and assign your role before you can log in."), pendingEmail && /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: FM,
-      fontSize: 11,
-      color: C.ink4,
-      marginBottom: 16,
-      padding: '6px 10px',
-      background: C.paper,
-      borderRadius: 4,
-      userSelect: 'text'
-    }
-  }, "Detected account: ", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: C.ink3
-    }
-  }, pendingEmail)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.tealL,
-      border: "1px solid ".concat(C.tealLine),
-      borderRadius: 5,
-      padding: '10px 14px',
-      fontSize: 13,
-      color: C.tealD,
-      marginBottom: 16
-    }
-  }, "Contact ", /*#__PURE__*/React.createElement("strong", null, "suvraneelm@mykarepoint.com"), " to get access."), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: function onClick() {
-      setPending(false);
-      setSsoChecking(true);
-      window.location.reload();
-    },
-    style: {
-      flex: 1,
-      padding: '10px',
-      background: C.teal,
-      color: '#fff',
-      border: 'none',
-      borderRadius: 6,
-      fontSize: 13.5,
-      fontWeight: 600,
-      cursor: 'pointer',
-      fontFamily: F
-    }
-  }, "Check Again"), /*#__PURE__*/React.createElement("button", {
-    onClick: function onClick() {
-      localStorage.removeItem('kp_token');
-      setPending(false);
-    },
-    style: {
-      flex: 1,
-      padding: '10px',
-      background: C.paper2,
-      color: C.ink3,
-      border: "1px solid ".concat(C.line2),
-      borderRadius: 6,
-      fontSize: 13.5,
-      cursor: 'pointer',
-      fontFamily: F
-    }
-  }, "Sign Out")))));
-
-  // ── SSO checking spinner ───────────────────────────────────────
-  if (ssoChecking) return /*#__PURE__*/React.createElement("div", {
-    style: {
-      minHeight: '100vh',
-      background: C.paper,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: F
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 40,
-      height: 40,
-      border: "3px solid ".concat(C.line),
-      borderTopColor: C.teal,
-      borderRadius: '50%',
-      animation: 'spin 0.8s linear infinite',
-      margin: '0 auto 16px'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 14,
-      color: C.ink3
-    }
-  }, "Checking authentication\u2026")), /*#__PURE__*/React.createElement("style", null, "@keyframes spin{to{transform:rotate(360deg)}}"));
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      minHeight: '100vh',
-      background: C.paper,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: F
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: '100%',
-      maxWidth: 400,
-      padding: 24
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: 'center',
-      marginBottom: 28
-    }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "/assets/logo/KAREPOINT-logo-only.svg",
-    width: "40",
-    height: "40",
-    alt: "",
-    style: {
-      margin: '0 auto 12px'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: "'Mokoto',sans-serif",
-      fontSize: 24,
-      color: C.ink,
-      letterSpacing: '.04em'
-    }
-  }, "KAREPOINT"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: FM,
-      fontSize: 10.5,
-      color: C.ink3,
-      letterSpacing: '.18em',
-      textTransform: 'uppercase',
-      marginTop: 5
-    }
-  }, "Internal Operations")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.white,
-      border: "1px solid ".concat(C.line),
-      borderRadius: 8,
-      overflow: 'hidden',
-      boxShadow: C.shLg
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.tealDD,
-      padding: '12px 20px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 7
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: 'rgba(232,240,241,.6)',
-      display: 'flex'
-    }
-  }, I.lock), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: FM,
-      fontSize: 9,
-      letterSpacing: '.14em',
-      color: 'rgba(232,240,241,.7)',
-      textTransform: 'uppercase'
-    }
-  }, "Secure Sign In")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '24px 20px'
-    }
-  }, !showFallback && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
-    onClick: signInWithMicrosoft,
-    disabled: loading,
-    style: {
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 12,
-      padding: '14px',
-      border: "1.5px solid ".concat(C.line2),
-      borderRadius: 7,
-      background: C.white,
-      cursor: loading ? 'default' : 'pointer',
-      fontSize: 15,
-      fontWeight: 600,
-      color: C.ink,
-      fontFamily: F,
-      opacity: loading ? .7 : 1,
-      transition: 'all .15s',
-      boxShadow: '0 1px 4px rgba(0,0,0,.06)'
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "20",
-    height: "20",
-    viewBox: "0 0 21 21",
-    xmlns: "http://www.w3.org/2000/svg"
-  }, /*#__PURE__*/React.createElement("rect", {
-    x: "1",
-    y: "1",
-    width: "9",
-    height: "9",
-    fill: "#f25022"
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "11",
-    y: "1",
-    width: "9",
-    height: "9",
-    fill: "#7fba00"
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "1",
-    y: "11",
-    width: "9",
-    height: "9",
-    fill: "#00a4ef"
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "11",
-    y: "11",
-    width: "9",
-    height: "9",
-    fill: "#ffb900"
-  })), loading ? 'Redirecting to Microsoft…' : 'Sign in with Microsoft'), /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: 'center',
-      margin: '16px 0',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 10
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      height: 1,
-      background: C.line
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: FM,
-      fontSize: 10,
-      color: C.ink4
-    }
-  }, "Use your @mykarepoint.com account"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      height: 1,
-      background: C.line
-    }
-  }))), showFallback && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("label", {
-    style: lbl
-  }, "Work Email"), /*#__PURE__*/React.createElement("input", {
-    type: "email",
-    value: email,
-    onChange: function onChange(e) {
-      setEmail(e.target.value);
-      setErr('');
-    },
-    placeholder: "you@mykarepoint.com",
-    style: inp,
-    onKeyDown: function onKeyDown(e) {
-      return e.key === 'Enter' && document.getElementById('kp-pw-fb').focus();
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 16
-    }
-  }, /*#__PURE__*/React.createElement("label", {
-    style: lbl
-  }, "Password"), /*#__PURE__*/React.createElement("input", {
-    id: "kp-pw-fb",
-    type: "password",
-    value: pw,
-    onChange: function onChange(e) {
-      setPw(e.target.value);
-      setErr('');
-    },
-    placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
-    style: inp,
-    onKeyDown: function onKeyDown(e) {
-      return e.key === 'Enter' && handlePasswordLogin();
-    }
-  })), err && /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: C.red,
-      marginBottom: 12,
-      padding: '7px 10px',
-      background: C.redTint,
-      borderRadius: 4,
-      border: "1px solid ".concat(C.redLine)
-    }
-  }, err), /*#__PURE__*/React.createElement("button", {
-    onClick: handlePasswordLogin,
-    disabled: loading,
-    style: {
-      width: '100%',
-      padding: '13px',
-      background: loading ? C.paper2 : C.teal,
-      color: loading ? C.ink4 : '#fff',
-      border: 'none',
-      borderRadius: 7,
-      fontSize: 15,
-      fontWeight: 600,
-      cursor: 'pointer',
-      fontFamily: F,
-      marginBottom: 10
-    }
-  }, loading ? 'Signing in…' : 'Sign In'), /*#__PURE__*/React.createElement("button", {
-    onClick: function onClick() {
-      setShowFallback(false);
-      setErr('');
-    },
-    style: {
-      width: '100%',
-      padding: '10px',
-      background: 'none',
-      color: C.ink3,
-      border: "1px solid ".concat(C.line2),
-      borderRadius: 6,
-      fontSize: 13,
-      cursor: 'pointer',
-      fontFamily: F
-    }
-  }, "\u2190 Back to Microsoft Sign In")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 8
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: function onClick() {
-      return setShowDemo(!showDemo);
-    },
-    style: {
-      fontSize: 11,
-      color: C.ink4,
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      fontFamily: F,
-      width: '100%',
-      textAlign: 'center'
-    }
-  }, showDemo ? 'Hide demo' : 'Demo login'), showDemo && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.tealL,
-      border: "1px solid ".concat(C.tealLine),
-      borderRadius: 5,
-      padding: '10px 12px',
-      marginTop: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: FM,
-      fontSize: 8.5,
-      color: C.tealD,
-      letterSpacing: '.08em',
-      marginBottom: 6
-    }
-  }, "DEMO \u2014 click to select"), DEMO_USERS.filter(function (u) {
-    return u.team !== 'pa_ur';
-  }).map(function (u) {
-    return /*#__PURE__*/React.createElement("button", {
-      key: u.id,
-      onClick: function onClick() {
-        setShowFallback(true);
-        setEmail(u.email);
-        setPw('demo2026');
-        setShowDemo(false);
-      },
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        width: '100%',
-        padding: '6px 8px',
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        borderRadius: 4,
-        textAlign: 'left',
-        marginBottom: 2
+    if (suPw.length < 8) { setErr('Password must be at least 8 characters.'); return; }
+    if (suPw !== suPw2) { setErr('Passwords do not match.'); return; }
+    setLoading(true);
+    try {
+      // Create Supabase Auth account
+      var signupRes = await fetch(SB_URL + '/auth/v1/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
+        body: JSON.stringify({
+          email: suEmail.trim().toLowerCase(),
+          password: suPw,
+          data: { full_name: suName.trim() }
+        })
+      });
+      var signupData = await signupRes.json();
+      if (signupData.error) {
+        setErr(signupData.msg || signupData.error_description || 'Sign up failed. Try a different email.');
+        setLoading(false); return;
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: 28,
-        height: 28,
-        borderRadius: '50%',
-        background: C.tealDD,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#fff',
-        fontSize: 11,
-        fontWeight: 600,
-        flexShrink: 0
+      // Immediately sign in to get a token (needed to write users row)
+      var authRes = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
+        body: JSON.stringify({ email: suEmail.trim().toLowerCase(), password: suPw })
+      });
+      var authData = await authRes.json();
+      if (authData.access_token) {
+        // Create pending users row with real Auth UUID
+        var newUser = {
+          id: authData.user.id,
+          full_name: suName.trim(),
+          email: suEmail.trim().toLowerCase(),
+          role: 'vob_agent', team: 'vob', trust_tier: 1, status: 'pending'
+        };
+        await fetch(SB_URL + '/rest/v1/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + authData.access_token, Prefer: 'return=minimal' },
+          body: JSON.stringify(newUser)
+        });
       }
-    }, u.name.split(' ').map(function (n) {
-      return n[0];
-    }).join('').slice(0, 2)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 13,
-        fontWeight: 600,
-        color: C.ink
-      }
-    }, u.name), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: FM,
-        fontSize: 10,
-        color: C.ink3
-      }
-    }, u.role, " \xB7 T", u.tier || 3)));
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: FM,
-      fontSize: 10,
-      color: C.ink4,
-      marginTop: 6,
-      textAlign: 'center'
+      setMsg('Account created! A manager will approve your access shortly. You can sign in once approved.');
+      setActiveTab('signin');
+      setEmail(suEmail.trim().toLowerCase());
+    } catch(e) {
+      setErr('Connection error. Check your internet and try again.');
     }
-  }, "Password: demo2026"))), !showFallback && /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: 'center',
-      marginTop: 10
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: function onClick() {
-      return setShowFallback(true);
-    },
-    style: {
-      fontSize: 11,
-      color: C.ink4,
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      fontFamily: F
-    }
-  }, "Sign in with password instead")))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: 'center',
-      marginTop: 12,
-      fontFamily: FM,
-      fontSize: 9,
-      color: C.ink4,
-      letterSpacing: '.06em'
-    }
-  }, "\uD83D\uDD12 For authorized Karepoint team members only")), /*#__PURE__*/React.createElement("style", null, "\n        @font-face{font-family:'Mokoto';src:url('/assets/fonts/mokoto_regular.ttf') format('truetype');}\n        @keyframes spin{to{transform:rotate(360deg)}}\n      "));
+    setLoading(false);
+  };
+
+  var demoLogin = function(u) {
+    onLogin({ ...u, token: 'demo' });
+  };
+
+  var inp2 = { width: '100%', padding: '11px 12px', border: '1.5px solid rgba(15,31,35,.18)', borderRadius: 6, fontSize: 15, outline: 'none', background: '#fff', boxSizing: 'border-box' };
+  var lbl2 = { display: 'block', fontSize: 12, fontWeight: 600, color: '#5A7880', marginBottom: 5, letterSpacing: '.02em' };
+
+  return React.createElement('div', {
+    style: { minHeight: '100vh', background: '#F4F7F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Inter",-apple-system,sans-serif' }
+  },
+    React.createElement('div', { style: { width: '100%', maxWidth: 420, padding: 20 } },
+
+      // Logo
+      React.createElement('div', { style: { textAlign: 'center', marginBottom: 24 } },
+        React.createElement('img', { src: '/assets/logo/KAREPOINT-logo-only.svg', width: 40, height: 40, alt: '', style: { margin: '0 auto 10px' } }),
+        React.createElement('div', { style: { fontFamily: "'Mokoto',sans-serif", fontSize: 24, color: '#0F1F23', letterSpacing: '.04em' } }, 'KAREPOINT'),
+        React.createElement('div', { style: { fontSize: 10.5, color: '#5A7880', letterSpacing: '.18em', textTransform: 'uppercase', marginTop: 4, fontFamily: '"IBM Plex Mono",monospace' } }, 'Internal Operations')
+      ),
+
+      // Card
+      React.createElement('div', { style: { background: '#fff', border: '1px solid rgba(15,31,35,.09)', borderRadius: 10, overflow: 'hidden', boxShadow: '0 4px 24px rgba(15,31,35,.08)' } },
+
+        // Header bar
+        React.createElement('div', { style: { background: '#1C3B42', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 7 } },
+          React.createElement('div', { style: { color: 'rgba(232,240,241,.5)', fontSize: 14 } }, '🔒'),
+          React.createElement('span', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 9, letterSpacing: '.14em', color: 'rgba(232,240,241,.7)', textTransform: 'uppercase' } }, 'Secure Sign In — @mykarepoint.com only')
+        ),
+
+        // Tabs
+        React.createElement('div', { style: { display: 'flex', borderBottom: '1px solid rgba(15,31,35,.09)' } },
+          React.createElement('button', {
+            onClick: function() { setActiveTab('signin'); setErr(''); setMsg(''); },
+            style: { flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: activeTab === 'signin' ? '3px solid #377985' : '3px solid transparent', cursor: 'pointer', fontSize: 14, fontWeight: activeTab === 'signin' ? 700 : 400, color: activeTab === 'signin' ? '#377985' : '#5A7880', fontFamily: 'inherit' }
+          }, 'Sign In'),
+          React.createElement('button', {
+            onClick: function() { setActiveTab('signup'); setErr(''); setMsg(''); },
+            style: { flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: activeTab === 'signup' ? '3px solid #377985' : '3px solid transparent', cursor: 'pointer', fontSize: 14, fontWeight: activeTab === 'signup' ? 700 : 400, color: activeTab === 'signup' ? '#377985' : '#5A7880', fontFamily: 'inherit' }
+          }, 'Sign Up')
+        ),
+
+        React.createElement('div', { style: { padding: '20px' } },
+
+          // Success message
+          msg && React.createElement('div', { style: { background: 'rgba(26,140,82,.08)', border: '1px solid rgba(26,140,82,.22)', borderRadius: 5, padding: '10px 12px', fontSize: 13, color: '#1A8C52', marginBottom: 14 } }, msg),
+
+          // Error message
+          err && React.createElement('div', { style: { background: 'rgba(184,48,37,.07)', border: '1px solid rgba(184,48,37,.22)', borderRadius: 5, padding: '10px 12px', fontSize: 13, color: '#B83025', marginBottom: 14 } }, err),
+
+          // SIGN IN TAB
+          activeTab === 'signin' && React.createElement('div', null,
+            React.createElement('div', { style: { marginBottom: 12 } },
+              React.createElement('label', { style: lbl2 }, 'Work Email'),
+              React.createElement('input', {
+                type: 'email', value: email,
+                onChange: function(e) { setEmail(e.target.value); setErr(''); },
+                placeholder: 'you@mykarepoint.com', style: inp2,
+                onKeyDown: function(e) { if (e.key === 'Enter') document.getElementById('kp-pw-main').focus(); }
+              })
+            ),
+            React.createElement('div', { style: { marginBottom: 16 } },
+              React.createElement('label', { style: lbl2 }, 'Password'),
+              React.createElement('input', {
+                id: 'kp-pw-main', type: 'password', value: pw,
+                onChange: function(e) { setPw(e.target.value); setErr(''); },
+                placeholder: '••••••••', style: inp2,
+                onKeyDown: function(e) { if (e.key === 'Enter') signIn(); }
+              })
+            ),
+            React.createElement('button', {
+              onClick: signIn, disabled: loading,
+              style: { width: '100%', padding: '13px', background: loading ? '#E8F0F2' : '#377985', color: loading ? '#8BAAB0' : '#fff', border: 'none', borderRadius: 7, fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit', marginBottom: 12 }
+            }, loading ? 'Signing in…' : 'Sign In'),
+
+            // Microsoft SSO as secondary option
+            React.createElement('button', {
+              onClick: function() {
+                var redirectTo = encodeURIComponent('https://mykarepoint.com/kp');
+                window.location.href = 'https://qjtudgtbiizoicuqexml.supabase.co/auth/v1/authorize?provider=azure&redirect_to=' + redirectTo;
+              },
+              style: { width: '100%', padding: '11px', background: '#fff', border: '1.5px solid rgba(15,31,35,.18)', borderRadius: 7, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#0F1F23', marginBottom: 10 }
+            },
+              React.createElement('svg', { width: 18, height: 18, viewBox: '0 0 21 21' },
+                React.createElement('rect', { x: 1, y: 1, width: 9, height: 9, fill: '#f25022' }),
+                React.createElement('rect', { x: 11, y: 1, width: 9, height: 9, fill: '#7fba00' }),
+                React.createElement('rect', { x: 1, y: 11, width: 9, height: 9, fill: '#00a4ef' }),
+                React.createElement('rect', { x: 11, y: 11, width: 9, height: 9, fill: '#ffb900' })
+              ),
+              'Sign in with Microsoft instead'
+            ),
+
+            // Demo panel
+            React.createElement('div', { style: { textAlign: 'center' } },
+              React.createElement('button', {
+                onClick: function() { setShowDemo(!showDemo); },
+                style: { fontSize: 11, color: '#8BAAB0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }
+              }, showDemo ? 'Hide demo' : 'Demo login'),
+              showDemo && React.createElement('div', { style: { background: 'rgba(55,121,133,.09)', border: '1px solid rgba(55,121,133,.22)', borderRadius: 5, padding: '10px 12px', marginTop: 8 } },
+                React.createElement('div', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 8.5, color: '#2C5A63', letterSpacing: '.08em', marginBottom: 6 } }, 'DEMO — click to sign in'),
+                DEMO_USERS.filter(function(u) { return u.team !== 'pa_ur'; }).map(function(u) {
+                  return React.createElement('button', {
+                    key: u.id, onClick: function() { demoLogin(u); },
+                    style: { display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '6px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: 4, textAlign: 'left', marginBottom: 2 }
+                  },
+                    React.createElement('div', { style: { width: 28, height: 28, borderRadius: '50%', background: '#1C3B42', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 600, flexShrink: 0 } },
+                      u.name.split(' ').map(function(n) { return n[0]; }).join('').slice(0, 2)
+                    ),
+                    React.createElement('div', null,
+                      React.createElement('div', { style: { fontSize: 13, fontWeight: 600, color: '#0F1F23' } }, u.name),
+                      React.createElement('div', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, color: '#5A7880' } }, u.role + ' · T' + (u.tier || 3))
+                    )
+                  );
+                }),
+                React.createElement('div', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, color: '#8BAAB0', marginTop: 6, textAlign: 'center' } }, 'Password: demo2026')
+              )
+            )
+          ),
+
+          // SIGN UP TAB
+          activeTab === 'signup' && React.createElement('div', null,
+            React.createElement('div', { style: { marginBottom: 12 } },
+              React.createElement('label', { style: lbl2 }, 'Full Name'),
+              React.createElement('input', {
+                type: 'text', value: suName,
+                onChange: function(e) { setSuName(e.target.value); setErr(''); },
+                placeholder: 'Your full name', style: inp2
+              })
+            ),
+            React.createElement('div', { style: { marginBottom: 12 } },
+              React.createElement('label', { style: lbl2 }, 'Work Email'),
+              React.createElement('input', {
+                type: 'email', value: suEmail,
+                onChange: function(e) { setSuEmail(e.target.value); setErr(''); },
+                placeholder: 'you@mykarepoint.com', style: inp2
+              })
+            ),
+            React.createElement('div', { style: { marginBottom: 12 } },
+              React.createElement('label', { style: lbl2 }, 'Password'),
+              React.createElement('input', {
+                type: 'password', value: suPw,
+                onChange: function(e) { setSuPw(e.target.value); setErr(''); },
+                placeholder: 'Min. 8 characters', style: inp2
+              })
+            ),
+            React.createElement('div', { style: { marginBottom: 16 } },
+              React.createElement('label', { style: lbl2 }, 'Confirm Password'),
+              React.createElement('input', {
+                type: 'password', value: suPw2,
+                onChange: function(e) { setSuPw2(e.target.value); setErr(''); },
+                placeholder: 'Repeat password', style: inp2,
+                onKeyDown: function(e) { if (e.key === 'Enter') signUp(); }
+              })
+            ),
+            React.createElement('div', { style: { background: 'rgba(55,121,133,.09)', border: '1px solid rgba(55,121,133,.22)', borderRadius: 5, padding: '9px 12px', fontSize: 12.5, color: '#2C5A63', marginBottom: 14 } },
+              'After sign up, a manager will approve your account before you can log in. You will be notified.'
+            ),
+            React.createElement('button', {
+              onClick: signUp, disabled: loading,
+              style: { width: '100%', padding: '13px', background: loading ? '#E8F0F2' : '#377985', color: loading ? '#8BAAB0' : '#fff', border: 'none', borderRadius: 7, fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit' }
+            }, loading ? 'Creating account…' : 'Request Access')
+          )
+        )
+      ),
+
+      React.createElement('div', { style: { textAlign: 'center', marginTop: 12, fontFamily: '"IBM Plex Mono",monospace', fontSize: 9, color: '#8BAAB0', letterSpacing: '.06em' } }, '🔒 For authorized Karepoint team members only')
+    )
+  );
 }
 
 // ─── New VOB Modal ────────────────────────────────────────────────
