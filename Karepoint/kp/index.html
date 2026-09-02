@@ -5118,9 +5118,19 @@ function FormBuilderPage() {
             return _context17.a(2);
           case 1:
             setSaving(true);
-            row = _objectSpread(_objectSpread({}, locDraft), {}, {
-              updated_at: new Date().toISOString()
-            });
+            // Build row with ONLY columns that exist in loc_schema (no updated_at)
+            row = {
+              loc_label: locDraft.loc_label,
+              cpt_codes: locDraft.cpt_codes || '',
+              visible: locDraft.visible !== false,
+              loc_order: locDraft.loc_order || locSchema.length + 1,
+              col_covered_type: locDraft.col_covered_type || 'text',
+              col_covered_options: locDraft.col_covered_options || '',
+              col_auth_type: locDraft.col_auth_type || 'text',
+              col_auth_options: locDraft.col_auth_options || '',
+              col_accred_type: locDraft.col_accred_type || 'text',
+              col_accred_options: locDraft.col_accred_options || '',
+            };
             if (!(editingLoc === 'new')) {
               _context17.n = 3;
               break;
