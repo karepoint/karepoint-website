@@ -9346,47 +9346,66 @@ var AZURE_TENANT_ID = 'b5040ccc-ba91-40dd-ac91-82a3f166f9cc';
 function Login(_ref39) {
   var onLogin = _ref39.onLogin;
 
-  var _useState_tab = React.useState('signin'),
-      activeTab = _useState_tab[0], setActiveTab = _useState_tab[1];
-
-  // Sign in state
-  var _useState_email = React.useState(''),
-      email = _useState_email[0], setEmail = _useState_email[1];
-  var _useState_pw = React.useState(''),
-      pw = _useState_pw[0], setPw = _useState_pw[1];
-
-  // Sign up state
-  var _useState_suName = React.useState(''),
-      suName = _useState_suName[0], setSuName = _useState_suName[1];
-  var _useState_suEmail = React.useState(''),
-      suEmail = _useState_suEmail[0], setSuEmail = _useState_suEmail[1];
-  var _useState_suPw = React.useState(''),
-      suPw = _useState_suPw[0], setSuPw = _useState_suPw[1];
-  var _useState_suPw2 = React.useState(''),
-      suPw2 = _useState_suPw2[0], setSuPw2 = _useState_suPw2[1];
-
-  var _useState_err = React.useState(''),
-      err = _useState_err[0], setErr = _useState_err[1];
-  var _useState_msg = React.useState(''),
-      msg = _useState_msg[0], setMsg = _useState_msg[1];
-  var _useState_loading = React.useState(false),
-      loading = _useState_loading[0], setLoading = _useState_loading[1];
-  var _useState_showDemo = React.useState(false),
-      showDemo = _useState_showDemo[0], setShowDemo = _useState_showDemo[1];
-
   var SB_URL = 'https://qjtudgtbiizoicuqexml.supabase.co';
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0';
 
+  // Check URL for recovery token on mount
+  var urlParams = new URLSearchParams(window.location.search);
+  var recoveryToken = urlParams.get('token');
+  var recoveryType = urlParams.get('type');
+  var isRecovery = recoveryType === 'recovery' && !!recoveryToken;
+
+  var _tab = React.useState(isRecovery ? 'reset' : 'signin');
+  var activeTab = _tab[0], setActiveTab = _tab[1];
+
+  // Sign in state
+  var _se = React.useState(''); var email = _se[0], setEmail = _se[1];
+  var _sp = React.useState(''); var pw = _sp[0], setPw = _sp[1];
+
+  // Sign up state
+  var _sun = React.useState(''); var suName = _sun[0], setSuName = _sun[1];
+  var _sue = React.useState(''); var suEmail = _sue[0], setSuEmail = _sue[1];
+  var _sup = React.useState(''); var suPw = _sup[0], setSuPw = _sup[1];
+  var _sup2 = React.useState(''); var suPw2 = _sup2[0], setSuPw2 = _sup2[1];
+
+  // Forgot password state
+  var _fe = React.useState(''); var forgotEmail = _fe[0], setForgotEmail = _fe[1];
+
+  // Reset password state
+  var _rp = React.useState(''); var resetPw = _rp[0], setResetPw = _rp[1];
+  var _rp2 = React.useState(''); var resetPw2 = _rp2[0], setResetPw2 = _rp2[1];
+  var _rtoken = React.useState(recoveryToken || ''); var resetToken = _rtoken[0], setResetToken = _rtoken[1];
+
+  var _err = React.useState(''); var err = _err[0], setErr = _err[1];
+  var _msg = React.useState(''); var msg = _msg[0], setMsg = _msg[1];
+  var _loading = React.useState(false); var loading = _loading[0], setLoading = _loading[1];
+  var _demo = React.useState(false); var showDemo = _demo[0], setShowDemo = _demo[1];
+
+  // Clean recovery params from URL on mount
+  React.useEffect(function() {
+    if (isRecovery) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
+
+  var inp2 = { width: '100%', padding: '11px 12px', border: '1.5px solid rgba(15,31,35,.18)', borderRadius: 6, fontSize: 15, outline: 'none', background: '#fff', boxSizing: 'border-box' };
+  var lbl2 = { display: 'block', fontSize: 12, fontWeight: 600, color: '#5A7880', marginBottom: 5, letterSpacing: '.02em' };
+  var field = function(labelText, inputEl) {
+    return React.createElement('div', { style: { marginBottom: 12 } },
+      React.createElement('label', { style: lbl2 }, labelText),
+      inputEl
+    );
+  };
+
+  // ── Sign In ──────────────────────────────────────────────────────
   var signIn = async function() {
     setErr(''); setMsg('');
     if (!email || !pw) { setErr('Enter your email and password.'); return; }
     if (!email.toLowerCase().endsWith('@mykarepoint.com')) {
-      setErr('Only @mykarepoint.com email addresses are allowed.');
-      return;
+      setErr('Only @mykarepoint.com email addresses are allowed.'); return;
     }
     setLoading(true);
     try {
-      // Supabase Auth sign in
       var authRes = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
@@ -9397,7 +9416,6 @@ function Login(_ref39) {
         setErr(authData.error_description || 'Invalid email or password.');
         setLoading(false); return;
       }
-      // Look up user record
       var token = authData.access_token;
       var userRes = await fetch(SB_URL + '/rest/v1/users?email=ilike.' + encodeURIComponent(email.trim().toLowerCase()) + '&limit=1', {
         headers: { apikey: SB_KEY, Authorization: 'Bearer ' + token }
@@ -9411,53 +9429,33 @@ function Login(_ref39) {
         }
         onLogin({ ...u, name: u.full_name || u.name, tier: u.trust_tier || 1, token, sso: false });
       } else {
-        // Auth account exists but no users row yet — create pending
-        var newUser = {
-          id: authData.user.id,
-          full_name: authData.user.user_metadata?.full_name || email.split('@')[0],
-          email: email.trim().toLowerCase(),
-          role: 'vob_agent', team: 'vob', trust_tier: 1, status: 'pending'
-        };
-        await fetch(SB_URL + '/rest/v1/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + token, Prefer: 'return=minimal' },
-          body: JSON.stringify(newUser)
-        });
+        var newUser = { id: authData.user.id, full_name: authData.user.user_metadata?.full_name || email.split('@')[0], email: email.trim().toLowerCase(), role: 'vob_agent', team: 'vob', trust_tier: 1, status: 'pending' };
+        await fetch(SB_URL + '/rest/v1/users', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + token, Prefer: 'return=minimal' }, body: JSON.stringify(newUser) });
         setErr('Your account is pending approval. Contact suvraneelm@mykarepoint.com.');
       }
-    } catch(e) {
-      setErr('Connection error. Check your internet and try again.');
-    }
+    } catch(e) { setErr('Connection error. Try again.'); }
     setLoading(false);
   };
 
+  // ── Sign Up ──────────────────────────────────────────────────────
   var signUp = async function() {
     setErr(''); setMsg('');
     if (!suName.trim()) { setErr('Enter your full name.'); return; }
-    if (!suEmail.toLowerCase().endsWith('@mykarepoint.com')) {
-      setErr('Only @mykarepoint.com email addresses can sign up.');
-      return;
-    }
+    if (!suEmail.toLowerCase().endsWith('@mykarepoint.com')) { setErr('Only @mykarepoint.com addresses can sign up.'); return; }
     if (suPw.length < 8) { setErr('Password must be at least 8 characters.'); return; }
     if (suPw !== suPw2) { setErr('Passwords do not match.'); return; }
     setLoading(true);
     try {
-      // Create Supabase Auth account
       var signupRes = await fetch(SB_URL + '/auth/v1/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
-        body: JSON.stringify({
-          email: suEmail.trim().toLowerCase(),
-          password: suPw,
-          data: { full_name: suName.trim() }
-        })
+        body: JSON.stringify({ email: suEmail.trim().toLowerCase(), password: suPw, data: { full_name: suName.trim() } })
       });
       var signupData = await signupRes.json();
-      if (signupData.error) {
-        setErr(signupData.msg || signupData.error_description || 'Sign up failed. Try a different email.');
+      if (signupData.error || signupData.code) {
+        setErr(signupData.msg || signupData.error_description || 'Sign up failed. Email may already be registered.');
         setLoading(false); return;
       }
-      // Immediately sign in to get a token (needed to write users row)
       var authRes = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
@@ -9465,34 +9463,94 @@ function Login(_ref39) {
       });
       var authData = await authRes.json();
       if (authData.access_token) {
-        // Create pending users row with real Auth UUID
-        var newUser = {
-          id: authData.user.id,
-          full_name: suName.trim(),
-          email: suEmail.trim().toLowerCase(),
-          role: 'vob_agent', team: 'vob', trust_tier: 1, status: 'pending'
-        };
-        await fetch(SB_URL + '/rest/v1/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + authData.access_token, Prefer: 'return=minimal' },
-          body: JSON.stringify(newUser)
-        });
+        var newUser = { id: authData.user.id, full_name: suName.trim(), email: suEmail.trim().toLowerCase(), role: 'vob_agent', team: 'vob', trust_tier: 1, status: 'pending' };
+        await fetch(SB_URL + '/rest/v1/users', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + authData.access_token, Prefer: 'return=minimal' }, body: JSON.stringify(newUser) });
       }
-      setMsg('Account created! A manager will approve your access shortly. You can sign in once approved.');
+      setMsg('Account created! A manager will approve your access. Once approved, you can sign in.');
       setActiveTab('signin');
       setEmail(suEmail.trim().toLowerCase());
-    } catch(e) {
-      setErr('Connection error. Check your internet and try again.');
-    }
+    } catch(e) { setErr('Connection error. Try again.'); }
     setLoading(false);
   };
 
-  var demoLogin = function(u) {
-    onLogin({ ...u, token: 'demo' });
+  // ── Forgot Password ───────────────────────────────────────────────
+  var sendReset = async function() {
+    setErr(''); setMsg('');
+    if (!forgotEmail.toLowerCase().endsWith('@mykarepoint.com')) { setErr('Enter your @mykarepoint.com email.'); return; }
+    setLoading(true);
+    try {
+      await fetch(SB_URL + '/auth/v1/recover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() })
+      });
+      setMsg('Reset link sent to ' + forgotEmail.trim().toLowerCase() + '. Check your inbox (and spam folder).');
+    } catch(e) { setErr('Connection error. Try again.'); }
+    setLoading(false);
   };
 
-  var inp2 = { width: '100%', padding: '11px 12px', border: '1.5px solid rgba(15,31,35,.18)', borderRadius: 6, fontSize: 15, outline: 'none', background: '#fff', boxSizing: 'border-box' };
-  var lbl2 = { display: 'block', fontSize: 12, fontWeight: 600, color: '#5A7880', marginBottom: 5, letterSpacing: '.02em' };
+  // ── Reset Password (from email link) ─────────────────────────────
+  var setNewPassword = async function() {
+    setErr(''); setMsg('');
+    if (resetPw.length < 8) { setErr('Password must be at least 8 characters.'); return; }
+    if (resetPw !== resetPw2) { setErr('Passwords do not match.'); return; }
+    setLoading(true);
+    try {
+      // Exchange recovery token for a session first
+      var verifyRes = await fetch(SB_URL + '/auth/v1/token?grant_type=recovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
+        body: JSON.stringify({ token: resetToken })
+      });
+      var verifyData = await verifyRes.json();
+      if (!verifyData.access_token) {
+        setErr('This reset link has expired. Request a new one.');
+        setLoading(false); return;
+      }
+      // Update password using the session token
+      var updateRes = await fetch(SB_URL + '/auth/v1/user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + verifyData.access_token },
+        body: JSON.stringify({ password: resetPw })
+      });
+      var updateData = await updateRes.json();
+      if (updateData.error) {
+        setErr(updateData.error_description || 'Failed to update password. Try again.');
+        setLoading(false); return;
+      }
+      setMsg('Password updated! Signing you in…');
+      setResetPw(''); setResetPw2('');
+      // Auto sign in with new credentials
+      setTimeout(async function() {
+        var email = verifyData.user?.email || '';
+        var authRes = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
+          body: JSON.stringify({ email: email, password: resetPw })
+        });
+        var authData = await authRes.json();
+        if (authData.access_token) {
+          var userRes = await fetch(SB_URL + '/rest/v1/users?email=ilike.' + encodeURIComponent(email) + '&limit=1', { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + authData.access_token } });
+          var rows = await userRes.json();
+          if (rows && rows.length > 0) {
+            var u = rows[0];
+            onLogin({ ...u, name: u.full_name || u.name, tier: u.trust_tier || 1, token: authData.access_token, sso: false });
+          } else {
+            setActiveTab('signin');
+          }
+        } else {
+          setActiveTab('signin');
+        }
+      }, 1200);
+    } catch(e) { setErr('Connection error. Try again.'); }
+    setLoading(false);
+  };
+
+  var tabs = [
+    { id: 'signin', label: 'Sign In' },
+    { id: 'signup', label: 'Sign Up' },
+    { id: 'forgot', label: 'Forgot Password' },
+  ];
 
   return React.createElement('div', {
     style: { minHeight: '100vh', background: '#F4F7F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Inter",-apple-system,sans-serif' }
@@ -9509,143 +9567,91 @@ function Login(_ref39) {
       // Card
       React.createElement('div', { style: { background: '#fff', border: '1px solid rgba(15,31,35,.09)', borderRadius: 10, overflow: 'hidden', boxShadow: '0 4px 24px rgba(15,31,35,.08)' } },
 
-        // Header bar
-        React.createElement('div', { style: { background: '#1C3B42', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 7 } },
-          React.createElement('div', { style: { color: 'rgba(232,240,241,.5)', fontSize: 14 } }, '🔒'),
-          React.createElement('span', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 9, letterSpacing: '.14em', color: 'rgba(232,240,241,.7)', textTransform: 'uppercase' } }, 'Secure Sign In — @mykarepoint.com only')
+        // Header
+        React.createElement('div', { style: { background: '#1C3B42', padding: '12px 20px' } },
+          React.createElement('span', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 9, letterSpacing: '.14em', color: 'rgba(232,240,241,.7)', textTransform: 'uppercase' } },
+            activeTab === 'reset' ? '🔑 Set New Password' : '🔒 Secure Sign In — @mykarepoint.com only'
+          )
         ),
 
-        // Tabs
-        React.createElement('div', { style: { display: 'flex', borderBottom: '1px solid rgba(15,31,35,.09)' } },
-          React.createElement('button', {
-            onClick: function() { setActiveTab('signin'); setErr(''); setMsg(''); },
-            style: { flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: activeTab === 'signin' ? '3px solid #377985' : '3px solid transparent', cursor: 'pointer', fontSize: 14, fontWeight: activeTab === 'signin' ? 700 : 400, color: activeTab === 'signin' ? '#377985' : '#5A7880', fontFamily: 'inherit' }
-          }, 'Sign In'),
-          React.createElement('button', {
-            onClick: function() { setActiveTab('signup'); setErr(''); setMsg(''); },
-            style: { flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: activeTab === 'signup' ? '3px solid #377985' : '3px solid transparent', cursor: 'pointer', fontSize: 14, fontWeight: activeTab === 'signup' ? 700 : 400, color: activeTab === 'signup' ? '#377985' : '#5A7880', fontFamily: 'inherit' }
-          }, 'Sign Up')
+        // Tabs (hidden on reset tab)
+        activeTab !== 'reset' && React.createElement('div', { style: { display: 'flex', borderBottom: '1px solid rgba(15,31,35,.09)' } },
+          tabs.map(function(t) {
+            return React.createElement('button', {
+              key: t.id,
+              onClick: function() { setActiveTab(t.id); setErr(''); setMsg(''); },
+              style: { flex: 1, padding: '11px 6px', background: 'none', border: 'none', borderBottom: activeTab === t.id ? '3px solid #377985' : '3px solid transparent', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 400, color: activeTab === t.id ? '#377985' : '#5A7880', fontFamily: 'inherit' }
+            }, t.label);
+          })
         ),
 
         React.createElement('div', { style: { padding: '20px' } },
 
-          // Success message
+          // Messages
           msg && React.createElement('div', { style: { background: 'rgba(26,140,82,.08)', border: '1px solid rgba(26,140,82,.22)', borderRadius: 5, padding: '10px 12px', fontSize: 13, color: '#1A8C52', marginBottom: 14 } }, msg),
-
-          // Error message
           err && React.createElement('div', { style: { background: 'rgba(184,48,37,.07)', border: '1px solid rgba(184,48,37,.22)', borderRadius: 5, padding: '10px 12px', fontSize: 13, color: '#B83025', marginBottom: 14 } }, err),
 
-          // SIGN IN TAB
+          // ── SIGN IN ──
           activeTab === 'signin' && React.createElement('div', null,
-            React.createElement('div', { style: { marginBottom: 12 } },
-              React.createElement('label', { style: lbl2 }, 'Work Email'),
-              React.createElement('input', {
-                type: 'email', value: email,
-                onChange: function(e) { setEmail(e.target.value); setErr(''); },
-                placeholder: 'you@mykarepoint.com', style: inp2,
-                onKeyDown: function(e) { if (e.key === 'Enter') document.getElementById('kp-pw-main').focus(); }
-              })
+            field('Work Email', React.createElement('input', { type: 'email', value: email, onChange: function(e){setEmail(e.target.value);setErr('');}, placeholder: 'you@mykarepoint.com', style: inp2, onKeyDown: function(e){if(e.key==='Enter')document.getElementById('kp-pw-si').focus();} })),
+            field('Password', React.createElement('input', { id: 'kp-pw-si', type: 'password', value: pw, onChange: function(e){setPw(e.target.value);setErr('');}, placeholder: '••••••••', style: inp2, onKeyDown: function(e){if(e.key==='Enter')signIn();} })),
+            React.createElement('button', { onClick: signIn, disabled: loading, style: { width: '100%', padding: '13px', background: loading ? '#E8F0F2' : '#377985', color: loading ? '#8BAAB0' : '#fff', border: 'none', borderRadius: 7, fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit', marginBottom: 10 } }, loading ? 'Signing in…' : 'Sign In'),
+            React.createElement('div', { style: { textAlign: 'center', marginBottom: 10 } },
+              React.createElement('button', { onClick: function(){setActiveTab('forgot');setErr('');setMsg('');}, style: { fontSize: 12, color: '#377985', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' } }, 'Forgot password?')
             ),
-            React.createElement('div', { style: { marginBottom: 16 } },
-              React.createElement('label', { style: lbl2 }, 'Password'),
-              React.createElement('input', {
-                id: 'kp-pw-main', type: 'password', value: pw,
-                onChange: function(e) { setPw(e.target.value); setErr(''); },
-                placeholder: '••••••••', style: inp2,
-                onKeyDown: function(e) { if (e.key === 'Enter') signIn(); }
-              })
-            ),
-            React.createElement('button', {
-              onClick: signIn, disabled: loading,
-              style: { width: '100%', padding: '13px', background: loading ? '#E8F0F2' : '#377985', color: loading ? '#8BAAB0' : '#fff', border: 'none', borderRadius: 7, fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit', marginBottom: 12 }
-            }, loading ? 'Signing in…' : 'Sign In'),
-
-            // Microsoft SSO as secondary option
-            React.createElement('button', {
-              onClick: function() {
-                var redirectTo = encodeURIComponent('https://mykarepoint.com/kp');
-                window.location.href = 'https://qjtudgtbiizoicuqexml.supabase.co/auth/v1/authorize?provider=azure&redirect_to=' + redirectTo;
-              },
-              style: { width: '100%', padding: '11px', background: '#fff', border: '1.5px solid rgba(15,31,35,.18)', borderRadius: 7, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#0F1F23', marginBottom: 10 }
-            },
-              React.createElement('svg', { width: 18, height: 18, viewBox: '0 0 21 21' },
+            React.createElement('button', { onClick: function(){ var r=encodeURIComponent('https://mykarepoint.com/kp'); window.location.href='https://qjtudgtbiizoicuqexml.supabase.co/auth/v1/authorize?provider=azure&redirect_to='+r; }, style: { width: '100%', padding: '11px', background: '#fff', border: '1.5px solid rgba(15,31,35,.18)', borderRadius: 7, fontSize: 13.5, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#0F1F23', marginBottom: 12 } },
+              React.createElement('svg', { width: 17, height: 17, viewBox: '0 0 21 21' },
                 React.createElement('rect', { x: 1, y: 1, width: 9, height: 9, fill: '#f25022' }),
                 React.createElement('rect', { x: 11, y: 1, width: 9, height: 9, fill: '#7fba00' }),
                 React.createElement('rect', { x: 1, y: 11, width: 9, height: 9, fill: '#00a4ef' }),
                 React.createElement('rect', { x: 11, y: 11, width: 9, height: 9, fill: '#ffb900' })
               ),
-              'Sign in with Microsoft instead'
+              'Sign in with Microsoft'
             ),
-
-            // Demo panel
             React.createElement('div', { style: { textAlign: 'center' } },
-              React.createElement('button', {
-                onClick: function() { setShowDemo(!showDemo); },
-                style: { fontSize: 11, color: '#8BAAB0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }
-              }, showDemo ? 'Hide demo' : 'Demo login'),
+              React.createElement('button', { onClick: function(){setShowDemo(!showDemo);}, style: { fontSize: 11, color: '#8BAAB0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' } }, showDemo ? 'Hide demo' : 'Demo login'),
               showDemo && React.createElement('div', { style: { background: 'rgba(55,121,133,.09)', border: '1px solid rgba(55,121,133,.22)', borderRadius: 5, padding: '10px 12px', marginTop: 8 } },
                 React.createElement('div', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 8.5, color: '#2C5A63', letterSpacing: '.08em', marginBottom: 6 } }, 'DEMO — click to sign in'),
-                DEMO_USERS.filter(function(u) { return u.team !== 'pa_ur'; }).map(function(u) {
-                  return React.createElement('button', {
-                    key: u.id, onClick: function() { demoLogin(u); },
-                    style: { display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '6px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: 4, textAlign: 'left', marginBottom: 2 }
-                  },
-                    React.createElement('div', { style: { width: 28, height: 28, borderRadius: '50%', background: '#1C3B42', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 600, flexShrink: 0 } },
-                      u.name.split(' ').map(function(n) { return n[0]; }).join('').slice(0, 2)
-                    ),
+                DEMO_USERS.filter(function(u){return u.team!=='pa_ur';}).map(function(u){
+                  return React.createElement('button', { key: u.id, onClick: function(){onLogin({...u,token:'demo'});}, style: { display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '6px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: 4, textAlign: 'left', marginBottom: 2 } },
+                    React.createElement('div', { style: { width: 28, height: 28, borderRadius: '50%', background: '#1C3B42', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 600, flexShrink: 0 } }, u.name.split(' ').map(function(n){return n[0];}).join('').slice(0,2)),
                     React.createElement('div', null,
                       React.createElement('div', { style: { fontSize: 13, fontWeight: 600, color: '#0F1F23' } }, u.name),
-                      React.createElement('div', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, color: '#5A7880' } }, u.role + ' · T' + (u.tier || 3))
+                      React.createElement('div', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, color: '#5A7880' } }, u.role + ' · T' + (u.tier||3))
                     )
                   );
                 }),
-                React.createElement('div', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, color: '#8BAAB0', marginTop: 6, textAlign: 'center' } }, 'Password: demo2026')
+                React.createElement('div', { style: { fontFamily: '"IBM Plex Mono",monospace', fontSize: 10, color: '#8BAAB0', marginTop: 6 } }, 'Password: demo2026')
               )
             )
           ),
 
-          // SIGN UP TAB
+          // ── SIGN UP ──
           activeTab === 'signup' && React.createElement('div', null,
-            React.createElement('div', { style: { marginBottom: 12 } },
-              React.createElement('label', { style: lbl2 }, 'Full Name'),
-              React.createElement('input', {
-                type: 'text', value: suName,
-                onChange: function(e) { setSuName(e.target.value); setErr(''); },
-                placeholder: 'Your full name', style: inp2
-              })
-            ),
-            React.createElement('div', { style: { marginBottom: 12 } },
-              React.createElement('label', { style: lbl2 }, 'Work Email'),
-              React.createElement('input', {
-                type: 'email', value: suEmail,
-                onChange: function(e) { setSuEmail(e.target.value); setErr(''); },
-                placeholder: 'you@mykarepoint.com', style: inp2
-              })
-            ),
-            React.createElement('div', { style: { marginBottom: 12 } },
-              React.createElement('label', { style: lbl2 }, 'Password'),
-              React.createElement('input', {
-                type: 'password', value: suPw,
-                onChange: function(e) { setSuPw(e.target.value); setErr(''); },
-                placeholder: 'Min. 8 characters', style: inp2
-              })
-            ),
-            React.createElement('div', { style: { marginBottom: 16 } },
-              React.createElement('label', { style: lbl2 }, 'Confirm Password'),
-              React.createElement('input', {
-                type: 'password', value: suPw2,
-                onChange: function(e) { setSuPw2(e.target.value); setErr(''); },
-                placeholder: 'Repeat password', style: inp2,
-                onKeyDown: function(e) { if (e.key === 'Enter') signUp(); }
-              })
-            ),
-            React.createElement('div', { style: { background: 'rgba(55,121,133,.09)', border: '1px solid rgba(55,121,133,.22)', borderRadius: 5, padding: '9px 12px', fontSize: 12.5, color: '#2C5A63', marginBottom: 14 } },
-              'After sign up, a manager will approve your account before you can log in. You will be notified.'
-            ),
-            React.createElement('button', {
-              onClick: signUp, disabled: loading,
-              style: { width: '100%', padding: '13px', background: loading ? '#E8F0F2' : '#377985', color: loading ? '#8BAAB0' : '#fff', border: 'none', borderRadius: 7, fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit' }
-            }, loading ? 'Creating account…' : 'Request Access')
+            field('Full Name', React.createElement('input', { type: 'text', value: suName, onChange: function(e){setSuName(e.target.value);setErr('');}, placeholder: 'Your full name', style: inp2 })),
+            field('Work Email', React.createElement('input', { type: 'email', value: suEmail, onChange: function(e){setSuEmail(e.target.value);setErr('');}, placeholder: 'you@mykarepoint.com', style: inp2 })),
+            field('Password', React.createElement('input', { type: 'password', value: suPw, onChange: function(e){setSuPw(e.target.value);setErr('');}, placeholder: 'Min. 8 characters', style: inp2 })),
+            field('Confirm Password', React.createElement('input', { type: 'password', value: suPw2, onChange: function(e){setSuPw2(e.target.value);setErr('');}, placeholder: 'Repeat password', style: inp2, onKeyDown: function(e){if(e.key==='Enter')signUp();} })),
+            React.createElement('div', { style: { background: 'rgba(55,121,133,.09)', border: '1px solid rgba(55,121,133,.22)', borderRadius: 5, padding: '9px 12px', fontSize: 12.5, color: '#2C5A63', marginBottom: 14 } }, 'After signing up, a manager will approve your account before you can log in.'),
+            React.createElement('button', { onClick: signUp, disabled: loading, style: { width: '100%', padding: '13px', background: loading ? '#E8F0F2' : '#377985', color: loading ? '#8BAAB0' : '#fff', border: 'none', borderRadius: 7, fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit' } }, loading ? 'Creating account…' : 'Request Access')
+          ),
+
+          // ── FORGOT PASSWORD ──
+          activeTab === 'forgot' && React.createElement('div', null,
+            React.createElement('p', { style: { fontSize: 13.5, color: '#5A7880', marginBottom: 16, lineHeight: 1.6 } }, 'Enter your @mykarepoint.com email and we\'ll send you a reset link.'),
+            field('Work Email', React.createElement('input', { type: 'email', value: forgotEmail, onChange: function(e){setForgotEmail(e.target.value);setErr('');}, placeholder: 'you@mykarepoint.com', style: inp2, onKeyDown: function(e){if(e.key==='Enter')sendReset();} })),
+            React.createElement('button', { onClick: sendReset, disabled: loading, style: { width: '100%', padding: '13px', background: loading ? '#E8F0F2' : '#377985', color: loading ? '#8BAAB0' : '#fff', border: 'none', borderRadius: 7, fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit', marginBottom: 12 } }, loading ? 'Sending…' : 'Send Reset Link'),
+            React.createElement('div', { style: { textAlign: 'center' } },
+              React.createElement('button', { onClick: function(){setActiveTab('signin');setErr('');setMsg('');}, style: { fontSize: 12, color: '#5A7880', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' } }, '← Back to Sign In')
+            )
+          ),
+
+          // ── RESET PASSWORD (from email link) ──
+          activeTab === 'reset' && React.createElement('div', null,
+            React.createElement('p', { style: { fontSize: 13.5, color: '#5A7880', marginBottom: 16, lineHeight: 1.6 } }, 'Enter your new password below.'),
+            field('New Password', React.createElement('input', { type: 'password', value: resetPw, onChange: function(e){setResetPw(e.target.value);setErr('');}, placeholder: 'Min. 8 characters', style: inp2 })),
+            field('Confirm New Password', React.createElement('input', { type: 'password', value: resetPw2, onChange: function(e){setResetPw2(e.target.value);setErr('');}, placeholder: 'Repeat new password', style: inp2, onKeyDown: function(e){if(e.key==='Enter')setNewPassword();} })),
+            React.createElement('button', { onClick: setNewPassword, disabled: loading, style: { width: '100%', padding: '13px', background: loading ? '#E8F0F2' : '#377985', color: loading ? '#8BAAB0' : '#fff', border: 'none', borderRadius: 7, fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit' } }, loading ? 'Updating…' : 'Set New Password')
           )
         )
       ),
