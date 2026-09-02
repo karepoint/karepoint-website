@@ -9482,7 +9482,10 @@ function Login(_ref39) {
       await fetch(SB_URL + '/auth/v1/recover', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
-        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() })
+        body: JSON.stringify({
+          email: forgotEmail.trim().toLowerCase(),
+          redirect_to: 'https://mykarepoint.com/kp'
+        })
       });
       setMsg('Reset link sent to ' + forgotEmail.trim().toLowerCase() + '. Check your inbox (and spam folder).');
     } catch(e) { setErr('Connection error. Try again.'); }
