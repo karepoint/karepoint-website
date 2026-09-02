@@ -9349,11 +9349,12 @@ function Login(_ref39) {
   var SB_URL = 'https://qjtudgtbiizoicuqexml.supabase.co';
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqdHVkZ3RiaWl6b2ljdXFleG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mjc4NTgsImV4cCI6MjEwMjMwMzg1OH0.zVil03S3rmiGJNGUvSg-AgBtVu3xuNQMaSNPKzNkDX0';
 
-  // Check URL for recovery token on mount
-  var urlParams = new URLSearchParams(window.location.search);
-  var recoveryToken = urlParams.get('token');
-  var recoveryType = urlParams.get('type');
-  var isRecovery = recoveryType === 'recovery' && !!recoveryToken;
+  // Supabase sends recovery session in URL hash after verifying the email link
+  // e.g. mykarepoint.com/kp#access_token=xxx&type=recovery
+  var hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  var hashType = hashParams.get('type');
+  var hashAccessToken = hashParams.get('access_token');
+  var isRecovery = hashType === 'recovery' && !!hashAccessToken;
 
   var _tab = React.useState(isRecovery ? 'reset' : 'signin');
   var activeTab = _tab[0], setActiveTab = _tab[1];
@@ -9374,7 +9375,7 @@ function Login(_ref39) {
   // Reset password state
   var _rp = React.useState(''); var resetPw = _rp[0], setResetPw = _rp[1];
   var _rp2 = React.useState(''); var resetPw2 = _rp2[0], setResetPw2 = _rp2[1];
-  var _rtoken = React.useState(recoveryToken || ''); var resetToken = _rtoken[0], setResetToken = _rtoken[1];
+  var _rtoken = React.useState(hashAccessToken || ''); var resetToken = _rtoken[0], setResetToken = _rtoken[1];
 
   var _err = React.useState(''); var err = _err[0], setErr = _err[1];
   var _msg = React.useState(''); var msg = _msg[0], setMsg = _msg[1];
@@ -9384,6 +9385,7 @@ function Login(_ref39) {
   // Clean recovery params from URL on mount
   React.useEffect(function() {
     if (isRecovery) {
+      // Clear the hash so the token isn't visible in the address bar
       window.history.replaceState(null, '', window.location.pathname);
     }
   }, []);
@@ -9499,49 +9501,46 @@ function Login(_ref39) {
     if (resetPw !== resetPw2) { setErr('Passwords do not match.'); return; }
     setLoading(true);
     try {
-      // Exchange recovery token for a session first
-      var verifyRes = await fetch(SB_URL + '/auth/v1/token?grant_type=recovery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
-        body: JSON.stringify({ token: resetToken })
-      });
-      var verifyData = await verifyRes.json();
-      if (!verifyData.access_token) {
-        setErr('This reset link has expired. Request a new one.');
+      // resetToken is already a valid access_token from the URL hash —
+      // Supabase verified the recovery link and gave us a session directly.
+      // Just use it to update the password immediately.
+      if (!resetToken) {
+        setErr('Reset link expired or invalid. Use Forgot Password to get a new one.');
         setLoading(false); return;
       }
-      // Update password using the session token
       var updateRes = await fetch(SB_URL + '/auth/v1/user', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + verifyData.access_token },
+        headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + resetToken },
         body: JSON.stringify({ password: resetPw })
       });
       var updateData = await updateRes.json();
       if (updateData.error) {
-        setErr(updateData.error_description || 'Failed to update password. Try again.');
+        setErr(updateData.error_description || 'Failed to update password. The link may have expired — use Forgot Password to get a new one.');
         setLoading(false); return;
       }
       setMsg('Password updated! Signing you in…');
       setResetPw(''); setResetPw2('');
-      // Auto sign in with new credentials
+      // Get user details from the session token and auto sign in
       setTimeout(async function() {
-        var email = verifyData.user?.email || '';
-        var authRes = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
-          body: JSON.stringify({ email: email, password: resetPw })
-        });
-        var authData = await authRes.json();
-        if (authData.access_token) {
-          var userRes = await fetch(SB_URL + '/rest/v1/users?email=ilike.' + encodeURIComponent(email) + '&limit=1', { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + authData.access_token } });
-          var rows = await userRes.json();
+        try {
+          var userRes = await fetch(SB_URL + '/auth/v1/user', {
+            headers: { apikey: SB_KEY, Authorization: 'Bearer ' + resetToken }
+          });
+          var authUser = await userRes.json();
+          var userEmail = authUser.email || '';
+          var dbRes = await fetch(SB_URL + '/rest/v1/users?email=ilike.' + encodeURIComponent(userEmail) + '&limit=1', {
+            headers: { apikey: SB_KEY, Authorization: 'Bearer ' + resetToken }
+          });
+          var rows = await dbRes.json();
           if (rows && rows.length > 0) {
             var u = rows[0];
-            onLogin({ ...u, name: u.full_name || u.name, tier: u.trust_tier || 1, token: authData.access_token, sso: false });
+            onLogin({ ...u, name: u.full_name || u.name, tier: u.trust_tier || 1, token: resetToken, sso: false });
           } else {
+            setMsg('Password updated! Please sign in.');
             setActiveTab('signin');
           }
-        } else {
+        } catch(e) {
+          setMsg('Password updated! Please sign in.');
           setActiveTab('signin');
         }
       }, 1200);
