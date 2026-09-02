@@ -9423,17 +9423,47 @@ function Login(_ref39) {
         headers: { apikey: SB_KEY, Authorization: 'Bearer ' + token }
       });
       var rows = await userRes.json();
+      var emailLower = email.trim().toLowerCase();
+      var isCEO = emailLower === 'suvraneelm@mykarepoint.com';
+
       if (rows && rows.length > 0) {
         var u = rows[0];
+        // CEO always bypasses approval — auto-fix row if somehow pending
+        if (isCEO && (u.status || '').toLowerCase() !== 'active') {
+          await fetch(SB_URL + '/rest/v1/users?email=ilike.' + encodeURIComponent(emailLower), {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + token, Prefer: 'return=minimal' },
+            body: JSON.stringify({ status: 'active', role: 'ceo', team: 'admin', trust_tier: 3 })
+          });
+          u = { ...u, status: 'active', role: 'ceo', team: 'admin', trust_tier: 3 };
+        }
         if ((u.status || '').toLowerCase() === 'pending') {
           setErr('Your account is pending approval. Contact suvraneelm@mykarepoint.com.');
           setLoading(false); return;
         }
         onLogin({ ...u, name: u.full_name || u.name, tier: u.trust_tier || 1, token, sso: false });
       } else {
-        var newUser = { id: authData.user.id, full_name: authData.user.user_metadata?.full_name || email.split('@')[0], email: email.trim().toLowerCase(), role: 'vob_agent', team: 'vob', trust_tier: 1, status: 'pending' };
-        await fetch(SB_URL + '/rest/v1/users', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + token, Prefer: 'return=minimal' }, body: JSON.stringify(newUser) });
-        setErr('Your account is pending approval. Contact suvraneelm@mykarepoint.com.');
+        // No users row — create one
+        var newRole = isCEO ? 'ceo' : 'vob_agent';
+        var newTeam = isCEO ? 'admin' : 'vob';
+        var newTier = isCEO ? 3 : 1;
+        var newStatus = isCEO ? 'active' : 'pending';
+        var newUser = {
+          id: authData.user.id,
+          full_name: authData.user.user_metadata?.full_name || emailLower.split('@')[0],
+          email: emailLower,
+          role: newRole, team: newTeam, trust_tier: newTier, status: newStatus
+        };
+        await fetch(SB_URL + '/rest/v1/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + token, Prefer: 'return=minimal' },
+          body: JSON.stringify(newUser)
+        });
+        if (isCEO) {
+          onLogin({ ...newUser, name: newUser.full_name, tier: 3, token, sso: false });
+        } else {
+          setErr('Your account is pending approval. Contact suvraneelm@mykarepoint.com.');
+        }
       }
     } catch(e) { setErr('Connection error. Try again.'); }
     setLoading(false);
@@ -9534,7 +9564,16 @@ function Login(_ref39) {
           var rows = await dbRes.json();
           if (rows && rows.length > 0) {
             var u = rows[0];
-            onLogin({ ...u, name: u.full_name || u.name, tier: u.trust_tier || 1, token: resetToken, sso: false });
+            // Auto-fix CEO if somehow pending
+            if (u.email === 'suvraneelm@mykarepoint.com') {
+              u = { ...u, status: 'active', role: 'ceo', team: 'admin', trust_tier: 3 };
+            }
+            if ((u.status || '').toLowerCase() === 'pending') {
+              setMsg('Password updated! Your account is pending approval.');
+              setActiveTab('signin');
+            } else {
+              onLogin({ ...u, name: u.full_name || u.name, tier: u.trust_tier || 1, token: resetToken, sso: false });
+            }
           } else {
             setMsg('Password updated! Please sign in.');
             setActiveTab('signin');
