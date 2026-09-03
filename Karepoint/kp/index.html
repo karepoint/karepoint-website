@@ -11516,6 +11516,365 @@ function AgentQueue(_ref44) {
 }
 
 // ─── Team View (manager only) ─────────────────────────────────────
+// ─── User Admin Panel ─────────────────────────────────────────────
+function UserAdminPanel(_ref_uap) {
+  var currentUser = _ref_uap.user, setToast = _ref_uap.setToast;
+
+  var _s1 = useState([]), users = _s1[0], setUsers = _s1[1];
+  var _s2 = useState('all'), filter = _s2[0], setFilter = _s2[1];
+  var _s3 = useState(false), showCreate = _s3[0], setShowCreate = _s3[1];
+  var _s4 = useState(null), editUser = _s4[0], setEditUser = _s4[1];
+  var _s5 = useState(null), confirmDeact = _s5[0], setConfirmDeact = _s5[1];
+  var _s6 = useState(null), tempPw = _s6[0], setTempPw = _s6[1];
+  var _s7 = useState(false), loading = _s7[0], setLoading = _s7[1];
+  var _s8 = useState({ name: '', email: '', role: 'vob_agent', tier: 1 }), form = _s8[0], setForm = _s8[1];
+
+  var loadUsers = function() {
+    sb.get('users', 'order=full_name.asc').then(function(rows) {
+      if (rows && rows.length > 0) {
+        setUsers(rows.map(function(u) {
+          return Object.assign({}, u, { name: u.full_name || u.name, tier: u.trust_tier || 1 });
+        }));
+      }
+    });
+  };
+  useEffect(function() { loadUsers(); }, []);
+
+  var genPw = function() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+    return Array.from({ length: 12 }, function() { return chars[Math.floor(Math.random() * chars.length)]; }).join('');
+  };
+
+  var teamMap = { ceo: 'admin', coo: 'admin', vob_manager: 'vob', vob_agent: 'vob', pa_agent: 'pa_ur' };
+
+  var createUser = function() {
+    if (!form.name.trim() || !form.email.trim()) { setToast({ msg: 'Name and email are required', type: 'error' }); return; }
+    var rawEmail = form.email.trim().toLowerCase();
+    var email = rawEmail.includes('@') ? rawEmail : rawEmail + '@mykarepoint.com';
+    if (!email.endsWith('@mykarepoint.com')) { setToast({ msg: 'Email must be @mykarepoint.com', type: 'error' }); return; }
+    setLoading(true);
+    var pw = genPw();
+    fetch(SB_URL + '/auth/v1/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
+      body: JSON.stringify({ email: email, password: pw, data: { full_name: form.name.trim() } })
+    }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+      if (!res.ok || !res.data.user) {
+        var msg = res.data.msg || res.data.error_description || res.data.message || 'Signup failed — user may already exist';
+        setToast({ msg: msg, type: 'error' }); setLoading(false); return;
+      }
+      return sb.post('users', {
+        id: res.data.user.id,
+        full_name: form.name.trim(),
+        email: email,
+        role: form.role,
+        team: teamMap[form.role] || 'vob',
+        trust_tier: form.tier,
+        status: 'active'
+      }).then(function() {
+        setTempPw({ email: email, pw: pw });
+        setShowCreate(false);
+        setForm({ name: '', email: '', role: 'vob_agent', tier: 1 });
+        setToast({ msg: form.name.trim() + ' created', type: 'success' });
+        setLoading(false);
+        loadUsers();
+      });
+    }).catch(function(err) {
+      setToast({ msg: 'Network error: ' + err.message, type: 'error' }); setLoading(false);
+    });
+  };
+
+  var saveEdit = function() {
+    if (!editUser) return;
+    setLoading(true);
+    sb.patch('users', editUser.id, {
+      full_name: editUser.name,
+      role: editUser.role,
+      team: teamMap[editUser.role] || 'vob',
+      trust_tier: editUser.tier,
+      status: editUser.status || 'active'
+    }).then(function() {
+      setToast({ msg: 'User updated', type: 'success' });
+      setEditUser(null); setLoading(false); loadUsers();
+    });
+  };
+
+  var deactivate = function(u) {
+    sb.patch('users', u.id, { status: 'inactive' }).then(function() {
+      setToast({ msg: u.name + ' deactivated', type: 'success' });
+      setConfirmDeact(null); loadUsers();
+    });
+  };
+
+  var reactivate = function(u) {
+    sb.patch('users', u.id, { status: 'active' }).then(function() {
+      setToast({ msg: u.name + ' reactivated', type: 'success' }); loadUsers();
+    });
+  };
+
+  var resetPw = function(u) {
+    fetch(SB_URL + '/auth/v1/recover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SB_KEY },
+      body: JSON.stringify({ email: u.email, redirect_to: 'https://mykarepoint.com/kp' })
+    }).then(function() { setToast({ msg: 'Password reset email sent to ' + u.email, type: 'success' }); });
+  };
+
+  var counts = {
+    all: users.length,
+    active: users.filter(function(u) { return (u.status||'').toLowerCase() === 'active'; }).length,
+    pending: users.filter(function(u) { return (u.status||'').toLowerCase() === 'pending'; }).length,
+    inactive: users.filter(function(u) { return (u.status||'').toLowerCase() === 'inactive'; }).length
+  };
+  var filtered = users.filter(function(u) {
+    if (filter === 'all') return true;
+    return (u.status||'active').toLowerCase() === filter;
+  });
+
+  var statusCfg = function(s) {
+    var m = { active:{color:C.green,bg:C.greenTint,label:'Active'}, pending:{color:'#8A6D28',bg:C.sandTint,label:'Pending'}, inactive:{color:C.ink4,bg:C.paper2,label:'Inactive'} };
+    return m[(s||'active').toLowerCase()] || m.active;
+  };
+  var tierColor = function(t) { return t===3?C.green:t===2?C.teal:C.sand; };
+  var initials = function(n) { return (n||'?').split(' ').map(function(x){return x[0];}).join('').slice(0,2).toUpperCase(); };
+
+  var btnBase = { border: 'none', borderRadius: 6, padding: '6px 11px', cursor: 'pointer', fontSize: 12, fontFamily: FM, fontWeight: 600 };
+  var inputStyle = { width: '100%', padding: '9px 11px', borderRadius: 7, border: '1.5px solid ' + C.line, fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', background: C.white };
+  var labelStyle = { fontSize: 11, fontFamily: FM, color: C.ink3, fontWeight: 600, letterSpacing: '.05em', display: 'block', marginBottom: 5, textTransform: 'uppercase' };
+  var modalOverlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
+  var modalBox = { background: C.white, borderRadius: 12, padding: 28, width: '90%', maxWidth: 420, boxShadow: '0 8px 40px rgba(0,0,0,.18)' };
+
+  var TierPicker = function(props) {
+    return React.createElement('div', { style: { display: 'flex', gap: 8 } },
+      [1,2,3].map(function(n) {
+        var ti = TIERS[n];
+        return React.createElement('button', {
+          key: n, onClick: function() { props.onChange(n); }, title: ti.desc,
+          style: Object.assign({}, { flex:1, padding:'8px 4px', borderRadius:7, cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:FM, textAlign:'center',
+            border: '2px solid ' + (props.value===n ? ti.color : C.line2),
+            background: props.value===n ? ti.bg : C.white,
+            color: props.value===n ? ti.color : C.ink4
+          })
+        }, 'T' + n + ' · ' + (ti.label.split('—')[1]||'').trim());
+      })
+    );
+  };
+
+  return React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 16 } },
+    // ── Header ──
+    React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 } },
+      React.createElement('div', null,
+        React.createElement('div', { style: { fontSize: 16, fontWeight: 700, color: C.ink } }, 'User Management'),
+        React.createElement('div', { style: { fontSize: 12, color: C.ink4, marginTop: 2 } }, counts.all + ' total · ' + counts.active + ' active · ' + counts.pending + ' pending')
+      ),
+      React.createElement('button', {
+        onClick: function() { setShowCreate(true); },
+        style: { background: C.teal, color: '#fff', border: 'none', borderRadius: 7, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: FM }
+      }, '+ Create User')
+    ),
+
+    // ── Filter Tabs ──
+    React.createElement('div', { style: { display: 'flex', gap: 0, borderBottom: '1px solid ' + C.line } },
+      ['all','active','pending','inactive'].map(function(f) {
+        return React.createElement('button', {
+          key: f, onClick: function() { setFilter(f); },
+          style: { background: 'none', border: 'none', borderBottom: filter===f ? ('2px solid ' + C.teal) : '2px solid transparent',
+            color: filter===f ? C.teal : C.ink3, fontFamily: FM, fontSize: 11, fontWeight: 600,
+            letterSpacing: '.05em', cursor: 'pointer', padding: '6px 12px', marginBottom: -1, textTransform: 'uppercase' }
+        }, f.charAt(0).toUpperCase()+f.slice(1) + ' (' + counts[f] + ')');
+      })
+    ),
+
+    // ── User List ──
+    React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
+      filtered.length === 0
+        ? React.createElement('div', { style: { textAlign: 'center', color: C.ink4, padding: '32px 0', fontSize: 14 } }, 'No users found')
+        : filtered.map(function(u) {
+            var sc = statusCfg(u.status);
+            var isInactive = (u.status||'').toLowerCase() === 'inactive';
+            var isCeo = u.email === 'suvraneelm@mykarepoint.com';
+            var rl = (ROLE_OPTIONS_DATA||[]).find(function(r){return r.v===u.role;})||{l:u.role||''};
+            return React.createElement('div', {
+              key: u.id,
+              style: { background: isInactive ? C.paper2 : C.white, border: '1px solid ' + C.line, borderRadius: 8, padding: '12px 14px', opacity: isInactive ? 0.7 : 1 }
+            },
+              React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' } },
+                React.createElement('div', {
+                  style: { width:40, height:40, borderRadius:'50%', background: isInactive?C.line2:C.tealDD, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:14, fontWeight:700, flexShrink:0 }
+                }, initials(u.name)),
+                React.createElement('div', { style: { flex:1, minWidth:120 } },
+                  React.createElement('div', { style: { display:'flex', alignItems:'center', gap:6, flexWrap:'wrap', marginBottom:2 } },
+                    React.createElement('span', { style: { fontSize:14, fontWeight:600, color:C.ink } }, u.name),
+                    React.createElement(Badge, { label: sc.label, color: sc.color, bg: sc.bg, border: sc.color+'33' }),
+                    React.createElement('span', { style: { fontFamily:FM, fontSize:9.5, fontWeight:700, color:tierColor(u.tier), border:'1.5px solid '+tierColor(u.tier)+'33', borderRadius:4, padding:'1px 6px' } }, 'T'+u.tier),
+                    React.createElement('span', { style: { fontFamily:FM, fontSize:9.5, fontWeight:600, color:C.ink4, background:C.paper2, border:'1px solid '+C.line2, borderRadius:4, padding:'1px 6px' } }, rl.l)
+                  ),
+                  React.createElement('div', { style: { fontSize:12, color:C.ink4 } }, u.email)
+                ),
+                React.createElement('div', { style: { display:'flex', gap:6, flexShrink:0, flexWrap:'wrap' } },
+                  React.createElement('button', {
+                    onClick: function() { setEditUser(Object.assign({},u)); }, title:'Edit',
+                    style: Object.assign({}, btnBase, { background:C.tealL, border:'1px solid '+C.tealLine, color:C.teal })
+                  }, '✏ Edit'),
+                  React.createElement('button', {
+                    onClick: function() { resetPw(u); }, title:'Send password reset',
+                    style: Object.assign({}, btnBase, { background:C.paper2, border:'1px solid '+C.line2, color:C.ink3 })
+                  }, '🔑 Reset PW'),
+                  isInactive
+                    ? React.createElement('button', {
+                        onClick: function() { reactivate(u); },
+                        style: Object.assign({}, btnBase, { background:C.greenTint, border:'1px solid '+C.greenLine, color:C.green })
+                      }, '↑ Activate')
+                    : (!isCeo && React.createElement('button', {
+                        onClick: function() { setConfirmDeact(u); },
+                        style: Object.assign({}, btnBase, { background:'#FFF0F0', border:'1px solid #FFCCCC', color:'#CC3333' })
+                      }, '⊘ Deactivate'))
+                )
+              )
+            );
+          })
+    ),
+
+    // ── Create User Modal ──
+    showCreate && React.createElement('div', { style: modalOverlay, onClick: function(e){ if(e.target===e.currentTarget)setShowCreate(false); } },
+      React.createElement('div', { style: modalBox },
+        React.createElement('div', { style: { display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 } },
+          React.createElement('div', { style: { fontSize:16, fontWeight:700, color:C.ink } }, 'Create New User'),
+          React.createElement('button', { onClick:function(){setShowCreate(false);}, style:{background:'none',border:'none',fontSize:20,cursor:'pointer',color:C.ink4} }, '×')
+        ),
+        React.createElement('div', { style:{marginBottom:14} },
+          React.createElement('label', { style: labelStyle }, 'Full Name'),
+          React.createElement('input', { value:form.name, onChange:function(e){setForm(Object.assign({},form,{name:e.target.value}));}, placeholder:'e.g. Priya Sharma', style:inputStyle })
+        ),
+        React.createElement('div', { style:{marginBottom:14} },
+          React.createElement('label', { style: labelStyle }, 'Email'),
+          React.createElement('div', { style:{display:'flex',alignItems:'center',border:'1.5px solid '+C.line,borderRadius:7,overflow:'hidden'} },
+            React.createElement('input', { value:form.email, onChange:function(e){setForm(Object.assign({},form,{email:e.target.value}));}, placeholder:'username', style:{flex:1,padding:'9px 11px',border:'none',fontSize:14,fontFamily:'inherit',outline:'none'} }),
+            React.createElement('span', { style:{padding:'9px 10px',background:C.paper2,fontSize:13,color:C.ink4,borderLeft:'1px solid '+C.line} }, '@mykarepoint.com')
+          ),
+          React.createElement('div', { style:{fontSize:11,color:C.ink4,marginTop:4} }, 'Username only — domain added automatically')
+        ),
+        React.createElement('div', { style:{marginBottom:14} },
+          React.createElement('label', { style: labelStyle }, 'Role'),
+          React.createElement('select', { value:form.role, onChange:function(e){setForm(Object.assign({},form,{role:e.target.value}));}, style:Object.assign({},inputStyle,{cursor:'pointer'}) },
+            (ROLE_OPTIONS_DATA||[]).map(function(r){ return React.createElement('option',{key:r.v,value:r.v},r.l); })
+          )
+        ),
+        React.createElement('div', { style:{marginBottom:22} },
+          React.createElement('label', { style: labelStyle }, 'Trust Tier'),
+          React.createElement(TierPicker, { value:form.tier, onChange:function(n){setForm(Object.assign({},form,{tier:n}));} })
+        ),
+        React.createElement('div', { style:{display:'flex',gap:10,justifyContent:'flex-end'} },
+          React.createElement('button', { onClick:function(){setShowCreate(false);}, style:Object.assign({},btnBase,{padding:'9px 18px',fontSize:13,background:C.paper2,border:'1px solid '+C.line,color:C.ink}) }, 'Cancel'),
+          React.createElement('button', { onClick:createUser, disabled:loading, style:Object.assign({},btnBase,{padding:'9px 20px',fontSize:13,background:loading?C.line2:C.teal,color:'#fff',cursor:loading?'default':'pointer'}) }, loading?'Creating…':'Create & Activate')
+        )
+      )
+    ),
+
+    // ── Edit User Modal ──
+    editUser && React.createElement('div', { style: modalOverlay, onClick:function(e){if(e.target===e.currentTarget)setEditUser(null);} },
+      React.createElement('div', { style: Object.assign({},modalBox,{maxWidth:400}) },
+        React.createElement('div', { style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20} },
+          React.createElement('div', { style:{fontSize:16,fontWeight:700,color:C.ink} }, 'Edit: ' + editUser.name),
+          React.createElement('button', { onClick:function(){setEditUser(null);}, style:{background:'none',border:'none',fontSize:20,cursor:'pointer',color:C.ink4} }, '×')
+        ),
+        React.createElement('div', { style:{marginBottom:14} },
+          React.createElement('label', { style:labelStyle }, 'Full Name'),
+          React.createElement('input', { value:editUser.name, onChange:function(e){setEditUser(Object.assign({},editUser,{name:e.target.value}));}, style:inputStyle })
+        ),
+        React.createElement('div', { style:{marginBottom:14} },
+          React.createElement('label', { style:labelStyle }, 'Role'),
+          React.createElement('select', {
+            value:editUser.role,
+            onChange:function(e){setEditUser(Object.assign({},editUser,{role:e.target.value}));},
+            disabled: editUser.email==='suvraneelm@mykarepoint.com',
+            style:Object.assign({},inputStyle,{cursor:'pointer'})
+          }, (ROLE_OPTIONS_DATA||[]).map(function(r){return React.createElement('option',{key:r.v,value:r.v},r.l);}))
+        ),
+        React.createElement('div', { style:{marginBottom:14} },
+          React.createElement('label', { style:labelStyle }, 'Trust Tier'),
+          React.createElement(TierPicker, { value:editUser.tier, onChange:function(n){setEditUser(Object.assign({},editUser,{tier:n}));} })
+        ),
+        React.createElement('div', { style:{marginBottom:22} },
+          React.createElement('label', { style:labelStyle }, 'Status'),
+          React.createElement('select', {
+            value: editUser.status||'active',
+            onChange:function(e){setEditUser(Object.assign({},editUser,{status:e.target.value}));},
+            disabled: editUser.email==='suvraneelm@mykarepoint.com',
+            style:Object.assign({},inputStyle,{cursor:'pointer'})
+          },
+            React.createElement('option',{value:'active'},'Active'),
+            React.createElement('option',{value:'pending'},'Pending'),
+            React.createElement('option',{value:'inactive'},'Inactive')
+          )
+        ),
+        React.createElement('div', { style:{display:'flex',gap:10,justifyContent:'flex-end'} },
+          React.createElement('button', { onClick:function(){setEditUser(null);}, style:Object.assign({},btnBase,{padding:'9px 18px',fontSize:13,background:C.paper2,border:'1px solid '+C.line,color:C.ink}) }, 'Cancel'),
+          React.createElement('button', { onClick:saveEdit, disabled:loading, style:Object.assign({},btnBase,{padding:'9px 20px',fontSize:13,background:loading?C.line2:C.teal,color:'#fff',cursor:loading?'default':'pointer'}) }, loading?'Saving…':'Save Changes')
+        )
+      )
+    ),
+
+    // ── Confirm Deactivate Modal ──
+    confirmDeact && React.createElement('div', { style: modalOverlay },
+      React.createElement('div', { style: Object.assign({},modalBox,{maxWidth:360}) },
+        React.createElement('div', { style:{fontSize:16,fontWeight:700,color:C.ink,marginBottom:10} }, 'Deactivate User?'),
+        React.createElement('div', { style:{fontSize:14,color:C.ink3,marginBottom:20} }, confirmDeact.name + ' will lose access immediately. You can reactivate them at any time.'),
+        React.createElement('div', { style:{display:'flex',gap:10,justifyContent:'flex-end'} },
+          React.createElement('button', { onClick:function(){setConfirmDeact(null);}, style:Object.assign({},btnBase,{padding:'9px 18px',fontSize:13,background:C.paper2,border:'1px solid '+C.line,color:C.ink}) }, 'Cancel'),
+          React.createElement('button', { onClick:function(){deactivate(confirmDeact);}, style:Object.assign({},btnBase,{padding:'9px 20px',fontSize:13,background:'#CC3333',color:'#fff'}) }, 'Deactivate')
+        )
+      )
+    ),
+
+    // ── Temp Password Display ──
+    tempPw && React.createElement('div', { style: modalOverlay },
+      React.createElement('div', { style: Object.assign({},modalBox,{maxWidth:400}) },
+        React.createElement('div', { style:{fontSize:16,fontWeight:700,color:C.green,marginBottom:6} }, '✓ User Created Successfully'),
+        React.createElement('div', { style:{fontSize:13,color:C.ink3,marginBottom:16} }, 'Share these credentials with the new user. The password will not be shown again.'),
+        React.createElement('div', { style:{background:C.paper2,borderRadius:8,padding:16,marginBottom:14} },
+          React.createElement('div', { style:{fontSize:11,fontFamily:FM,color:C.ink4,marginBottom:4,letterSpacing:'.05em',textTransform:'uppercase'} }, 'Email'),
+          React.createElement('div', { style:{fontSize:14,fontWeight:600,color:C.ink,marginBottom:12} }, tempPw.email),
+          React.createElement('div', { style:{fontSize:11,fontFamily:FM,color:C.ink4,marginBottom:6,letterSpacing:'.05em',textTransform:'uppercase'} }, 'Temp Password'),
+          React.createElement('div', { style:{display:'flex',alignItems:'center',gap:10} },
+            React.createElement('div', { style:{fontSize:18,fontWeight:700,fontFamily:FM,color:C.teal,letterSpacing:'.1em',flex:1} }, tempPw.pw),
+            React.createElement('button', {
+              onClick: function(){navigator.clipboard.writeText(tempPw.pw).then(function(){});},
+              style:Object.assign({},btnBase,{background:C.tealL,border:'1px solid '+C.tealLine,color:C.teal,padding:'5px 10px'})
+            }, 'Copy')
+          )
+        ),
+        React.createElement('div', { style:{fontSize:12,color:'#8A6D28',background:C.sandTint,border:'1px solid '+C.sandLine,borderRadius:7,padding:'10px 14px',marginBottom:16} },
+          '⚠ The user needs to confirm their email before first login. Ask them to check their inbox at ' + tempPw.email + '.'
+        ),
+        React.createElement('button', {
+          onClick:function(){setTempPw(null);},
+          style:{width:'100%',background:C.teal,color:'#fff',border:'none',borderRadius:7,padding:'10px',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:FM}
+        }, 'Done — I\'ve copied the credentials')
+      )
+    )
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+var ROLE_OPTIONS_DATA = [{
+  v: 'ceo',
+  l: 'CEO'
+}, {
+  v: 'coo',
+  l: 'COO'
+}, {
+  v: 'vob_manager',
+  l: 'VOB Manager'
+}, {
+  v: 'vob_agent',
+  l: 'VOB Agent'
+}, {
+  v: 'pa_agent',
+  l: 'PA Agent'
+}];
+
 var ROLE_OPTIONS = [{
   v: 'ceo',
   l: 'CEO'
@@ -11534,7 +11893,8 @@ var ROLE_OPTIONS = [{
 }];
 function TeamView(_ref45) {
   var vobs = _ref45.vobs,
-    setToast = _ref45.setToast;
+    setToast = _ref45.setToast,
+    user = _ref45.user;
   var _useState163 = useState(function () {
       return Object.fromEntries(AGENTS.map(function (a) {
         return [a.id, a.tier || 1];
@@ -11570,6 +11930,10 @@ function TeamView(_ref45) {
   useEffect(function () {
     load();
   }, []);
+  var _adminTabState = useState('team'),
+    _adminTabState2 = _slicedToArray(_adminTabState, 2),
+    adminTab = _adminTabState2[0],
+    setAdminTab = _adminTabState2[1];
   var setTier = /*#__PURE__*/function () {
     var _setTier = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee40(agentId, tier) {
       return _regenerator().w(function (_context41) {
@@ -11638,13 +12002,43 @@ function TeamView(_ref45) {
     }
     return setRole;
   }();
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 8
-    }
-  }, teamUsers.map(function (u) {
+  var _isAdminUser = isAdmin(user);
+  return /*#__PURE__*/React.createElement("div", null,
+    _isAdminUser && React.createElement("div", {
+      style: { display: 'flex', gap: 0, borderBottom: '1px solid ' + C.line, marginBottom: 16 }
+    },
+      React.createElement("button", {
+        onClick: function() { setAdminTab('team'); },
+        style: {
+          background: 'none', border: 'none',
+          borderBottom: adminTab === 'team' ? ('2px solid ' + C.teal) : '2px solid transparent',
+          color: adminTab === 'team' ? C.teal : C.ink3,
+          fontFamily: FM, fontSize: 12, fontWeight: 600,
+          letterSpacing: '.05em', cursor: 'pointer', padding: '8px 16px',
+          marginBottom: -1, textTransform: 'uppercase'
+        }
+      }, 'Team Overview'),
+      React.createElement("button", {
+        onClick: function() { setAdminTab('admin'); },
+        style: {
+          background: 'none', border: 'none',
+          borderBottom: adminTab === 'admin' ? ('2px solid ' + C.teal) : '2px solid transparent',
+          color: adminTab === 'admin' ? C.teal : C.ink3,
+          fontFamily: FM, fontSize: 12, fontWeight: 600,
+          letterSpacing: '.05em', cursor: 'pointer', padding: '8px 16px',
+          marginBottom: -1, textTransform: 'uppercase'
+        }
+      }, 'User Admin')
+    ),
+    (_isAdminUser && adminTab === 'admin')
+      ? React.createElement(UserAdminPanel, { user: user, setToast: setToast })
+      : /*#__PURE__*/React.createElement("div", {
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8
+          }
+        }, teamUsers.map(function (u) {
     var tier = agentTiers[u.id] || u.tier || u.trust_tier || 1;
     var t = TIERS[tier];
     var myVobs = vobs.filter(function (v) {
@@ -12371,7 +12765,8 @@ function KPApp() {
     setToast: setToast
   })), page === 'team' && mgr && /*#__PURE__*/React.createElement(TeamView, {
     vobs: vobs,
-    setToast: setToast
+    setToast: setToast,
+    user: user
   }), page === 'payers' && (mgr ? /*#__PURE__*/React.createElement(PayerDirectoryPage, null) : /*#__PURE__*/React.createElement(PayerDirectoryReadOnly, null)), page === 'facilities' && mgr && /*#__PURE__*/React.createElement(FacilityDirectoryPage, null), page === 'formbuilder' && mgr && /*#__PURE__*/React.createElement(FormBuilderPage, null))), toast && /*#__PURE__*/React.createElement(Toast, {
     msg: toast.msg,
     type: toast.type
